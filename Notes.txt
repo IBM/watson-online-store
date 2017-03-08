@@ -1,0 +1,3 @@
+Install Cloudant:
+  https://github.com/cloudant/python-cloudant
+
