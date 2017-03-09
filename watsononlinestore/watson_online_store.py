@@ -134,6 +134,11 @@ class WatsonOnlineStore:
 
     def handle_message(self, message, channel):
         """ Handler for messages.
+            param: message from UI (slackbot)
+            param: channel
+
+            returns True if UI(slackbot) input is required
+            returns False if we want app processing and no input
         """
 
         watson_response = self.get_watson_response(message)
@@ -165,6 +170,11 @@ class WatsonOnlineStore:
             'state' in self.context.keys() and
             self.context['state'] == 'AddName'):
             return self.handle_AddName()
+
+        if ('send_no_input' in self.context.keys() and
+            self.context['send_no_input'] == 'yes'):
+            return False
+
         return True
 
 
