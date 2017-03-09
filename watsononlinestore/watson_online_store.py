@@ -3,6 +3,19 @@ import time
 
 DEBUG=True
 
+class OnlineStoreCustomer:
+    def __init__(self, email=None, first_name=None, last_name=None,
+                 purchase_history=None, favorites=None,
+                 logged_in=False):
+
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.purchase_history = purchase_history
+        self.favorites = favorites
+        self.logged_in = logged_in
+
+ 
 class WatsonOnlineStore:
     def __init__(self, bot_id, slack_client,
                  conversation_client, cloudant_online_store):
@@ -20,14 +33,6 @@ class WatsonOnlineStore:
         self.context['email'] = None
         self.context['send_no_input'] = 'no'
         self.context['logged_in'] = False
-
-    #stub method for DB call
-    def get_fake_user(self, email):
-        fake1={"user":"Scott",
-               "suggestion":"You seem to like shoes. Want to look at our selection",
-               "logged_in": True
-              }
-        return fake1
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
@@ -51,7 +56,6 @@ class WatsonOnlineStore:
         self.slack_client.api_call("chat.postMessage",
                                    channel=channel,
                                    text=response, as_user=True)
-
 
     def cleanup_email(self, slack_response):
         email_addr = slack_response.split("|")[1]
@@ -112,10 +116,18 @@ class WatsonOnlineStore:
 
 
     def add_test_users_to_DB(self):
-        self.cloudant_online_store.add_customer("scott@gmail.com","Scott","DA","foo","bar")
-        self.cloudant_online_store.add_customer("rich@gmail.com","Rich","Hagarty","foo","bar")
-        self.cloudant_online_store.add_customer("mark@gmail.com","Mark","Stur","foo","bar")
-        self.cloudant_online_store.add_customer("steve@gmail.com","Steve","Martinelli","foo","bar")
+        molly = OnlineStoreCustomer(email="molly@gmail.com", first_name="Molly",
+                                    last_name="DA", purchase_history="abc123",
+                                    favorites="shoes", logged_in=True)
+        self.cloudant_online_store.add_customer_obj(molly)
+        scott = OnlineStoreCustomer(email="scott@gmail.com", first_name="Scott",
+                                    last_name="Smith", purchase_history="cba321",
+                                    favorites="pants", logged_in=True)
+        self.cloudant_online_store.add_customer_obj(scott)
+        mark = OnlineStoreCustomer(email="mark@gmail.com", first_name="Mark",
+                                    last_name="Jones", purchase_history="xyz123",
+                                    favorites="shirts", logged_in=True)
+        self.cloudant_online_store.add_customer_obj(mark)
 
     def run(self):
         # make sure DB exists
