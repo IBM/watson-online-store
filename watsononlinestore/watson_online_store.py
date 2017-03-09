@@ -33,6 +33,8 @@ class WatsonOnlineStore:
         self.context['email'] = None
         self.context['send_no_input'] = 'no'
         self.context['logged_in'] = False
+ 
+        self.customer = None
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
@@ -83,6 +85,46 @@ class WatsonOnlineStore:
             print("DB.\n context:{}\n".format(self.context))
         return False
 
+    def handle_lookupAndAddEmail(self):
+        """ Verify email is not in DB and add to DB.
+        """
+        email_addr = str(self.context['email'])
+        if "mailto" in email_addr:
+            email_addr = self.cleanup_email(email_addr)
+        if DEBUG:
+            print("DB.\n email_addr:{}\n".format(email_addr))
+        existing_user = self.cloudant_online_store.find_customer(email_addr)
+        if DEBUG:
+            print("DB.\n existing_user:{}\n".format(existing_user))
+        if existing_user:
+            #return some error
+            return False
+        
+        # start to create the customer, add to DB when complete
+        self.customer = OnlineStoreCustomer(email=email_addr)
+
+        return True
+
+    def handle_AddName(self):
+        """ Add User Name to existing OnlineStoreCustomer
+        """
+        full_name = str(self.context['full_name'])
+        first, last = full_name.split()
+        self.customer.first_name = first
+        self.customer.last_name = last 
+
+        # TODO continue to ask for favorites and remove next lines, maybe,
+        #  but not for now.
+        self.customer.logged_in = True
+        self.context['logged_in'] = False
+        #logged_in = {'logged_in': True}
+        self.context = self.context_merge(self.context, logged_in)
+        if DEBUG:
+            print("AddName context:\n{}".format(self.context))
+        self.cloudant_online_store.add_customer_obj(self.customer)
+
+        return True
+        
     def get_watson_response(self, message):
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
@@ -112,6 +154,17 @@ class WatsonOnlineStore:
             self.context['email']):
             return self.handle_db_lookup()
 
+        if ('intent' in self.context.keys() and
+            self.context['intent'] == 'CreateUserAccount' and
+            'state' in self.context.keys() and
+            self.context['state'] == 'lookupAndAddEmail'):
+            return self.handle_lookupAndAddEmail()
+
+        if ('intent' in self.context.keys() and
+            self.context['intent'] == 'CreateUserAccount' and
+            'state' in self.context.keys() and
+            self.context['state'] == 'AddName'):
+            return self.handle_AddName()
         return True
 
 
