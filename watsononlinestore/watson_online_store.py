@@ -57,11 +57,40 @@ class WatsonOnlineStore:
         email_addr = slack_response.split("|")[1]
         return email_addr.replace(">","")
 
-    def handle_message(self, message, channel):
-        watson_response = self.conversation_client.message(
+    def handle_db_lookup(self):
+        """ Go to the DB and look up the user.
+        """
+        if DEBUG:
+            print("DB lookup:\n{}".format(self.context['email']))
+        email_addr = str(self.context['email'])
+        if "mailto" in email_addr:
+            email_addr = self.cleanup_email(email_addr)
+        if DEBUG:
+            print("DB.\n email_addr:{}\n".format(email_addr))
+        user_data = self.cloudant_online_store.find_customer(email_addr)
+        if DEBUG:
+            print("DB.\n user_data:{}\n".format(user_data))
+
+        if not user_data:
+            return True
+        #Merge data from DB with existing context
+        self.context = self.context_merge(self.context, user_data)
+        if DEBUG:
+            print("DB.\n context:{}\n".format(self.context))
+        return False
+
+    def get_watson_response(self, message):
+        response = self.conversation_client.message(
             workspace_id=self.workspace_id,
             message_input={'text': message},
             context=self.context)
+        return response
+
+    def handle_message(self, message, channel):
+        """ Handler for messages.
+        """
+
+        watson_response = self.get_watson_response(message)
 
         if DEBUG:
             print("watson_response:\n{}\n".format(watson_response))
@@ -73,28 +102,11 @@ class WatsonOnlineStore:
 
         self.post_to_slack(response, channel)
 
-        if ((watson_response['context']['send_no_input'] == 'yes') and
-           watson_response['context']['email']):
-            #Here's where we go to the DB and look up the user
-            #user_data = self.get_fake_user(watson_response['context']['email'])
-            if DEBUG:
-                print("DB lookup:\n{}".format(str(watson_response['context']['email'])))
-            email_addr = str(watson_response['context']['email'])
-            if "mailto" in email_addr:
-                email_addr = self.cleanup_email(email_addr)
-            if DEBUG:
-                print("DB.\n email_addr:{}\n".format(email_addr))
-            user_data = self.cloudant_online_store.find_customer(email_addr)
-            if DEBUG:
-                print("DB.\n user_data:{}\n".format(user_data))
-
-            if not user_data:
-                return True
-            #Merge data from DB with existing context
-            self.context = self.context_merge(watson_response['context'], user_data)
-            if DEBUG:
-                print("DB.\n context:{}\n".format(self.context))
-            return False
+        if ('send_no_input' in self.context.keys() and
+            self.context['send_no_input'] == 'yes' and
+            'email' in self.context.keys() and
+            self.context['email']):
+            return self.handle_db_lookup()
 
         return True
 
@@ -113,6 +125,7 @@ class WatsonOnlineStore:
 
         if self.slack_client.rtm_connect():
             print("Watson Online Store bot is connected and running!")
+            get_slack = True
             while True:
                 slack_output = self.slack_client.rtm_read()
                 if DEBUG and slack_output:
@@ -121,9 +134,9 @@ class WatsonOnlineStore:
                 if DEBUG and message:
                     print("message:\n {}\n channel:\n {}\n".format(message, channel))
                 if message and channel:
-                    wait_for_input = self.handle_message(message, channel)
-                    if not wait_for_input:
-                        self.handle_message(message, channel)
+                    get_slack = self.handle_message(message, channel)
+                    while not get_slack:
+                        get_slack = self.handle_message(message, channel)
 
                 time.sleep(self.delay)
         else:
