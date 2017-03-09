@@ -33,7 +33,7 @@ class CloudantOnlineStore(object):
 
     # User
 
-    def add_customer(self, email, first, last, history, favorites):
+    def add_customer_obj(self, customer):
         """
         Adds a new customer to Cloudant if a customer with the specified ID does not already exist.
         Parameters
@@ -46,16 +46,14 @@ class CloudantOnlineStore(object):
         """
         customer_doc = {
             'type': 'customer',
-            'email': email,
-            'first_name': first,
-            'last_name': last,
-            'purchase_history': history,
-            'favorites': favorites,
-            'logged_in': True
+            'email': customer.email,
+            'first_name': customer.first_name,
+            'last_name': customer.last_name,
+            'purchase_history': customer.purchase_history,
+            'favorites': customer.favorites,
+            'logged_in': customer.logged_in
         }
         return self.add_doc_if_not_exists(customer_doc, 'email')
-
-    # Customer
 
     def find_customer(self, customer_str):
         """
