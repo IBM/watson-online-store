@@ -133,7 +133,7 @@ class WatsonOnlineStore:
         return True
 
     # replace with markstur branch add_discovery_query
-    def get_discovery_response(self, input_text):
+    def get_fake_discovery_response(self, input_text):
         ret_string = { 'discovery_result': ' blah blah blah'}
         return ret_string
 
@@ -141,7 +141,11 @@ class WatsonOnlineStore:
        """ Do a Discovery query
        """
        query_string = self.context['discovery_string']
-       response = self.get_discovery_response(query_string)
+       if self.discovery_client:
+           response = self.get_discovery_response(query_string)
+       else:
+           response = self.get_fake_discovery_response(query_string)
+
        # is response Json? It needs to be...
        self.context = self.context_merge(self.context, response)
        if DEBUG:
@@ -231,10 +235,10 @@ class WatsonOnlineStore:
             response += text + "\n"
 
         # Ask Discovery for a response if we have a Discovery client
-        if self.discovery_client:
-            discovery_response = self.get_discovery_response(message)
-            if discovery_response:
-                response += discovery_response + "\n"
+        #if self.discovery_client:
+        #    discovery_response = self.get_discovery_response(message)
+        #    if discovery_response:
+        #        response += discovery_response + "\n"
 
         self.post_to_slack(response, channel)
 
@@ -257,7 +261,11 @@ class WatsonOnlineStore:
             return self.handle_AddName()
 
         if ('discovery_string' in self.context.keys() and
-            self.context['discovery_string']):
+            self.context['discovery_string'] and
+            #remove next line when tested:
+            True):
+            #add next line when tested
+            #self.discovery_client):
             return self.handle_DiscoveryQuery()
 
         if ('send_no_input' in self.context.keys() and
