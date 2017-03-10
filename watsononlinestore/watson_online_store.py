@@ -131,7 +131,25 @@ class WatsonOnlineStore:
         self.cloudant_online_store.add_customer_obj(self.customer)
 
         return True
-        
+
+    # replace with markstur branch add_discovery_query
+    def get_discovery_response(self, input_text):
+        ret_string = { 'discovery_result': ' blah blah blah'}
+        return ret_string
+
+    def handle_DiscoveryQuery(self):
+       """ Do a Discovery query
+       """
+       query_string = self.context['discovery_string']
+       response = self.get_discovery_response(query_string)
+       # is response Json? It needs to be...
+       self.context = self.context_merge(self.context, response)
+       if DEBUG:
+           print("watson_discovery:\n{}\ncontext:\n{}".format(response, self.context))
+
+       # no need for user input, return to Watson Dialogue
+       return False
+
     def get_watson_response(self, message):
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
@@ -237,6 +255,10 @@ class WatsonOnlineStore:
             'state' in self.context.keys() and
             self.context['state'] == 'AddName'):
             return self.handle_AddName()
+
+        if ('discovery_string' in self.context.keys() and
+            self.context['discovery_string']):
+            return self.handle_DiscoveryQuery()
 
         if ('send_no_input' in self.context.keys() and
             self.context['send_no_input'] == 'yes'):
