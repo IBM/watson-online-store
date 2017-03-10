@@ -9,11 +9,15 @@ def test_0():
         'context': {'send_no_input': 'no'},
         'output': {'text': 'fake output text'},
     }
+    discovery_client = None
     slack_client = mock.Mock()
     cloudant_store = mock.Mock()
 
-    wosbot = watson_online_store.WatsonOnlineStore('botid', slack_client,
-                                                    conv_client, cloudant_store)
+    wosbot = watson_online_store.WatsonOnlineStore('botid',
+                                                   slack_client,
+                                                   conv_client,
+                                                   discovery_client,
+                                                   cloudant_store)
     wosbot.handle_message("this is a test", "this is a channel")
 
     conv_client.assert_has_calls([

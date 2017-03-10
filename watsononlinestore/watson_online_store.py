@@ -1,5 +1,6 @@
 import os
 import time
+from pprint import pprint
 
 DEBUG=True
 
@@ -18,16 +19,22 @@ class OnlineStoreCustomer:
  
 class WatsonOnlineStore:
     def __init__(self, bot_id, slack_client,
-                 conversation_client, cloudant_online_store):
+                 conversation_client, discovery_client,
+                 cloudant_online_store):
         self.bot_id = bot_id
 
         self.slack_client = slack_client
         self.conversation_client = conversation_client
+        self.discovery_client = discovery_client
         self.cloudant_online_store = cloudant_online_store
 
         self.at_bot = "<@" + bot_id + ">"
         self.delay = 0.5  # second
         self.workspace_id = os.environ.get("WORKSPACE_ID")
+        self.discovery_environment_id = os.environ.get(
+            'DISCOVERY_ENVIRONMENT_ID')
+        self.discovery_collection_id = os.environ.get(
+            'DISCOVERY_COLLECTION_ID')
 
         self.context = {}
         self.context['email'] = None
@@ -150,6 +157,61 @@ class WatsonOnlineStore:
             context=self.context)
         return response
 
+    @staticmethod
+    def format_discovery_response(response):
+        """Try to limit the volumes of response to just enough."""
+        # Using top N hard-coded here, for now.
+        top_n = 5
+
+        if not ('results' in response and response['results']):
+            return "No results from Discovery."
+
+        results = response['results']
+
+        output = ["Top results found for your query:"]
+        for i in range(top_n):
+            result = results[i]
+            if 'blekko' not in result:
+                output.append("todo - missing expected result key")
+            else:
+                blekko = result['blekko']
+                if 'snippet' in blekko:
+                    snippet = blekko['snippet']
+                    output.append('\n'.join(snippet))
+                elif 'clean_title' in blekko:
+                    # Using elif because snippet usually includes a title.
+                    clean_title = blekko['clean_title']
+                    output.append('\n'.join(clean_title))
+
+                if 'url' in blekko:
+                    url = blekko['url']
+                    output.append(url)
+
+                if 'twitter' in blekko and 'image' in blekko['twitter']:
+                    twitter_image = blekko['twitter']['image']
+                    output.append(twitter_image)
+
+        return '\n'.join(output)
+
+    def get_discovery_response(self, input_text):
+
+        discovery_response = self.discovery_client.query(
+            environment_id=self.discovery_environment_id,
+            collection_id=self.discovery_collection_id,
+            query_options={'query': input_text}
+        )
+        if DEBUG:
+            # This dumps a ton of results for us to peruse:
+            pprint(discovery_response)
+
+        formatted_response = self.format_discovery_response(discovery_response)
+
+        if DEBUG:
+            # This dumps a ton of results for us to peruse:
+            pprint(formatted_response)
+
+        return formatted_response
+
     def handle_message(self, message, channel):
         """ Handler for messages.
             param: message from UI (slackbot)
@@ -160,7 +222,6 @@ class WatsonOnlineStore:
         """
 
         watson_response = self.get_watson_response(message)
-
         if DEBUG:
             print("watson_response:\n{}\n".format(watson_response))
         self.context = watson_response['context']
@@ -168,6 +229,12 @@ class WatsonOnlineStore:
         response = ''
         for text in watson_response['output']['text']:
             response += text + "\n"
+
+        # Ask Discovery for a response if we have a Discovery client
+        if self.discovery_client:
+            discovery_response = self.get_discovery_response(message)
+            if discovery_response:
+                response += discovery_response + "\n"
 
         self.post_to_slack(response, channel)
 
