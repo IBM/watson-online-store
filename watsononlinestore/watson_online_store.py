@@ -2,7 +2,16 @@ import os
 import time
 from pprint import pprint
 
-DEBUG=True
+# Limit the result count when calling Discovery query.
+DISCOVERY_QUERY_COUNT = 2
+# Limit more when formatting. This one could be removed now that the above
+# was added, but keeping it allows us to log more results for dev/test even
+# though we return fewer to the client.
+DISCOVERY_KEEP_COUNT = 1
+# Truncate the Discovery 'text'. It can be a lot. We'll add "..." if truncated.
+DISCOVERY_TRUNCATE = 500
+
+DEBUG = True
 
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
@@ -167,36 +176,42 @@ class WatsonOnlineStore:
     @staticmethod
     def format_discovery_response(response):
         """Try to limit the volumes of response to just enough."""
-        # Using top N hard-coded here, for now.
-        top_n = 2
-
         if not ('results' in response and response['results']):
             return "No results from Discovery."
 
         results = response['results']
 
         output = ["Top results found for your query:"]
-        for i in range(top_n):
+        for i in range(min(len(results), DISCOVERY_KEEP_COUNT)):
             result = results[i]
+
+            if 'text' in result:
+                text = result['text']
+                text = text if len(text) < DISCOVERY_TRUNCATE else (
+                    "%s ..." % text[:DISCOVERY_TRUNCATE])
+                output.append(text)
+
             if 'blekko' not in result:
                 output.append("todo - missing expected result key")
             else:
                 blekko = result['blekko']
-                if 'snippet' in blekko:
-                    snippet = blekko['snippet']
-                    output.append('\n'.join(snippet))
-                elif 'clean_title' in blekko:
-                    # Using elif because snippet usually includes a title.
-                    clean_title = blekko['clean_title']
-                    output.append('\n'.join(clean_title))
+
+                # Trying to use result['text'] instead. Need to compare.
+                # if 'snippet' in blekko:
+                # output.append('\n'.join(blekko['snippet']))
+                # elif 'clean_title' in blekko:
+                # # Using elif because snippet usually includes a title.
+                # output.append('\n'.join(blekko['clean_title']))
 
                 if 'url' in blekko:
-                    url = blekko['url']
-                    output.append(url)
+                    output.append(blekko['url'])
 
-                if 'twitter' in blekko and 'image' in blekko['twitter']:
-                    twitter_image = blekko['twitter']['image']
-                    output.append(twitter_image)
+                if 'twitter' in blekko:
+                    twitter = blekko['twitter']
+                    if 'image' in twitter:
+                        output.append(twitter['image'])
+                    if 'image:src' in twitter:
+                        output.append(twitter['image:src'])
 
         return '\n'.join(output)
 
@@ -205,7 +220,7 @@ class WatsonOnlineStore:
         discovery_response = self.discovery_client.query(
             environment_id=self.discovery_environment_id,
             collection_id=self.discovery_collection_id,
-            query_options={'query': input_text}
+            query_options={'query': input_text, 'count': DISCOVERY_QUERY_COUNT}
         )
         if DEBUG:
             # This dumps a ton of results for us to peruse:
