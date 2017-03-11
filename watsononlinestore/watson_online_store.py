@@ -142,7 +142,10 @@ class WatsonOnlineStore:
        """
        query_string = self.context['discovery_string']
        if self.discovery_client:
-           response = self.get_discovery_response(query_string)
+           try:
+               response = self.get_discovery_response(query_string)
+           except Exception as e:
+               response = {'discovery_result': repr(e)}
        else:
            response = self.get_fake_discovery_response(query_string)
 
@@ -165,7 +168,7 @@ class WatsonOnlineStore:
     def format_discovery_response(response):
         """Try to limit the volumes of response to just enough."""
         # Using top N hard-coded here, for now.
-        top_n = 5
+        top_n = 2
 
         if not ('results' in response and response['results']):
             return "No results from Discovery."
@@ -214,7 +217,7 @@ class WatsonOnlineStore:
             # This dumps a ton of results for us to peruse:
             pprint(formatted_response)
 
-        return formatted_response
+        return {'discovery_result': formatted_response}
 
     def handle_message(self, message, channel):
         """ Handler for messages.
@@ -233,12 +236,6 @@ class WatsonOnlineStore:
         response = ''
         for text in watson_response['output']['text']:
             response += text + "\n"
-
-        # Ask Discovery for a response if we have a Discovery client
-        #if self.discovery_client:
-        #    discovery_response = self.get_discovery_response(message)
-        #    if discovery_response:
-        #        response += discovery_response + "\n"
 
         self.post_to_slack(response, channel)
 
@@ -304,7 +301,7 @@ class WatsonOnlineStore:
                     print("slack output\n:{}\n".format(slack_output))
                 message, channel = self.parse_slack_output(slack_output)
                 if DEBUG and message:
-                    print("message:\n {}\n channel:\n {}\n".format(message, channel))
+                    print("message:\n %s\n channel:\n %s\n" % (message, channel))
                 if message and channel:
                     get_slack = self.handle_message(message, channel)
                     while not get_slack:
