@@ -13,6 +13,7 @@ DISCOVERY_TRUNCATE = 500
 
 DEBUG = True
 
+
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
                  purchase_history=None, favorites=None,
@@ -25,7 +26,7 @@ class OnlineStoreCustomer:
         self.favorites = favorites
         self.logged_in = logged_in
 
- 
+
 class WatsonOnlineStore:
     def __init__(self, bot_id, slack_client,
                  conversation_client, discovery_client,
@@ -49,7 +50,7 @@ class WatsonOnlineStore:
         self.context['email'] = None
         self.context['send_no_input'] = 'no'
         self.context['logged_in'] = False
- 
+
         self.customer = None
 
     def context_merge(self, dict1, dict2):
@@ -63,12 +64,11 @@ class WatsonOnlineStore:
         if output_list and len(output_list) > 0:
             for output in output_list:
                 if output and 'text' in output and \
-                                'user_profile' not in output and \
-                                self.at_bot in output['text']:
-                    return output['text'].split(self.at_bot)[1].strip().lower(), \
-                           output['channel']
+                    'user_profile' not in output and \
+                        self.at_bot in output['text']:
+                    return output['text'].split(
+                        self.at_bot)[1].strip().lower(), output['channel']
         return None, None
-
 
     def post_to_slack(self, response, channel):
         self.slack_client.api_call("chat.postMessage",
@@ -77,7 +77,7 @@ class WatsonOnlineStore:
 
     def cleanup_email(self, slack_response):
         email_addr = slack_response.split("|")[1]
-        return email_addr.replace(">","")
+        return email_addr.replace(">", "")
 
     def handle_db_lookup(self):
         """ Go to the DB and look up the user.
@@ -95,7 +95,7 @@ class WatsonOnlineStore:
 
         if not user_data:
             return True
-        #Merge data from DB with existing context
+        # Merge data from DB with existing context
         self.context = self.context_merge(self.context, user_data)
         if DEBUG:
             print("DB.\n context:{}\n".format(self.context))
@@ -113,9 +113,9 @@ class WatsonOnlineStore:
         if DEBUG:
             print("DB.\n existing_user:{}\n".format(existing_user))
         if existing_user:
-            #return some error
+            # return some error
             return False
-        
+
         # start to create the customer, add to DB when complete
         self.customer = OnlineStoreCustomer(email=email_addr)
 
@@ -127,13 +127,13 @@ class WatsonOnlineStore:
         full_name = str(self.context['full_name'])
         first, last = full_name.split()
         self.customer.first_name = first
-        self.customer.last_name = last 
+        self.customer.last_name = last
 
         # TODO continue to ask for favorites and remove next lines, maybe,
         #  but not for now.
         self.customer.logged_in = True
         self.context['logged_in'] = False
-        #logged_in = {'logged_in': True}
+        # logged_in = {'logged_in': True}
         self.context = self.context_merge(self.context, logged_in)
         if DEBUG:
             print("AddName context:\n{}".format(self.context))
@@ -143,28 +143,29 @@ class WatsonOnlineStore:
 
     # replace with markstur branch add_discovery_query
     def get_fake_discovery_response(self, input_text):
-        ret_string = { 'discovery_result': ' blah blah blah'}
+        ret_string = {'discovery_result': ' blah blah blah'}
         return ret_string
 
     def handle_DiscoveryQuery(self):
-       """ Do a Discovery query
-       """
-       query_string = self.context['discovery_string']
-       if self.discovery_client:
-           try:
-               response = self.get_discovery_response(query_string)
-           except Exception as e:
-               response = {'discovery_result': repr(e)}
-       else:
-           response = self.get_fake_discovery_response(query_string)
+        """ Do a Discovery query
+        """
+        query_string = self.context['discovery_string']
+        if self.discovery_client:
+            try:
+                response = self.get_discovery_response(query_string)
+            except Exception as e:
+                response = {'discovery_result': repr(e)}
+        else:
+            response = self.get_fake_discovery_response(query_string)
 
-       # is response Json? It needs to be...
-       self.context = self.context_merge(self.context, response)
-       if DEBUG:
-           print("watson_discovery:\n{}\ncontext:\n{}".format(response, self.context))
+        # is response Json? It needs to be...
+        self.context = self.context_merge(self.context, response)
+        if DEBUG:
+            print("watson_discovery:\n{}\ncontext:\n{}".format(
+                response, self.context))
 
-       # no need for user input, return to Watson Dialogue
-       return False
+        # no need for user input, return to Watson Dialogue
+        return False
 
     def get_watson_response(self, message):
         response = self.conversation_client.message(
@@ -257,53 +258,61 @@ class WatsonOnlineStore:
         if ('send_no_input' in self.context.keys() and
             self.context['send_no_input'] == 'yes' and
             'email' in self.context.keys() and
-            self.context['email']):
+                self.context['email']):
             return self.handle_db_lookup()
 
         if ('intent' in self.context.keys() and
             self.context['intent'] == 'CreateUserAccount' and
             'state' in self.context.keys() and
-            self.context['state'] == 'lookupAndAddEmail'):
+                self.context['state'] == 'lookupAndAddEmail'):
             return self.handle_lookupAndAddEmail()
 
         if ('intent' in self.context.keys() and
             self.context['intent'] == 'CreateUserAccount' and
             'state' in self.context.keys() and
-            self.context['state'] == 'AddName'):
+                self.context['state'] == 'AddName'):
             return self.handle_AddName()
 
         if ('discovery_string' in self.context.keys() and
             self.context['discovery_string'] and
-            #remove next line when tested:
-            True):
-            #add next line when tested
-            #self.discovery_client):
+            # remove next line when tested:
+                True):
+            # add next line when tested
+            # self.discovery_client):
             return self.handle_DiscoveryQuery()
 
         if ('send_no_input' in self.context.keys() and
-            self.context['send_no_input'] == 'yes'):
+                self.context['send_no_input'] == 'yes'):
             return False
 
         return True
 
-
     def add_test_users_to_DB(self):
-        molly = OnlineStoreCustomer(email="molly@gmail.com", first_name="Molly",
-                                    last_name="DA", purchase_history="abc123",
-                                    favorites="shoes", logged_in=True)
+        molly = OnlineStoreCustomer(email="molly@gmail.com",
+                                    first_name="Molly",
+                                    last_name="DA",
+                                    purchase_history="abc123",
+                                    favorites="shoes",
+                                    logged_in=True)
         self.cloudant_online_store.add_customer_obj(molly)
-        scott = OnlineStoreCustomer(email="scott@gmail.com", first_name="Scott",
-                                    last_name="Smith", purchase_history="cba321",
-                                    favorites="pants", logged_in=True)
+        scott = OnlineStoreCustomer(email="scott@gmail.com",
+                                    first_name="Scott",
+                                    last_name="Smith",
+                                    purchase_history="cba321",
+                                    favorites="pants",
+                                    logged_in=True)
         self.cloudant_online_store.add_customer_obj(scott)
-        mark = OnlineStoreCustomer(email="mark@gmail.com", first_name="Mark",
-                                    last_name="Jones", purchase_history="xyz123",
-                                    favorites="shirts", logged_in=True)
+        mark = OnlineStoreCustomer(email="mark@gmail.com",
+                                   first_name="Mark",
+                                   last_name="Jones",
+                                   purchase_history="xyz123",
+                                   favorites="shirts",
+                                   logged_in=True)
         self.cloudant_online_store.add_customer_obj(mark)
 
     def run(self):
         # make sure DB exists
-        self.cloudant_online_store.init() 
+        self.cloudant_online_store.init()
         # add some test users
         self.add_test_users_to_DB()
 
@@ -316,7 +325,8 @@ class WatsonOnlineStore:
                     print("slack output\n:{}\n".format(slack_output))
                 message, channel = self.parse_slack_output(slack_output)
                 if DEBUG and message:
-                    print("message:\n %s\n channel:\n %s\n" % (message, channel))
+                    print("message:\n %s\n channel:\n %s\n" %
+                          (message, channel))
                 if message and channel:
                     get_slack = self.handle_message(message, channel)
                     while not get_slack:
