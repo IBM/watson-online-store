@@ -134,7 +134,8 @@ class WatsonOnlineStore:
         self.customer.logged_in = True
         self.context['logged_in'] = False
         # logged_in = {'logged_in': True}
-        self.context = self.context_merge(self.context, logged_in)
+        # FIXME: logged_in undefined here. Need to finish/fix this.
+        # self.context = self.context_merge(self.context, logged_in)
         if DEBUG:
             print("AddName context:\n{}".format(self.context))
         self.cloudant_online_store.add_customer_obj(self.customer)
