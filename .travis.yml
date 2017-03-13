@@ -5,5 +5,9 @@ python:
 install:
   - "pip install -r requirements.txt"
   - "pip install -r test-requirements.txt"
-script: py.test --cov=watsononlinestore
+  - "pip install flake8"
+before_script:
+ - flake8 .
+script:
+ - py.test --cov=watsononlinestore
 

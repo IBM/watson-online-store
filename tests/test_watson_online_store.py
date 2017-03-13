@@ -21,7 +21,9 @@ def test_0():
     wosbot.handle_message("this is a test", "this is a channel")
 
     conv_client.assert_has_calls([
-        mock.call.message(context={'send_no_input': 'no', 'email': None, 'logged_in': False},
+        mock.call.message(context={'send_no_input': 'no',
+                                   'email': None,
+                                   'logged_in': False},
                           message_input={'text': 'this is a test'},
                           workspace_id=mock.ANY)
     ])
@@ -32,4 +34,3 @@ def test_0():
             channel='this is a channel',
             text='f\na\nk\ne\n \no\nu\nt\np\nu\nt\n \nt\ne\nx\nt\n')
     ])
-

@@ -1,5 +1,3 @@
-import time
-
 from cloudant.query import Query
 
 
@@ -35,7 +33,9 @@ class CloudantOnlineStore(object):
 
     def add_customer_obj(self, customer):
         """
-        Adds a new customer to Cloudant if a customer with the specified ID does not already exist.
+        Adds a new customer to Cloudant if a customer with the specified ID
+        does not already exist.
+
         Parameters
         ----------
         email - The ID of the customer (typically the email address)
@@ -68,12 +68,15 @@ class CloudantOnlineStore(object):
 
     def find_doc(self, doc_type, property_name, property_value):
         """
-        Finds a doc based on the specified doc_type, property_name, and property_value.
+        Finds a doc based on the specified doc_type, property_name, and
+        property_value.
+
         Parameters
         ----------
         doc_type - The type value of the document stored in Cloudant
         property_name - The property name to search for
-        property_value - The value that should match for the specified property name
+        property_value - The value that should match for the specified
+                         property name
         """
         try:
             self.client.connect()
@@ -92,20 +95,27 @@ class CloudantOnlineStore(object):
 
     def add_doc_if_not_exists(self, doc, unique_property_name):
         """
-        Adds a new doc to Cloudant if a doc with the same value for unique_property_name does not exist.
+        Adds a new doc to Cloudant if a doc with the same value for
+        unique_property_name does not exist.
+
         Parameters
         ----------
         doc - The document to add
-        unique_property_name - The name of the property used to search for an existing document (the value will be extracted from the doc provided)
+        unique_property_name - The name of the property used to search for an
+                               existing document (the value will be extracted
+                               from the doc provided)
         """
         doc_type = doc['type']
         property_value = doc[unique_property_name]
-        existing_doc = self.find_doc(doc_type, unique_property_name, property_value)
+        existing_doc = self.find_doc(
+            doc_type, unique_property_name, property_value)
         if existing_doc is not None:
-            print('Returning {} doc where {}={}'.format(doc_type, unique_property_name, property_value))
+            print('Returning {} doc where {}={}'.format(
+                doc_type, unique_property_name, property_value))
             return existing_doc
         else:
-            print('Creating {} doc where {}={}'.format(doc_type, unique_property_name, property_value))
+            print('Creating {} doc where {}={}'.format(
+                doc_type, unique_property_name, property_value))
             try:
                 self.client.connect()
                 db = self.client[self.db_name]
