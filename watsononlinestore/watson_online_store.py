@@ -51,6 +51,20 @@ class SlackSender:
                                    text=message,
                                    as_user=True)
 
+    def get_user_json(self, user_id):
+        """Get slack user information from user_id.
+
+        :param str user_id: user ID to look up
+        """
+        try:
+            # Get the authenticated user profile from Slack
+            user_json = self.slack_client.api_call("users.info", user=user_id)
+        except Exception as e:
+            LOG.exception("Slack client call exception:")
+            user_json = {'error': repr(e)}
+
+        return user_json
+
 
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
@@ -363,17 +377,6 @@ class WatsonOnlineStore:
                                 output['user'])
         return None, None, None
 
-    def post_to_slack(self, response, channel):
-        """API for posting to Slack.
-
-        :param str response: text from Watson to post to Slack
-        :param str channel: Slack channel
-        """
-        self.slack_client.api_call("chat.postMessage",
-                                   channel=channel,
-                                   text=response,
-                                   as_user=True)
-
     def add_customer_to_context(self):
         """Send Customer info to Watson using context.
 
@@ -425,23 +428,15 @@ class WatsonOnlineStore:
                                             last_name=last,
                                             shopping_cart=[])
 
-    def init_customer(self, user_id):
+    def init_customer(self, sender, user_id):
         """Get user from DB, or create entry for user.
 
-        Note that this is specific to using Slack as the UI.
-        A different UI will require different code for the API calls.
-
-        :param str user_id: email address of user
+        :param object sender: Client-specific implementation
+        :param str user_id: User ID
         """
         assert user_id
 
-        try:
-            # Get the authenticated user profile from Slack
-            user_json = self.slack_client.api_call("users.info",
-                                                   user=user_id)
-        except Exception:
-            LOG.exception("Slack client call exception:")
-            return
+        user_json = sender.get_user_json(user_id)
 
         # Not found returns json with error.
         LOG.debug("user_from_slack:\n{}\n".format(user_json))
@@ -791,7 +786,7 @@ class WatsonOnlineStore:
         Fields in context will trigger various actions in this application.
 
         :param str message: text from UI
-        :param SlackSender sender: used for send_message, hard-coded as Slack
+        :param object sender: used for client's send_message implementation
 
         :returns: True if UI input is required, False if we want app
          processing and no input
@@ -825,8 +820,24 @@ class WatsonOnlineStore:
 
         return True
 
+    def handle_conversation(self, message, sender, user):
+        """Handler for messages coming from user.
+
+        Loops when additional input is needed.
+
+        :param str message: text from UI
+        :param sender: a sender impl used for send_message
+        :param str user: user ID
+        """
+        if user and not self.customer:
+            self.init_customer(sender, user)
+
+        get_input = self.handle_message(message, sender)
+        while not get_input:
+            get_input = self.handle_message(message, sender)
+
     def run(self):
-        """Main run loop of the application
+        """Main run loop of the application with a Slack client
         """
         # make sure DB exists
         self.cloudant_online_store.init()
@@ -839,17 +850,12 @@ class WatsonOnlineStore:
                     LOG.debug("slack output\n:{}\n".format(slack_output))
 
                 message, channel, user = self.parse_slack_output(slack_output)
-                if user and not self.customer:
-                    self.init_customer(user)
-
                 if message:
                     LOG.debug("message:\n %s\n channel:\n %s\n" %
                               (message, channel))
                 if message and channel and 'unfurl' not in message:
                     sender = SlackSender(self.slack_client, channel)
-                    get_input = self.handle_message(message, sender)
-                    while not get_input:
-                        get_input = self.handle_message(message, sender)
+                    self.handle_conversation(message, sender, user)
 
                 time.sleep(self.delay)
         else:

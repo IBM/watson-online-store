@@ -1,5 +1,7 @@
 cf-deployment-tracker==1.0.4
 cloudant==2.4.0
+Flask>=0.12
+Flask_SocketIO>=2.8.5
 python-dotenv==0.5.1
 slackclient==1.0.5
 watson-developer-cloud>=1.0.0
