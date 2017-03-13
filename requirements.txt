@@ -1,5 +1,7 @@
 click==6.6
 cloudant==2.4.0
+Flask
+Flask_SocketIO
 ordereddict==1.1
 pysolr==3.6.0
 python-dotenv==0.5.1

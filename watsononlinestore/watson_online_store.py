@@ -14,6 +14,19 @@ DISCOVERY_TRUNCATE = 500
 DEBUG = True
 
 
+class SlackSender:
+
+    def __init__(self, slack_client, channel):
+        self.slack_client = slack_client
+        self.channel = channel
+
+    def send_message(self, message):
+        self.slack_client.api_call("chat.postMessage",
+                                   channel=self.channel,
+                                   text=message,
+                                   as_user=True)
+
+
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
                  shopping_cart=None, logged_in=False):
@@ -266,10 +279,13 @@ class WatsonOnlineStore:
 
         return {'discovery_result': formatted_response}
 
-    def handle_message(self, message, channel):
+    def handle_message(self, message, sender):
         """ Handler for messages.
             param: message from UI (slackbot)
-            param: channel
+            param: sender to use for send_message
+
+            returns True if UI(slackbot) input is required
+            returns False if we want app processing and no input
         """
 
         watson_response = self.get_watson_response(message)
@@ -282,7 +298,7 @@ class WatsonOnlineStore:
         for text in watson_response['output']['text']:
             response += text + "\n"
 
-        self.post_to_slack(response, channel)
+        sender.send_message(response)
 
         if ('discovery_string' in self.context.keys() and
             self.context['discovery_string'] and
@@ -304,7 +320,6 @@ class WatsonOnlineStore:
 
         if self.slack_client.rtm_connect():
             print("Watson Online Store bot is connected and running!")
-            get_input = True
             while True:
                 slack_output = self.slack_client.rtm_read()
                 if DEBUG and slack_output:
@@ -318,9 +333,10 @@ class WatsonOnlineStore:
                     print("message:\n %s\n channel:\n %s\n" %
                           (message, channel))
                 if message and channel:
-                    get_input = self.handle_message(message, channel)
+                    sender = SlackSender(self.slack_client, channel)
+                    get_input = self.handle_message(message, sender)
                     while not get_input:
-                        get_input = self.handle_message(message, channel)
+                        get_input = self.handle_message(message, sender)
 
                 time.sleep(self.delay)
         else:
