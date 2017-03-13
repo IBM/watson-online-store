@@ -14,13 +14,12 @@ applications:
    - wos-cloudantNoSQLDB-service
    - wos-discovery-service
   path: .
-  command: python ./run.py
+  command: python python-flask-server/server.py
   memory: 128M
   instances: 1
+  domain: mybluemix.net
   name: watson-online-store
   disk_quota: 1024M
-  health-check-type: process
-  no-route: true
 env:
   CLOUDANT_DB_NAME: watson-online-store
   SLACK_BOT_USER: wos
