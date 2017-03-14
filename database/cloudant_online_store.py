@@ -49,8 +49,7 @@ class CloudantOnlineStore(object):
             'email': customer.email,
             'first_name': customer.first_name,
             'last_name': customer.last_name,
-            'purchase_history': customer.purchase_history,
-            'favorites': customer.favorites,
+            'shopping_cart': customer.shopping_cart,
             'logged_in': customer.logged_in
         }
         return self.add_doc_if_not_exists(customer_doc, 'email')
