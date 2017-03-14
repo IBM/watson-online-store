@@ -1,6 +1,8 @@
+import random
 import os
 import time
 from pprint import pprint
+from fake_discovery import  FAKE_DISCOVERY
 
 # Limit the result count when calling Discovery query.
 DISCOVERY_QUERY_COUNT = 5
@@ -16,7 +18,7 @@ DEBUG = True
 
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
-                 shopping_cart=None, logged_in=False):
+                 shopping_cart=[], logged_in=False):
 
         self.email = email
         self.first_name = first_name
@@ -65,7 +67,8 @@ class WatsonOnlineStore:
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
-        new_dict.update(dict2)
+        if dict2:
+            new_dict.update(dict2)
 
         return new_dict
 
@@ -106,7 +109,7 @@ class WatsonOnlineStore:
         self.customer = OnlineStoreCustomer(email=email_addr,
                                             first_name=first,
                                             last_name=last,
-                                            shopping_cart="",
+                                            shopping_cart=[],
                                             logged_in=True)
 
     def create_user_from_ui(self, user_json):
@@ -123,7 +126,7 @@ class WatsonOnlineStore:
         self.customer = OnlineStoreCustomer(email=email_addr,
                                             first_name=first,
                                             last_name=last,
-                                            shopping_cart="",
+                                            shopping_cart=[],
                                             logged_in=True)
 
     def init_customer(self, user_id):
@@ -164,8 +167,8 @@ class WatsonOnlineStore:
             self.add_customer_to_context()
 
     def get_fake_discovery_response(self, input_text):
-
-        ret_string = {'discovery_result': ' blah blah blah'}
+        index =  random.randint(0,len(FAKE_DISCOVERY)-1)
+        ret_string = {'discovery_result': FAKE_DISCOVERY[index]}
         return ret_string
 
     def handle_DiscoveryQuery(self):
@@ -266,6 +269,43 @@ class WatsonOnlineStore:
 
         return {'discovery_result': formatted_response}
 
+    def handle_list_shopping_cart(self):
+        """ Get shopping_cart from DB and return to Watson
+            Returns: list of shopping_cart items
+        """
+        cust = self.customer.email
+        shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
+        self.context['shopping_cart'] = shopping_list
+
+        # no need for user input, return to Watson Dialogue
+        return False
+
+    def clear_shopping_cart(self):
+        self.context['shopping_cart'] = ''
+        self.context['cart_item'] = ''
+
+    def handle_delete_from_cart(self):
+        """ Delete an item from this Customers shopping cart
+        """
+        item = self.context['cart_item']
+        email = self.customer.email
+        self.cloudant_online_store.delete_item_shopping_cart(email, item)
+        self.clear_shopping_cart()
+
+        # no need for user input, return to Watson Dialogue
+        return False
+
+    def handle_add_to_cart(self):
+        """ Add an item to this Customers shopping cart
+        """
+        item = self.context['cart_item']
+        email = self.customer.email
+        self.cloudant_online_store.add_to_shopping_cart(email, item)
+        self.clear_shopping_cart()
+
+        # no need for user input, return to Watson Dialogue
+        return False
+
     def handle_message(self, message, channel):
         """ Handler for messages.
             param: message from UI (slackbot)
@@ -292,15 +332,40 @@ class WatsonOnlineStore:
             # self.discovery_client):
             return self.handle_DiscoveryQuery()
 
+        if ('shopping_cart' in self.context.keys() and
+                self.context['shopping_cart'] == 'list'):
+            return self.handle_list_shopping_cart()
+
+        if ('shopping_cart' in self.context.keys() and
+                self.context['shopping_cart'] == 'add' and 
+            'cart_item' in self.context.keys() and
+                self.context['cart_item'] != ''):
+            return self.handle_add_to_cart()
+
+        if ('shopping_cart' in self.context.keys() and
+                self.context['shopping_cart'] == 'delete' and 
+            'cart_item' in self.context.keys() and
+                self.context['cart_item'] != ''):
+            return self.handle_delete_from_cart()
+
         if ('get_input' in self.context.keys() and
                 self.context['get_input'] == 'no'):
             return False
 
         return True
 
+    def add_test_users_to_DB(self):
+        scott = OnlineStoreCustomer(email="scott.dangelo@ibm.com",
+                                    first_name="Scott",
+                                    last_name="DAngelo",
+                                    shopping_cart=['floop','bark'],
+                                    logged_in=True)
+        self.cloudant_online_store.add_customer_obj(scott)
+
     def run(self):
         # make sure DB exists
         self.cloudant_online_store.init()
+        self.add_test_users_to_DB()
 
         if self.slack_client.rtm_connect():
             print("Watson Online Store bot is connected and running!")

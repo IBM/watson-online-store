@@ -63,6 +63,64 @@ class CloudantOnlineStore(object):
         """
         return self.find_doc('customer', 'email', customer_str)
 
+    def list_shopping_cart(self, customer_str):
+        """
+        Gets shopping cart for customer.
+        Parameters
+        ----------
+        customer_str - The customer specified by the user
+        Returns - shopping cart as a list
+        """
+        doc = self.find_customer(customer_str)
+        if doc:
+            return doc['shopping_cart']
+        return doc  # None
+        
+    def add_to_shopping_cart(self, customer_str, item):
+        """
+        Adds item to shopping cart for customer.
+        Parameters
+        ----------
+        customer_str - The customer specified by the user
+        item - string representing item to add
+        """
+        user_doc = self.find_doc(
+            'customer', 'email', customer_str)
+        try:
+            self.client.connect()
+            current_doc = self.client[self.db_name][user_doc['_id']]
+            if current_doc:
+                current_doc['shopping_cart'].append(item)
+                current_doc.save()
+                return 1
+            return 0
+
+        finally:
+            self.client.disconnect()
+
+    def delete_item_shopping_cart(self, customer_str, item):
+        """
+        Deletes item from shopping cart for customer.
+        Parameters
+        ----------
+        customer_str - The customer specified by the user
+        item - string representing item to delete 
+        """
+        user_doc = self.find_doc(
+            'customer', 'email', customer_str)
+        try:
+            self.client.connect()
+            current_doc = self.client[self.db_name][user_doc['_id']]
+            if current_doc:
+                if item in current_doc['shopping_cart']:
+                    current_doc['shopping_cart'].remove(item)
+                    current_doc.save()
+                    return 1
+            return 0
+
+        finally:
+            self.client.disconnect()
+
     # Cloudant Helper Methods
 
     def find_doc(self, doc_type, property_name, property_value):
