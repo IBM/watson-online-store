@@ -4,21 +4,25 @@ import mock
 
 def test_0():
 
+    fake_channel = "fake channel"
+    fake_response = "this is a fake response"
+
     conv_client = mock.Mock()
     conv_client.message.return_value = {
         'context': {'send_no_input': 'no'},
-        'output': {'text': 'fake output text'},
+        'output': {'text': [fake_response]},
     }
     discovery_client = None
     slack_client = mock.Mock()
     cloudant_store = mock.Mock()
+    sender = watson_online_store.SlackSender(slack_client, fake_channel)
 
     wosbot = watson_online_store.WatsonOnlineStore('botid',
                                                    slack_client,
                                                    conv_client,
                                                    discovery_client,
                                                    cloudant_store)
-    wosbot.handle_message("this is a test", "this is a channel")
+    wosbot.handle_message("this is a test", sender)
 
     conv_client.assert_has_calls([
         mock.call.message(context={'send_no_input': 'no',
@@ -31,6 +35,6 @@ def test_0():
         mock.call.api_call(
             'chat.postMessage',
             as_user=True,
-            channel='this is a channel',
-            text='f\na\nk\ne\n \no\nu\nt\np\nu\nt\n \nt\ne\nx\nt\n')
+            channel=fake_channel,
+            text=fake_response + '\n')
     ])

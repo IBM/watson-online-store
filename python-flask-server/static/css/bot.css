@@ -1,0 +1,109 @@
+/* Styling for the chat bot */
+
+.container {
+    display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+
+	-ms-flex-align: center;
+	-webkit-align-items: center;
+	-webkit-box-align: center;
+
+	align-items: center;
+    justify-content: center;
+}
+
+.dialogContainer {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    width: 300px;
+    height: 300px;
+    max-height: 300px;
+    margin: 0;
+    border-radius: 4px;
+    padding: 10px;
+    background-image: -moz-linear-gradient(bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("img/watson.png");
+    background-image: -webkit-linear-gradient(bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("img/watson.png");
+    background-image: -ms-linear-gradient(bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("img/watson.png");
+    background-image: linear-gradient(bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("img/watson.png");
+    background-attachment: inherit;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid rgba(86,167,161,1.0);
+}
+
+.dialogInput {
+    width: 300px;
+    margin-top: 15px;
+    border: 1px solid rgba(86,167,161,1.0);
+    height: 60px;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 10px;
+    color: #225282;
+}
+
+.message {
+    margin-top: 0.5em;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.bot {
+    padding: 0.5em;
+    border-radius: 5px;
+    background-color: rgba(90,171,164,1.0);
+    margin-left: 0.5em;
+    margin-right: 30%;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+	-webkit-animation: fadein 2s; 
+       -moz-animation: fadein 2s; 
+        -ms-animation: fadein 2s; 
+         -o-animation: fadein 2s; 
+            animation: fadein 2s;
+}
+
+.user {
+    padding: 0.5em;
+    border-radius: 5px;
+    background-color: rgba(34, 82, 130, 0.9);
+    margin-right: 0.5em;
+    margin-left: 30%;
+    -webkit-align-self: flex-end;
+    align-self: flex-end;
+	-webkit-animation: fadein 1s; 
+       -moz-animation: fadein 1s;
+        -ms-animation: fadein 1s; 
+         -o-animation: fadein 1s; 
+            animation: fadein 1s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}

@@ -1,0 +1,8 @@
+applications:
+- path: .
+  memory: 128M
+  instances: 1
+  domain: mybluemix.net
+  name: watson-online-store
+  host: watson-online-store
+  disk_quota: 1024M
