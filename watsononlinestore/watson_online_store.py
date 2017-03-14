@@ -3,11 +3,11 @@ import time
 from pprint import pprint
 
 # Limit the result count when calling Discovery query.
-DISCOVERY_QUERY_COUNT = 2
+DISCOVERY_QUERY_COUNT = 5
 # Limit more when formatting. This one could be removed now that the above
 # was added, but keeping it allows us to log more results for dev/test even
 # though we return fewer to the client.
-DISCOVERY_KEEP_COUNT = 1
+DISCOVERY_KEEP_COUNT = 5
 # Truncate the Discovery 'text'. It can be a lot. We'll add "..." if truncated.
 DISCOVERY_TRUNCATE = 500
 
@@ -208,15 +208,24 @@ class WatsonOnlineStore:
         for i in range(min(len(results), DISCOVERY_KEEP_COUNT)):
             result = results[i]
 
+            if 'html' in result:
+                html = result['html']
+                href_tag = "<a href="
+                sidx = html.find(href_tag)
+                if sidx > 0:
+                    sidx += len(href_tag) + 1
+                    eidx = html.find(">", sidx, len(html))
+                    if eidx > 0:
+                        tag = html[sidx:eidx-1]
+                        output.append(tag)
+
             if 'text' in result:
                 text = result['text']
                 text = text if len(text) < DISCOVERY_TRUNCATE else (
                     "%s ..." % text[:DISCOVERY_TRUNCATE])
                 output.append(text)
 
-            if 'blekko' not in result:
-                output.append("todo - missing expected result key")
-            else:
+            if 'blekko' in result:
                 blekko = result['blekko']
 
                 # Trying to use result['text'] instead. Need to compare.
