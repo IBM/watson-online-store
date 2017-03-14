@@ -16,15 +16,26 @@ DEBUG = True
 
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
-                 purchase_history=None, favorites=None,
-                 logged_in=False):
+                 shopping_cart=None, logged_in=False):
 
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        self.purchase_history = purchase_history
-        self.favorites = favorites
+        self.shopping_cart = shopping_cart
         self.logged_in = logged_in
+
+    def get_customer_dict(self):
+        """ Specific to our cloudant_online_store
+        """
+        customer = {
+            'type': 'customer',
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'shopping_cart': self.shopping_cart,
+            'logged_in': self.logged_in
+        }
+        return customer
 
 
 class WatsonOnlineStore:
@@ -48,7 +59,6 @@ class WatsonOnlineStore:
 
         self.context = {}
         self.context['email'] = None
-        self.context['send_no_input'] = 'no'
         self.context['logged_in'] = False
 
         self.customer = None
@@ -66,86 +76,92 @@ class WatsonOnlineStore:
                 if output and 'text' in output and \
                     'user_profile' not in output and \
                         self.at_bot in output['text']:
-                    return output['text'].split(
-                        self.at_bot)[1].strip().lower(), output['channel']
-        return None, None
+                    return (output['text'].split(
+                        self.at_bot)[1].strip().lower(),
+                         output['channel'],
+                         output['user'])
+        return None, None, None
 
     def post_to_slack(self, response, channel):
         self.slack_client.api_call("chat.postMessage",
                                    channel=channel,
                                    text=response, as_user=True)
 
-    def cleanup_email(self, slack_response):
-        email_addr = slack_response.split("|")[1]
-        return email_addr.replace(">", "")
+    def add_customer_to_context(self):
+        """ We have a customer, send info to Watson
 
-    def handle_db_lookup(self):
-        """ Go to the DB and look up the user.
+           The customer data from the UI is in the Cloudant DB, or has
+            been added. Now add it to the context and pass back to Watson.
         """
-        if DEBUG:
-            print("DB lookup:\n{}".format(self.context['email']))
-        email_addr = str(self.context['email'])
-        if "mailto" in email_addr:
-            email_addr = self.cleanup_email(email_addr)
-        if DEBUG:
-            print("DB.\n email_addr:{}\n".format(email_addr))
-        user_data = self.cloudant_online_store.find_customer(email_addr)
-        if DEBUG:
-            print("DB.\n user_data:{}\n".format(user_data))
+        self.context = self.context_merge(self.context,
+                                          self.customer.get_customer_dict())
 
-        if not user_data:
-            return True
-        # Merge data from DB with existing context
-        self.context = self.context_merge(self.context, user_data)
-        if DEBUG:
-            print("DB.\n context:{}\n".format(self.context))
-        return False
-
-    def handle_lookupAndAddEmail(self):
-        """ Verify email is not in DB and add to DB.
+    def customer_from_db(self, user_data):
+        """ Set the customer using data from Cloudant DB
         """
-        email_addr = str(self.context['email'])
-        if "mailto" in email_addr:
-            email_addr = self.cleanup_email(email_addr)
-        if DEBUG:
-            print("DB.\n email_addr:{}\n".format(email_addr))
-        existing_user = self.cloudant_online_store.find_customer(email_addr)
-        if DEBUG:
-            print("DB.\n existing_user:{}\n".format(existing_user))
-        if existing_user:
-            # return some error
-            return False
 
-        # start to create the customer, add to DB when complete
-        self.customer = OnlineStoreCustomer(email=email_addr)
+        email_addr = user_data['email']
+        first = user_data['first_name']
+        last = user_data['last_name']
+        self.customer = OnlineStoreCustomer(email=email_addr,
+                                            first_name=first,
+                                            last_name=last,
+                                            shopping_cart="",
+                                            logged_in=True)
 
-        return True
+    def create_user_from_ui(self, user_json):
+        """Create a new user from data in Slack
 
-    def handle_AddName(self):
-        """ Add User Name to existing OnlineStoreCustomer
+            Authenticated user in slack will have email, First, and Last
+           names. Create a user in the DB for this. Note that a different
+           UI will require different code here
         """
-        full_name = str(self.context['full_name'])
-        first, last = full_name.split()
-        self.customer.first_name = first
-        self.customer.last_name = last
 
-        # TODO continue to ask for favorites and remove next lines, maybe,
-        #  but not for now.
-        self.customer.logged_in = True
-        self.context['logged_in'] = False
-        # logged_in = {'logged_in': True}
-        # FIXME: logged_in undefined here. Need to finish/fix this.
-        # self.context = self.context_merge(self.context, logged_in)
-        if DEBUG:
-            print("AddName context:\n{}".format(self.context))
-        self.cloudant_online_store.add_customer_obj(self.customer)
+        email_addr = user_json['user']['profile']['email']
+        first = user_json['user']['profile']['first_name']
+        last = user_json['user']['profile']['last_name']
+        self.customer = OnlineStoreCustomer(email=email_addr,
+                                            first_name=first,
+                                            last_name=last,
+                                            shopping_cart="",
+                                            logged_in=True)
 
-        return True
+    def init_customer(self, user_id):
+        """ Get user from DB, or create entry for user.
 
-    # replace with markstur branch add_discovery_query
-    def get_fake_discovery_response(self, input_text):
-        ret_string = {'discovery_result': ' blah blah blah'}
-        return ret_string
+            Note that this is specific to using Slack as the UI.
+             A different UI will require different code for the API
+             calls.
+        """
+        user_json = None
+        user_data = None
+
+        try:
+            # Get the authenticated user profile from Slack
+            user_json = self.slack_client.api_call("users.info",
+                                                   user=user_id)
+        except:
+            pass
+        if DEBUG and user_json and "error" not in user_json:
+            print("user_from_slack:\n{}\n".format(user_json))
+
+        # Slack will output even before user provides input,
+        # this will show up as "error"
+        if "error" not in user_json:
+            cust = user_json['user']['profile']['email']
+            user_data = self.cloudant_online_store.find_customer(cust)
+        if user_data and DEBUG:
+            print("user_from_DB\n{}\n".format(user_data))
+        # We found this Slack user in our Cloudant DB
+        if user_data:
+            self.customer_from_db(user_data)
+        elif "error" not in user_json:
+            # Didn't find Slack user in DB, so add them
+            self.create_user_from_ui(user_json)
+
+        if self.customer:
+            # Now Watson will have customer info
+            self.add_customer_to_context()
 
     def handle_DiscoveryQuery(self):
         """ Do a Discovery query
@@ -164,9 +180,6 @@ class WatsonOnlineStore:
         if DEBUG:
             print("watson_discovery:\n{}\ncontext:\n{}".format(
                 response, self.context))
-
-        # no need for user input, return to Watson Dialogue
-        return False
 
     def get_watson_response(self, message):
         response = self.conversation_client.message(
@@ -240,39 +253,19 @@ class WatsonOnlineStore:
         """ Handler for messages.
             param: message from UI (slackbot)
             param: channel
-
-            returns True if UI(slackbot) input is required
-            returns False if we want app processing and no input
         """
 
         watson_response = self.get_watson_response(message)
         if DEBUG:
             print("watson_response:\n{}\n".format(watson_response))
-        self.context = watson_response['context']
+        if 'context' in watson_response:
+            self.context = watson_response['context']
 
         response = ''
         for text in watson_response['output']['text']:
             response += text + "\n"
 
         self.post_to_slack(response, channel)
-
-        if ('send_no_input' in self.context.keys() and
-            self.context['send_no_input'] == 'yes' and
-            'email' in self.context.keys() and
-                self.context['email']):
-            return self.handle_db_lookup()
-
-        if ('intent' in self.context.keys() and
-            self.context['intent'] == 'CreateUserAccount' and
-            'state' in self.context.keys() and
-                self.context['state'] == 'lookupAndAddEmail'):
-            return self.handle_lookupAndAddEmail()
-
-        if ('intent' in self.context.keys() and
-            self.context['intent'] == 'CreateUserAccount' and
-            'state' in self.context.keys() and
-                self.context['state'] == 'AddName'):
-            return self.handle_AddName()
 
         if ('discovery_string' in self.context.keys() and
             self.context['discovery_string'] and
@@ -282,32 +275,23 @@ class WatsonOnlineStore:
             # self.discovery_client):
             return self.handle_DiscoveryQuery()
 
-        if ('send_no_input' in self.context.keys() and
-                self.context['send_no_input'] == 'yes'):
-            return False
-
-        return True
-
     def add_test_users_to_DB(self):
-        molly = OnlineStoreCustomer(email="molly@gmail.com",
-                                    first_name="Molly",
-                                    last_name="DA",
-                                    purchase_history="abc123",
-                                    favorites="shoes",
-                                    logged_in=True)
-        self.cloudant_online_store.add_customer_obj(molly)
-        scott = OnlineStoreCustomer(email="scott@gmail.com",
+        rich = OnlineStoreCustomer(email="rich.hagarty@ibm.com",
+                                   first_name="Rich",
+                                   last_name="Hagarty",
+                                   shopping_cart="",
+                                   logged_in=True)
+        self.cloudant_online_store.add_customer_obj(rich)
+        scott = OnlineStoreCustomer(email="scott.dangelo@ibm.com",
                                     first_name="Scott",
-                                    last_name="Smith",
-                                    purchase_history="cba321",
-                                    favorites="pants",
+                                    last_name="DAngelo",
+                                    shopping_cart="",
                                     logged_in=True)
         self.cloudant_online_store.add_customer_obj(scott)
-        mark = OnlineStoreCustomer(email="mark@gmail.com",
+        mark = OnlineStoreCustomer(email="mark.sturdevant@ibm.com",
                                    first_name="Mark",
-                                   last_name="Jones",
-                                   purchase_history="xyz123",
-                                   favorites="shirts",
+                                   last_name="Sturdevant",
+                                   shopping_cart="",
                                    logged_in=True)
         self.cloudant_online_store.add_customer_obj(mark)
 
@@ -319,19 +303,20 @@ class WatsonOnlineStore:
 
         if self.slack_client.rtm_connect():
             print("Watson Online Store bot is connected and running!")
-            get_slack = True
             while True:
                 slack_output = self.slack_client.rtm_read()
                 if DEBUG and slack_output:
                     print("slack output\n:{}\n".format(slack_output))
-                message, channel = self.parse_slack_output(slack_output)
+
+                message, channel, user = self.parse_slack_output(slack_output)
+                if not self.customer:
+                    self.init_customer(user)
+
                 if DEBUG and message:
                     print("message:\n %s\n channel:\n %s\n" %
                           (message, channel))
                 if message and channel:
-                    get_slack = self.handle_message(message, channel)
-                    while not get_slack:
-                        get_slack = self.handle_message(message, channel)
+                    self.handle_message(message, channel)
 
                 time.sleep(self.delay)
         else:
