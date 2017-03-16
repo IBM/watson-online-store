@@ -203,7 +203,7 @@ class WatsonOnlineStore:
     def format_discovery_response(response):
         """Try to limit the volumes of response to just enough."""
         if not ('results' in response and response['results']):
-            return "No results from Discovery."
+            return "No results from Discovery.", None
 
         results = response['results']
 
@@ -220,7 +220,8 @@ class WatsonOnlineStore:
                     eidx = html.find(">", sidx, len(html))
                     if eidx > 0:
                         tag = html[sidx:eidx-1]
-                        output.append(tag)
+                        html_output = tag
+                        #output.append(tag)
 
             if 'text' in result:
                 text = result['text']
@@ -248,7 +249,8 @@ class WatsonOnlineStore:
                     if 'image:src' in twitter:
                         output.append(twitter['image:src'])
 
-        return '\n'.join(output)
+        return output, html_output
+        #return '\n'.join(output)
 
     def get_discovery_response(self, input_text):
 
@@ -261,13 +263,16 @@ class WatsonOnlineStore:
             # This dumps a ton of results for us to peruse:
             pprint(discovery_response)
 
-        formatted_response = self.format_discovery_response(discovery_response)
+        response, html = self.format_discovery_response(discovery_response)
+        #formatted_response = self.format_discovery_response(discovery_response)
 
         if DEBUG:
             # This dumps a ton of results for us to peruse:
-            pprint(formatted_response)
+            pprint(response)
+            #pprint(formatted_response)
 
-        return {'discovery_result': formatted_response}
+        return {'discovery_result': response,
+                'discovery_url': html}
 
     def handle_list_shopping_cart(self):
         """ Get shopping_cart from DB and return to Watson
