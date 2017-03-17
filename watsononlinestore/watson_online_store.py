@@ -18,7 +18,7 @@ DEBUG = True
 
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
-                 shopping_cart=[], logged_in=False):
+                 shopping_cart=None, logged_in=False):
 
         self.email = email
         self.first_name = first_name
