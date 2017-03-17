@@ -75,7 +75,7 @@ class CloudantOnlineStore(object):
         if doc:
             return doc['shopping_cart']
         return doc  # None
-        
+
     def add_to_shopping_cart(self, customer_str, item):
         """
         Adds item to shopping cart for customer.
@@ -104,7 +104,7 @@ class CloudantOnlineStore(object):
         Parameters
         ----------
         customer_str - The customer specified by the user
-        item - string representing item to delete 
+        item - string representing item to delete
         """
         user_doc = self.find_doc(
             'customer', 'email', customer_str)
