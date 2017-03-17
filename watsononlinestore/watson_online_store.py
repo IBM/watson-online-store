@@ -2,7 +2,7 @@ import random
 import os
 import time
 from pprint import pprint
-from fake_discovery import FAKE_DISCOVERY
+from watsononlinestore.fake_discovery import FAKE_DISCOVERY
 
 # Limit the result count when calling Discovery query.
 DISCOVERY_QUERY_COUNT = 5
