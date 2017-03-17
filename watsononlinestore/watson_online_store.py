@@ -2,7 +2,7 @@ import random
 import os
 import time
 from pprint import pprint
-from fake_discovery import  FAKE_DISCOVERY
+from fake_discovery import FAKE_DISCOVERY
 
 # Limit the result count when calling Discovery query.
 DISCOVERY_QUERY_COUNT = 5
@@ -167,7 +167,7 @@ class WatsonOnlineStore:
             self.add_customer_to_context()
 
     def get_fake_discovery_response(self, input_text):
-        index =  random.randint(0,len(FAKE_DISCOVERY)-1)
+        index = random.randint(0, len(FAKE_DISCOVERY)-1)
         ret_string = {'discovery_result': FAKE_DISCOVERY[index]}
         return ret_string
 
@@ -221,7 +221,7 @@ class WatsonOnlineStore:
                     if eidx > 0:
                         tag = html[sidx:eidx-1]
                         html_output = tag
-                        #output.append(tag)
+                        # output.append(tag)
 
             if 'text' in result:
                 text = result['text']
@@ -250,7 +250,7 @@ class WatsonOnlineStore:
                         output.append(twitter['image:src'])
 
         return output, html_output
-        #return '\n'.join(output)
+        # return '\n'.join(output)
 
     def get_discovery_response(self, input_text):
 
@@ -264,12 +264,12 @@ class WatsonOnlineStore:
             pprint(discovery_response)
 
         response, html = self.format_discovery_response(discovery_response)
-        #formatted_response = self.format_discovery_response(discovery_response)
+        # response = self.format_discovery_response(discovery_response)
 
         if DEBUG:
             # This dumps a ton of results for us to peruse:
             pprint(response)
-            #pprint(formatted_response)
+            # pprint(formatted_response)
 
         return {'discovery_result': response,
                 'discovery_url': html}
@@ -342,13 +342,13 @@ class WatsonOnlineStore:
             return self.handle_list_shopping_cart()
 
         if ('shopping_cart' in self.context.keys() and
-                self.context['shopping_cart'] == 'add' and 
+                self.context['shopping_cart'] == 'add' and
             'cart_item' in self.context.keys() and
                 self.context['cart_item'] != ''):
             return self.handle_add_to_cart()
 
         if ('shopping_cart' in self.context.keys() and
-                self.context['shopping_cart'] == 'delete' and 
+                self.context['shopping_cart'] == 'delete' and
             'cart_item' in self.context.keys() and
                 self.context['cart_item'] != ''):
             return self.handle_delete_from_cart()
@@ -363,7 +363,7 @@ class WatsonOnlineStore:
         scott = OnlineStoreCustomer(email="scott.dangelo@ibm.com",
                                     first_name="Scott",
                                     last_name="DAngelo",
-                                    shopping_cart=['floop','bark'],
+                                    shopping_cart=['floop', 'bark'],
                                     logged_in=True)
         self.cloudant_online_store.add_customer_obj(scott)
 
