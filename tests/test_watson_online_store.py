@@ -14,7 +14,7 @@ class WOSTestCase(unittest.TestCase):
         self.discovery_client = mock.Mock()
 
         self.wosbot = watson_online_store.WatsonOnlineStore(
-            'botid',
+            'UBOTID',
             self.slack_client,
             self.conv_client,
             self.discovery_client,
@@ -110,3 +110,29 @@ class WOSTestCase(unittest.TestCase):
             'users.info', user=user)
         self.cloudant_store.find_customer.assert_called_once_with(
             test_email_addr)
+
+    @ddt.data(
+        ([{'text': '<@UBOTID> suFFix', 'channel': 'C', 'user': 'U'}],
+         ('suffix', 'C', 'U')),
+        ([{'text': 'prefix <@UBOTID> Suffix', 'channel': 'C', 'user': 'U'}],
+         ('prefix  suffix', 'C', 'U')),
+        ([{'text': 'prefix <@UBOTID> Suffix<@UBOTID>Tail',
+           'channel': 'C', 'user': 'U'}],
+         ('prefix  suffixtail', 'C', 'U')),
+        ([{'text': 'prefix <@UBOTID> suffix', 'channel': 'DXXX', 'user': 'U'}],
+         ('prefix  suffix', 'DXXX', 'U')),
+        ([{'text': 'this is a dm', 'channel': 'DXXX', 'user': 'U'}],
+         ('this is a dm', 'DXXX', 'U')))
+    @ddt.unpack
+    def test_parse_slack_output(self, output_list, expected):
+        actual = self.wosbot.parse_slack_output(output_list)
+        self.assertEqual(expected, actual)
+
+    @ddt.data([{},  # no text
+               {'text': '<@UBOTID> hi', 'user_profile': 'x'},  # has profile
+               {'text': 'hello world', 'channel': 'NOTDM'}  # no at and not DM
+               ])
+    def test_parse_slack_output_to_skip(self, output_list):
+        expected = (None, None, None)
+        actual = self.wosbot.parse_slack_output(output_list)
+        self.assertEqual(expected, actual)
