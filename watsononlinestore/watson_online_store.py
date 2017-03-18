@@ -72,17 +72,23 @@ class WatsonOnlineStore:
 
         return new_dict
 
-    def parse_slack_output(self, slack_rtm_output):
-        output_list = slack_rtm_output
+    def parse_slack_output(self, output_list):
         if output_list and len(output_list) > 0:
             for output in output_list:
-                if output and 'text' in output and \
-                    'user_profile' not in output and \
-                        self.at_bot in output['text']:
-                    return (output['text'].split(
-                        self.at_bot)[1].strip().lower(),
-                         output['channel'],
-                         output['user'])
+                if output and 'text' in output and (
+                            'user_profile' not in output):
+                    if self.at_bot in output['text']:
+                        return (
+                            ''.join(output['text'].split(self.at_bot
+                                                         )).strip().lower(),
+                            output['channel'],
+                            output['user'])
+                    elif (output['channel'].startswith('D')
+                          and output['user'] != self.bot_id):
+                        # Direct message!
+                        return (output['text'].strip().lower(),
+                                output['channel'],
+                                output['user'])
         return None, None, None
 
     def post_to_slack(self, response, channel):
