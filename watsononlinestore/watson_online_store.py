@@ -136,35 +136,37 @@ class WatsonOnlineStore:
              A different UI will require different code for the API
              calls.
         """
-        user_json = None
-        user_data = None
+        assert user_id
 
         try:
             # Get the authenticated user profile from Slack
             user_json = self.slack_client.api_call("users.info",
                                                    user=user_id)
-        except:
-            pass
-        if DEBUG and user_json and "error" not in user_json:
+        except Exception as e:
+            print("ERROR: Slack client call exception: %s" % repr(e))
+            return
+
+        # Not found returns json with error.
+        if DEBUG:
             print("user_from_slack:\n{}\n".format(user_json))
 
-        # Slack will output even before user provides input,
-        # this will show up as "error"
-        if "error" not in user_json:
-            cust = user_json['user']['profile']['email']
-            user_data = self.cloudant_online_store.find_customer(cust)
-        if user_data and DEBUG:
-            print("user_from_DB\n{}\n".format(user_data))
-        # We found this Slack user in our Cloudant DB
-        if user_data:
-            self.customer_from_db(user_data)
-        elif "error" not in user_json:
-            # Didn't find Slack user in DB, so add them
-            self.create_user_from_ui(user_json)
+        if user_json and 'user' in user_json:
+            cust = user_json['user'].get('profile', {}).get('email')
+            if cust:
+                user_data = self.cloudant_online_store.find_customer(cust)
+                if user_data:
+                    # We found this Slack user in our Cloudant DB
+                    if DEBUG:
+                        print("user_from_DB\n{}\n".format(user_data))
+                    self.customer_from_db(user_data)
+                else:
+                    # Didn't find Slack user in DB, so add them
+                    self.create_user_from_ui(user_json)
+                    self.cloudant_online_store.add_customer_obj(self.customer)
 
-        if self.customer:
-            # Now Watson will have customer info
-            self.add_customer_to_context()
+            if self.customer:
+                # Now Watson will have customer info
+                self.add_customer_to_context()
 
     def get_fake_discovery_response(self, input_text):
         index = random.randint(0, len(FAKE_DISCOVERY)-1)
@@ -374,14 +376,13 @@ class WatsonOnlineStore:
 
         if self.slack_client.rtm_connect():
             print("Watson Online Store bot is connected and running!")
-            get_input = True
             while True:
                 slack_output = self.slack_client.rtm_read()
                 if DEBUG and slack_output:
                     print("slack output\n:{}\n".format(slack_output))
 
                 message, channel, user = self.parse_slack_output(slack_output)
-                if not self.customer:
+                if user and not self.customer:
                     self.init_customer(user)
 
                 if DEBUG and message:
