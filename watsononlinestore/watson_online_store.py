@@ -75,7 +75,7 @@ class WatsonOnlineStore:
     def parse_slack_output(self, output_list):
         if output_list and len(output_list) > 0:
             for output in output_list:
-                if output and 'text' in output and (
+                if output and 'text' in output and 'user' in output and (
                             'user_profile' not in output):
                     if self.at_bot in output['text']:
                         return (
