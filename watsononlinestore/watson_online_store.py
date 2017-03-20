@@ -211,54 +211,49 @@ class WatsonOnlineStore:
     def format_discovery_response(response):
         """Try to limit the volumes of response to just enough."""
         if not ('results' in response and response['results']):
-            return "No results from Discovery.", None
+            return "No results from Discovery."
 
         results = response['results']
 
-        output = ["Top results found for your query:"]
+        output = []
+        cart_number = 1
+        href_tag = "/ProductDetail.aspx?pid="
+        product_tag = "Product:"
+        category_tag = "Category:"
+        url_start = "http://www.logostore-globalid.us"
+
         for i in range(min(len(results), DISCOVERY_KEEP_COUNT)):
             result = results[i]
 
+            product_name = ""
+            product_url = ""
+
+            # Pull out product number so that we can build url link.
             if 'html' in result:
                 html = result['html']
-                href_tag = "<a href="
                 sidx = html.find(href_tag)
                 if sidx > 0:
-                    sidx += len(href_tag) + 1
-                    eidx = html.find(">", sidx, len(html))
-                    if eidx > 0:
-                        tag = html[sidx:eidx-1]
-                        html_output = tag
-                        # output.append(tag)
+                    sidx += len(href_tag)
+                    product_id = html[sidx:sidx+6]
+                    product_url = url_start + href_tag + product_id
 
+            # Pull out product name from page text.
             if 'text' in result:
                 text = result['text']
-                text = text if len(text) < DISCOVERY_TRUNCATE else (
-                    "%s ..." % text[:DISCOVERY_TRUNCATE])
-                output.append(text)
+                sidx = text.find(product_tag)
+                if sidx > 0:
+                    sidx += len(product_tag)
+                    eidx = text.find(category_tag, sidx, len(text))
+                    if eidx > 0:
+                        product_name = text[sidx:eidx-1]
 
-            if 'blekko' in result:
-                blekko = result['blekko']
+            product_data = {"item": cart_number,
+                            "name": product_name,
+                            "url": product_url}
+            cart_number += 1
+            output.append(product_data)
 
-                # Trying to use result['text'] instead. Need to compare.
-                # if 'snippet' in blekko:
-                # output.append('\n'.join(blekko['snippet']))
-                # elif 'clean_title' in blekko:
-                # # Using elif because snippet usually includes a title.
-                # output.append('\n'.join(blekko['clean_title']))
-
-                if 'url' in blekko:
-                    output.append(blekko['url'])
-
-                if 'twitter' in blekko:
-                    twitter = blekko['twitter']
-                    if 'image' in twitter:
-                        output.append(twitter['image'])
-                    if 'image:src' in twitter:
-                        output.append(twitter['image:src'])
-
-        return output, html_output
-        # return '\n'.join(output)
+        return output
 
     def get_discovery_response(self, input_text):
 
@@ -271,16 +266,21 @@ class WatsonOnlineStore:
             # This dumps a ton of results for us to peruse:
             pprint(discovery_response)
 
-        response, html = self.format_discovery_response(discovery_response)
-        # response = self.format_discovery_response(discovery_response)
+        response = self.format_discovery_response(discovery_response)
 
         if DEBUG:
             # This dumps a ton of results for us to peruse:
             pprint(response)
             # pprint(formatted_response)
 
-        return {'discovery_result': response,
-                'discovery_url': html}
+        # Format response to show user.
+        formatted_response = ""
+        for item in response:
+            formatted_response += "\n" + str(item['item']) + ") " + \
+                                  item['name'] + \
+                                  "\n" + item['url']
+
+        return {'discovery_result': formatted_response}
 
     def handle_list_shopping_cart(self):
         """ Get shopping_cart from DB and return to Watson
