@@ -163,16 +163,18 @@ Sample .env
 Sample output
 -------------
 
-*this is placeholder text until we get screenshots or a gif*
+Start a conversation with your bot:
 
-Start a conversation with your bot by searching for an item:
+<img src="doc/source/images/convo_init.png">
 
-  `@wosbot I’d like to search for a mug`
+Search for an item:
+
+<img src="doc/source/images/convo_list.png">
 
 Add an item to your cart:
 
-  `@wosbot I’d like to buy item 1`
+<img src="doc/source/images/convo_add.png">
 
 Remove an item from your cart:
 
-  `@wosbot I’d like remove item 4`
+<img src="doc/source/images/convo_remove.png">
