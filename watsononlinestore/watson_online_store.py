@@ -64,6 +64,7 @@ class WatsonOnlineStore:
         self.context['logged_in'] = False
 
         self.customer = None
+        self.response_tuple = None
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
@@ -247,7 +248,7 @@ class WatsonOnlineStore:
                     if eidx > 0:
                         product_name = text[sidx:eidx-1]
 
-            product_data = {"item": cart_number,
+            product_data = {"cart_number": str(cart_number),
                             "name": product_name,
                             "url": product_url}
             cart_number += 1
@@ -267,6 +268,7 @@ class WatsonOnlineStore:
             pprint(discovery_response)
 
         response = self.format_discovery_response(discovery_response)
+        self.response_tuple = response
 
         if DEBUG:
             # This dumps a ton of results for us to peruse:
@@ -276,7 +278,7 @@ class WatsonOnlineStore:
         # Format response to show user.
         formatted_response = ""
         for item in response:
-            formatted_response += "\n" + str(item['item']) + ") " + \
+            formatted_response += "\n" + item['cart_number'] + ") " + \
                                   item['name'] + \
                                   "\n" + item['url']
 
@@ -287,8 +289,12 @@ class WatsonOnlineStore:
             Returns: list of shopping_cart items
         """
         cust = self.customer.email
+        formatted_out = ""
         shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
-        self.context['shopping_cart'] = shopping_list
+        for index, item in enumerate(shopping_list):
+            formatted_out += str(index+1) + ") " + str(item) + "\n"
+
+        self.context['shopping_cart'] = formatted_out
 
         # no need for user input, return to Watson Dialogue
         return False
@@ -300,9 +306,14 @@ class WatsonOnlineStore:
     def handle_delete_from_cart(self):
         """ Delete an item from this Customers shopping cart
         """
-        item = self.context['cart_item']
         email = self.customer.email
-        self.cloudant_online_store.delete_item_shopping_cart(email, item)
+        shopping_list = self.cloudant_online_store.list_shopping_cart(email)
+        item_num = int(self.context['cart_item'])
+
+        for index, item in enumerate(shopping_list):
+            if index+1 == item_num:
+                self.cloudant_online_store.delete_item_shopping_cart(email,
+                                                                     item)
         self.clear_shopping_cart()
 
         # no need for user input, return to Watson Dialogue
@@ -311,9 +322,13 @@ class WatsonOnlineStore:
     def handle_add_to_cart(self):
         """ Add an item to this Customers shopping cart
         """
-        item = self.context['cart_item']
+        cart_item = int(self.context['cart_item'])
         email = self.customer.email
-        self.cloudant_online_store.add_to_shopping_cart(email, item)
+
+        for index, entry in enumerate(self.response_tuple):
+            if index+1 == cart_item:
+                item = entry['name'] + ': ' + entry['url'] + '\n'
+                self.cloudant_online_store.add_to_shopping_cart(email, item)
         self.clear_shopping_cart()
 
         # no need for user input, return to Watson Dialogue
