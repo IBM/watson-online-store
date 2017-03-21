@@ -292,6 +292,19 @@ class WatsonOnlineStore:
             query_options={'query': input_text, 'count': DISCOVERY_QUERY_COUNT}
         )
 
+        filtered_results = []
+        num_matches = 0
+        if 'results' in discovery_response:
+            for result in discovery_response['results']:
+                if 'score' in result:
+                    # 25% seems to be magic number for legitimate matches.
+                    if result['score'] >= 0.25:
+                        filtered_results.append(result)
+                        num_matches += 1
+
+        discovery_response['matching_results'] = num_matches
+        discovery_response['results'] = filtered_results
+
         response = self.format_discovery_response(discovery_response)
         self.response_tuple = response
 
