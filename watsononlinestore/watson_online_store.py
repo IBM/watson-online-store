@@ -278,7 +278,7 @@ class WatsonOnlineStore:
         # Format response to show user.
         formatted_response = ""
         for item in response:
-            formatted_response += "\n" + str(item['cart_number']) + ") " + \
+            formatted_response += "\n" + item['cart_number'] + ") " + \
                                   item['name'] + \
                                   "\n" + item['url']
 
@@ -312,7 +312,8 @@ class WatsonOnlineStore:
 
         for index, item in enumerate(shopping_list):
             if index+1 == item_num:
-                self.cloudant_online_store.delete_item_shopping_cart(email, item)
+                self.cloudant_online_store.delete_item_shopping_cart(email,
+                                                                     item)
         self.clear_shopping_cart()
 
         # no need for user input, return to Watson Dialogue
