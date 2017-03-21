@@ -1,7 +1,7 @@
 import random
 import os
+import re
 import time
-from pprint import pprint
 from watsononlinestore.fake_discovery import FAKE_DISCOVERY
 
 # Limit the result count when calling Discovery query.
@@ -76,7 +76,7 @@ class WatsonOnlineStore:
     def parse_slack_output(self, output_list):
         if output_list and len(output_list) > 0:
             for output in output_list:
-                if output and 'text' in output and (
+                if output and 'text' in output and 'user' in output and (
                             'user_profile' not in output):
                     if self.at_bot in output['text']:
                         return (
@@ -84,8 +84,8 @@ class WatsonOnlineStore:
                                                          )).strip().lower(),
                             output['channel'],
                             output['user'])
-                    elif (output['channel'].startswith('D')
-                          and output['user'] != self.bot_id):
+                    elif (output['channel'].startswith('D') and
+                          output['user'] != self.bot_id):
                         # Direct message!
                         return (output['text'].strip().lower(),
                                 output['channel'],
@@ -95,7 +95,8 @@ class WatsonOnlineStore:
     def post_to_slack(self, response, channel):
         self.slack_client.api_call("chat.postMessage",
                                    channel=channel,
-                                   text=response, as_user=True)
+                                   text=response,
+                                   as_user=True)
 
     def add_customer_to_context(self):
         """ We have a customer, send info to Watson
@@ -211,14 +212,27 @@ class WatsonOnlineStore:
     @staticmethod
     def format_discovery_response(response):
         """Try to limit the volumes of response to just enough."""
+        output = []
         if not ('results' in response and response['results']):
-            return "No results from Discovery."
+            return output
+
+        def slack_encode(input_text):
+            """Slack does not like <, &, >. That's all."""
+
+            if not input_text:
+                return input_text
+
+            args = [('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;')]
+            for from_to in args:
+                input_text = input_text.replace(*from_to)
+
+            return input_text
 
         results = response['results']
 
-        output = []
         cart_number = 1
         href_tag = "/ProductDetail.aspx?pid="
+        img_tag = '<a class="jqzoom" href="'
         product_tag = "Product:"
         category_tag = "Category:"
         url_start = "http://www.logostore-globalid.us"
@@ -228,6 +242,7 @@ class WatsonOnlineStore:
 
             product_name = ""
             product_url = ""
+            img_url = ""
 
             # Pull out product number so that we can build url link.
             if 'html' in result:
@@ -237,6 +252,17 @@ class WatsonOnlineStore:
                     sidx += len(href_tag)
                     product_id = html[sidx:sidx+6]
                     product_url = url_start + href_tag + product_id
+
+                # grab the image url to allow pictures in slack
+                simg = html.find(img_tag)
+                if simg > 0:
+                    simg += len(img_tag)
+                    eimg = html.find('"', simg)
+                    if eimg > 0:
+                        img = html[simg:eimg]
+                        # shrink the picture
+                        img_url = re.sub(
+                            r'scale\[[0-9]+\]', 'scale[50]', img)
 
             # Pull out product name from page text.
             if 'text' in result:
@@ -249,8 +275,10 @@ class WatsonOnlineStore:
                         product_name = text[sidx:eidx-1]
 
             product_data = {"cart_number": str(cart_number),
-                            "name": product_name,
-                            "url": product_url}
+                            "name": slack_encode(product_name),
+                            "url": slack_encode(product_url),
+                            "image": slack_encode(img_url),
+                            }
             cart_number += 1
             output.append(product_data)
 
@@ -263,24 +291,15 @@ class WatsonOnlineStore:
             collection_id=self.discovery_collection_id,
             query_options={'query': input_text, 'count': DISCOVERY_QUERY_COUNT}
         )
-        if DEBUG:
-            # This dumps a ton of results for us to peruse:
-            pprint(discovery_response)
 
         response = self.format_discovery_response(discovery_response)
         self.response_tuple = response
 
-        if DEBUG:
-            # This dumps a ton of results for us to peruse:
-            pprint(response)
-            # pprint(formatted_response)
-
-        # Format response to show user.
         formatted_response = ""
         for item in response:
             formatted_response += "\n" + item['cart_number'] + ") " + \
                                   item['name'] + \
-                                  "\n" + item['url']
+                                  "\n" + item['image']  # "\n" + item['url']
 
         return {'discovery_result': formatted_response}
 
@@ -308,7 +327,11 @@ class WatsonOnlineStore:
         """
         email = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(email)
-        item_num = int(self.context['cart_item'])
+        try:  # Passing text i.e. 'hi' breaks this. Fix better in future...
+            item_num = int(self.context['cart_item'])
+        except ValueError:
+            # Should pass back error to Watson
+            return False
 
         for index, item in enumerate(shopping_list):
             if index+1 == item_num:
@@ -322,7 +345,11 @@ class WatsonOnlineStore:
     def handle_add_to_cart(self):
         """ Add an item to this Customers shopping cart
         """
-        cart_item = int(self.context['cart_item'])
+        try:  # Passing text i.e. 'hi' breaks this. Fix better in future...
+            cart_item = int(self.context['cart_item'])
+        except ValueError:
+            # Should pass back error to Watson
+            return False
         email = self.customer.email
 
         for index, entry in enumerate(self.response_tuple):
