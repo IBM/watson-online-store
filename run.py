@@ -9,7 +9,8 @@ from slackclient import SlackClient
 from watson_developer_cloud import ConversationV1
 from watson_developer_cloud import DiscoveryV1
 
-from watsononlinestore.database.cloudant_online_store import CloudantOnlineStore
+from watsononlinestore.database.cloudant_online_store import \
+    CloudantOnlineStore
 from watsononlinestore.watson_online_store import WatsonOnlineStore
 
 
