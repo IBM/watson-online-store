@@ -58,6 +58,8 @@ class WatsonOnlineStore:
             'DISCOVERY_ENVIRONMENT_ID')
         self.discovery_collection_id = os.environ.get(
             'DISCOVERY_COLLECTION_ID')
+        self.discovery_score_filter = float(os.environ.get(
+            "DISCOVERY_SCORE_FILTER", 0))
 
         self.context = {}
         self.context['email'] = None
@@ -292,15 +294,19 @@ class WatsonOnlineStore:
             query_options={'query': input_text, 'count': DISCOVERY_QUERY_COUNT}
         )
 
-        filtered_results = []
+        # Watson discovery assigns a confidence level to each result.
+        # Based on data mix, we can assign a minimum tolerance value in an
+        # attempt to filter out the "weakest" results.
         num_matches = 0
-        if 'results' in discovery_response:
-            for result in discovery_response['results']:
-                if 'score' in result:
-                    # 25% seems to be magic number for legitimate matches.
-                    if result['score'] >= 0.25:
-                        filtered_results.append(result)
-                        num_matches += 1
+        filtered_results = []
+        if self.discovery_score_filter:
+            results = (results for results in discovery_response['results']
+                      if 'results' in discovery_response)
+            for result in results: 
+                if ('score' in result and
+                   result['score'] >= self.discovery_score_filter):
+                    filtered_results.append(result)
+                    num_matches += 1
 
         discovery_response['matching_results'] = num_matches
         discovery_response['results'] = filtered_results
