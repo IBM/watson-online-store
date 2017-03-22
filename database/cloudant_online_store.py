@@ -4,6 +4,7 @@ from cloudant.query import Query
 logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
 
+
 class CloudantOnlineStore(object):
 
     def __init__(self, client, db_name):
