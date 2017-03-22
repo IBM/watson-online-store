@@ -21,5 +21,6 @@ if __name__ == "__main__":
                 break
         else:
             print("could not find bot user with the name " + BOT_NAME)
+
     else:
         print("could not find bot user because api_call did not return 'ok'")
