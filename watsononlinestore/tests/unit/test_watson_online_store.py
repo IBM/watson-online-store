@@ -1,7 +1,9 @@
-from watsononlinestore import watson_online_store
+import unittest
+
 import ddt
 import mock
-import unittest
+
+from watsononlinestore import watson_online_store
 
 
 @ddt.ddt

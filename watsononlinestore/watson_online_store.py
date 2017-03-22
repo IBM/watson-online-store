@@ -1,9 +1,10 @@
 import logging
-import random
 import os
+import random
 import re
 import time
-from watsononlinestore.fake_discovery import FAKE_DISCOVERY
+
+from watsononlinestore.tests.fake_discovery import FAKE_DISCOVERY
 
 logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
