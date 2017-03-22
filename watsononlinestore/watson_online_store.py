@@ -1,8 +1,12 @@
+import logging
 import random
 import os
 import re
 import time
 from watsononlinestore.fake_discovery import FAKE_DISCOVERY
+
+logging.basicConfig(level=logging.DEBUG)
+LOG = logging.getLogger(__name__)
 
 # Limit the result count when calling Discovery query.
 DISCOVERY_QUERY_COUNT = 5
@@ -12,8 +16,6 @@ DISCOVERY_QUERY_COUNT = 5
 DISCOVERY_KEEP_COUNT = 5
 # Truncate the Discovery 'text'. It can be a lot. We'll add "..." if truncated.
 DISCOVERY_TRUNCATE = 500
-
-DEBUG = True
 
 
 class OnlineStoreCustomer:
@@ -150,13 +152,12 @@ class WatsonOnlineStore:
             # Get the authenticated user profile from Slack
             user_json = self.slack_client.api_call("users.info",
                                                    user=user_id)
-        except Exception as e:
-            print("ERROR: Slack client call exception: %s" % repr(e))
+        except Exception:
+            LOG.exception("Slack client call exception:")
             return
 
         # Not found returns json with error.
-        if DEBUG:
-            print("user_from_slack:\n{}\n".format(user_json))
+        LOG.debug("user_from_slack:\n{}\n".format(user_json))
 
         if user_json and 'user' in user_json:
             cust = user_json['user'].get('profile', {}).get('email')
@@ -164,8 +165,7 @@ class WatsonOnlineStore:
                 user_data = self.cloudant_online_store.find_customer(cust)
                 if user_data:
                     # We found this Slack user in our Cloudant DB
-                    if DEBUG:
-                        print("user_from_DB\n{}\n".format(user_data))
+                    LOG.debug("user_from_DB\n{}\n".format(user_data))
                     self.customer_from_db(user_data)
                 else:
                     # Didn't find Slack user in DB, so add them
@@ -193,11 +193,9 @@ class WatsonOnlineStore:
         else:
             response = self.get_fake_discovery_response(query_string)
 
-        # is response Json? It needs to be...
         self.context = self.context_merge(self.context, response)
-        if DEBUG:
-            print("watson_discovery:\n{}\ncontext:\n{}".format(
-                response, self.context))
+        LOG.debug("watson_discovery:\n{}\ncontext:\n{}".format(
+                   response, self.context))
 
         # no need for user input, return to Watson Dialogue
         return False
@@ -330,7 +328,7 @@ class WatsonOnlineStore:
         try:  # Passing text i.e. 'hi' breaks this. Fix better in future...
             item_num = int(self.context['cart_item'])
         except ValueError:
-            # Should pass back error to Watson
+            LOG.exception("cart_item must be a number")
             return False
 
         for index, item in enumerate(shopping_list):
@@ -348,7 +346,7 @@ class WatsonOnlineStore:
         try:  # Passing text i.e. 'hi' breaks this. Fix better in future...
             cart_item = int(self.context['cart_item'])
         except ValueError:
-            # Should pass back error to Watson
+            LOG.exception("cart_item must be a number")
             return False
         email = self.customer.email
 
@@ -368,8 +366,7 @@ class WatsonOnlineStore:
         """
 
         watson_response = self.get_watson_response(message)
-        if DEBUG:
-            print("watson_response:\n{}\n".format(watson_response))
+        LOG.debug("watson_response:\n{}\n".format(watson_response))
         if 'context' in watson_response:
             self.context = watson_response['context']
 
@@ -423,19 +420,19 @@ class WatsonOnlineStore:
         self.add_test_users_to_DB()
 
         if self.slack_client.rtm_connect():
-            print("Watson Online Store bot is connected and running!")
+            LOG.info("Watson Online Store bot is connected and running!")
             while True:
                 slack_output = self.slack_client.rtm_read()
-                if DEBUG and slack_output:
-                    print("slack output\n:{}\n".format(slack_output))
+                if slack_output:
+                    LOG.debug("slack output\n:{}\n".format(slack_output))
 
                 message, channel, user = self.parse_slack_output(slack_output)
                 if user and not self.customer:
                     self.init_customer(user)
 
-                if DEBUG and message:
-                    print("message:\n %s\n channel:\n %s\n" %
-                          (message, channel))
+                if message:
+                    LOG.debug("message:\n %s\n channel:\n %s\n" %
+                              (message, channel))
                 if message and channel:
                     get_input = self.handle_message(message, channel)
                     while not get_input:
@@ -443,4 +440,4 @@ class WatsonOnlineStore:
 
                 time.sleep(self.delay)
         else:
-            print("Connection failed. Invalid Slack token or bot ID?")
+            LOG.warning("Connection failed. Invalid Slack token or bot ID?")

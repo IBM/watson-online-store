@@ -1,4 +1,8 @@
+import logging
 from cloudant.query import Query
+
+logging.basicConfig(level=logging.DEBUG)
+LOG = logging.getLogger(__name__)
 
 
 class CloudantOnlineStore(object):
@@ -20,12 +24,12 @@ class CloudantOnlineStore(object):
         """
         try:
             self.client.connect()
-            print('Getting database...')
+            LOG.info('Getting database...')
             if self.db_name not in self.client.all_dbs():
-                print('Creating database {}...'.format(self.db_name))
+                LOG.info('Creating database {}...'.format(self.db_name))
                 self.client.create_database(self.db_name)
             else:
-                print('Database {} exists.'.format(self.db_name))
+                LOG.info('Database {} exists.'.format(self.db_name))
         finally:
             self.client.disconnect()
 
@@ -167,11 +171,11 @@ class CloudantOnlineStore(object):
         existing_doc = self.find_doc(
             doc_type, unique_property_name, property_value)
         if existing_doc is not None:
-            print('Returning {} doc where {}={}'.format(
+            LOG.debug('Returning {} doc where {}={}'.format(
                 doc_type, unique_property_name, property_value))
             return existing_doc
         else:
-            print('Creating {} doc where {}={}'.format(
+            LOG.debug('Creating {} doc where {}={}'.format(
                 doc_type, unique_property_name, property_value))
             try:
                 self.client.connect()
