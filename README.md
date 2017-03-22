@@ -26,7 +26,7 @@ Install and deploy
 
   * In a terminal, run: `$ git clone https://github.com/ibm/watson-online-store`
 
-  * We’ll be using the file `workspace.json` and the folder `data/ibm_store_html/`
+  * We’ll be using the file `data/workspace.json` and the folder `data/ibm_store_html/`
 
 3. Create various Bluemix services
 
@@ -60,7 +60,7 @@ Install and deploy
 
   <div style="text-align:center"><img src="doc/source/images/import_conversation_workspace.png" width="50%"></div>
 
-  * Find the local version of `workspace.json` and select **Import**
+  * Find the local version of `data/workspace.json` and select **Import**
 
   <div style="text-align:center"><img src="doc/source/images/find_conversation_workspace.png" width="75%"></div>
 
