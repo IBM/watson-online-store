@@ -58,10 +58,6 @@ class WatsonEnv:
     def get_watson_online_store():
         load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
-        print("+++++++DUMPENV++++++++++++++++++++++++++++++++==")
-        print(os.environ)
-        print("+++++++DUMPENV++++++++++++++++++++++++++++++++==")
-
         # Use these env vars first if set
         bot_id = os.environ.get("BOT_ID")
         slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
@@ -88,15 +84,8 @@ class WatsonEnv:
             # If some of the service env vars are not set get them from VCAP
             vcap_env = None
             vcap_services = os.environ.get("VCAP_SERVICES")
-            print('===========================================')
-            print("VCAP_SERVICES")
-            print('===========================================')
-            print(vcap_services)
-            print('===========================================')
             if vcap_services:
                 vcap_env = json.loads(vcap_services)
-                print(vcap_env)
-            print('===========================================')
             if vcap_env:
                 conversation_creds = WatsonEnv.get_vcap_credentials(
                     vcap_env, 'conversation')
@@ -131,8 +120,11 @@ class WatsonEnv:
             print(MISSING_ENV_VARS)
             return None
 
-        # If BOT_ID wasn't set, we can get it using SlackClient and user ID.
+        if 'placeholder' in slack_bot_token:
+            raise Exception("SLACK_BOT_TOKEN needs to be set correctly. "
+                            "It is currently set to 'placeholder'.")
         slack_client = SlackClient(slack_bot_token)
+        # If BOT_ID wasn't set, we can get it using SlackClient and user ID.
         if not bot_id:
             bot_id = WatsonEnv.get_slack_user_id(slack_client)
             if not bot_id:
