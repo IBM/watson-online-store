@@ -1,1 +1,1 @@
-web: python python-flask-server/server.py
+web: python ./run.py

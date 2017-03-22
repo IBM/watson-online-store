@@ -14,7 +14,7 @@ applications:
    - cloudantNoSQLDB-service
    - Discovery-service
   path: .
-  command: python python-flask-server/server.py
+  command: python ./run.py
   memory: 128M
   instances: 1
   domain: mybluemix.net
