@@ -21,7 +21,7 @@ applications:
   name: watson-online-store
   host: watson-online-store
   disk_quota: 1024M
-  random-route: true
+  health-check-type: process
 env:
   CLOUDANT_DB_NAME: watson-online-store
   SLACK_BOT_USER: wosbot
