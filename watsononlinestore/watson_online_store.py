@@ -432,7 +432,7 @@ class WatsonOnlineStore:
 
                 if message:
                     LOG.debug("message:\n %s\n channel:\n %s\n" %
-                          (message, channel))
+                              (message, channel))
                 if message and channel:
                     get_input = self.handle_message(message, channel)
                     while not get_input:
