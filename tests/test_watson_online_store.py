@@ -23,6 +23,8 @@ class WOSTestCase(unittest.TestCase):
     def test_0(self):
 
         fake_channel = "fake channel"
+        sender = watson_online_store.SlackSender(
+            self.slack_client, fake_channel)
         fake_response = "this is a fake response"
 
         self.conv_client.message.return_value = {
@@ -30,7 +32,7 @@ class WOSTestCase(unittest.TestCase):
             'output': {'text': [fake_response]},
         }
 
-        self.wosbot.handle_message("this is a test", fake_channel)
+        self.wosbot.handle_message("this is a test", sender)
 
         self.conv_client.assert_has_calls([
             mock.call.message(context={'email': None,
