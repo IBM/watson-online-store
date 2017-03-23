@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import logging
 import os
 import random
@@ -79,7 +80,8 @@ class WatsonOnlineStore:
         # IBM Watson Conversation
         self.conversation_client = conversation_client
         self.discovery_client = discovery_client
-        self.workspace_id = os.environ.get("WORKSPACE_ID")
+        self.workspace_id = self.setup_conversation_workspace(
+            conversation_client)
 
         # IBM Cloudant noSQL database
         self.cloudant_online_store = cloudant_online_store
@@ -94,6 +96,70 @@ class WatsonOnlineStore:
         self.customer = None
         self.response_tuple = None
         self.delay = 0.5  # second
+
+    def setup_conversation_workspace(self, conversation_client):
+        """Verify and/or initialize the conversation workspace.
+
+        If a WORKSPACE_ID is specified in the runtime environment,
+        make sure that workspace exists. If no WORKSTATION_ID is
+        specified then try to find it using a lookup by name.
+        Name will be 'watson-online-store' unless overridden
+        using the WORKSPACE_NAME environment variable.
+
+        If a workspace is not found by ID or name, then try to
+        create one from the JSON in data/workspace.json. Use the
+        name as mentioned above so future lookup will find what
+        was created.
+
+        :param conversation_client: Conversation service client
+        :return: ID of conversation workspace to use
+        :rtype: str
+        :raise Exception: When workspace is not found and cannot be created
+        """
+
+        # Get the actual workspaces
+        workspaces = conversation_client.list_workspaces()['workspaces']
+
+        env_workspace_id = os.environ.get('WORKSPACE_ID')
+        if env_workspace_id:
+            # Optionally, we have an env var to give us a WORKSPACE_ID.
+            # If one was set in the env, require that it can be found.
+            LOG.debug("Using WORKSPACE_ID=%s" % env_workspace_id)
+            for workspace in workspaces:
+                if workspace['workspace_id'] == env_workspace_id:
+                    ret = env_workspace_id
+                    break
+            else:
+                raise Exception("WORKSPACE_ID=%s is specified in a runtime "
+                                "environment variable, but that workspace "
+                                "does not exist." % env_workspace_id)
+        else:
+            # Find it by name. We may have already created it.
+            name = os.environ.get('WORKSPACE_NAME', 'watson-online-store')
+            for workspace in workspaces:
+                if workspace['name'] == name:
+                    ret = workspace['workspace_id']
+                    LOG.debug("Found WORKSPACE_ID=%(id)s using lookup by "
+                              "name=%(name)s" % {'id': ret, 'name': name})
+                    break
+            else:
+                # Not found, so create it.
+                LOG.debug("Creating workspace from data/workspace.json...")
+                with open('data/workspace.json') as workspace_file:
+                    workspace = json.load(workspace_file)
+                created = conversation_client.create_workspace(
+                    name,
+                    "Conversation workspace created by watson-online-store.",
+                    workspace['language'],
+                    intents=workspace['intents'],
+                    entities=workspace['entities'],
+                    dialog_nodes=workspace['dialog_nodes'],
+                    counterexamples=workspace['counterexamples'],
+                    metadata=workspace['metadata'])
+                ret = created['workspace_id']
+                LOG.debug("Created WORKSPACE_ID=%(id)s with "
+                          "name=%(name)s" % {'id': ret, 'name': name})
+        return ret
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
