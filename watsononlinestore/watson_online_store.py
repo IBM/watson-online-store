@@ -73,8 +73,15 @@ class WatsonOnlineStore:
             'DISCOVERY_ENVIRONMENT_ID')
         self.discovery_collection_id = os.environ.get(
             'DISCOVERY_COLLECTION_ID')
-        self.discovery_score_filter = float(os.environ.get(
-            "DISCOVERY_SCORE_FILTER", 0))
+
+        try:
+            self.discovery_score_filter = float(os.environ.get(
+                "DISCOVERY_SCORE_FILTER", 0))
+        except:
+            LOG.error("DISCOVERY_SCORE_FILTER must be a number, " +
+                      "using default value of 0")
+            self.discovery_score_filter = 0
+            pass
 
         self.context = {}
         self.context['email'] = None
@@ -308,7 +315,7 @@ class WatsonOnlineStore:
         # Watson discovery assigns a confidence level to each result.
         # Based on data mix, we can assign a minimum tolerance value in an
         # attempt to filter out the "weakest" results.
-        if 'results' in discovery_response and self.discovery_score_filter:
+        if self.discovery_score_filter and 'results' in discovery_response:
             filtered_results = []
             for result in discovery_response['results']:
                 if 'score' in result:
