@@ -34,13 +34,12 @@ class SlackSender:
 
 class OnlineStoreCustomer:
     def __init__(self, email=None, first_name=None, last_name=None,
-                 shopping_cart=None, logged_in=False):
+                 shopping_cart=None):
 
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.shopping_cart = shopping_cart
-        self.logged_in = logged_in
 
     def get_customer_dict(self):
         """ Specific to our cloudant_online_store
@@ -50,8 +49,7 @@ class OnlineStoreCustomer:
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'shopping_cart': self.shopping_cart,
-            'logged_in': self.logged_in
+            'shopping_cart': self.shopping_cart
         }
         return customer
 
@@ -60,27 +58,30 @@ class WatsonOnlineStore:
     def __init__(self, bot_id, slack_client,
                  conversation_client, discovery_client,
                  cloudant_online_store):
-        self.bot_id = bot_id
 
+        # specific for Slack as UI
+        self.bot_id = bot_id
         self.slack_client = slack_client
+        self.at_bot = "<@" + bot_id + ">"
+
+        # IBM Watson Conversation
         self.conversation_client = conversation_client
         self.discovery_client = discovery_client
+        self.workspace_id = os.environ.get("WORKSPACE_ID")
+
+        # IBM Cloudant noSQL database
         self.cloudant_online_store = cloudant_online_store
 
-        self.at_bot = "<@" + bot_id + ">"
-        self.delay = 0.5  # second
-        self.workspace_id = os.environ.get("WORKSPACE_ID")
+        # IBM Discovery Service
         self.discovery_environment_id = os.environ.get(
             'DISCOVERY_ENVIRONMENT_ID')
         self.discovery_collection_id = os.environ.get(
             'DISCOVERY_COLLECTION_ID')
 
         self.context = {}
-        self.context['email'] = None
-        self.context['logged_in'] = False
-
         self.customer = None
         self.response_tuple = None
+        self.delay = 0.5  # second
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
@@ -133,8 +134,7 @@ class WatsonOnlineStore:
         self.customer = OnlineStoreCustomer(email=email_addr,
                                             first_name=first,
                                             last_name=last,
-                                            shopping_cart=[],
-                                            logged_in=True)
+                                            shopping_cart=[])
 
     def create_user_from_ui(self, user_json):
         """Create a new user from data in Slack
@@ -150,8 +150,7 @@ class WatsonOnlineStore:
         self.customer = OnlineStoreCustomer(email=email_addr,
                                             first_name=first,
                                             last_name=last,
-                                            shopping_cart=[],
-                                            logged_in=True)
+                                            shopping_cart=[])
 
     def init_customer(self, user_id):
         """ Get user from DB, or create entry for user.
@@ -223,7 +222,8 @@ class WatsonOnlineStore:
 
     @staticmethod
     def format_discovery_response(response):
-        """Try to limit the volumes of response to just enough."""
+        """Specific to ibm_store_html data
+        """
         output = []
         if not ('results' in response and response['results']):
             return output
@@ -339,7 +339,7 @@ class WatsonOnlineStore:
         """
         email = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(email)
-        try:  # Passing text i.e. 'hi' breaks this. Fix better in future...
+        try:
             item_num = int(self.context['cart_item'])
         except ValueError:
             LOG.exception("cart_item must be a number")
@@ -357,7 +357,7 @@ class WatsonOnlineStore:
     def handle_add_to_cart(self):
         """ Add an item to this Customers shopping cart
         """
-        try:  # Passing text i.e. 'hi' breaks this. Fix better in future...
+        try:
             cart_item = int(self.context['cart_item'])
         except ValueError:
             LOG.exception("cart_item must be a number")
@@ -394,11 +394,7 @@ class WatsonOnlineStore:
         sender.send_message(response)
 
         if ('discovery_string' in self.context.keys() and
-            self.context['discovery_string'] and
-            # remove next line when tested:
-                True):
-            # add next line when tested
-            # self.discovery_client):
+           self.context['discovery_string'] and self.discovery_client):
             return self.handle_DiscoveryQuery()
 
         if ('shopping_cart' in self.context.keys() and
@@ -423,18 +419,9 @@ class WatsonOnlineStore:
 
         return True
 
-    def add_test_users_to_DB(self):
-        scott = OnlineStoreCustomer(email="scott.dangelo@ibm.com",
-                                    first_name="Scott",
-                                    last_name="DAngelo",
-                                    shopping_cart=['floop', 'bark'],
-                                    logged_in=True)
-        self.cloudant_online_store.add_customer_obj(scott)
-
     def run(self):
         # make sure DB exists
         self.cloudant_online_store.init()
-        self.add_test_users_to_DB()
 
         if self.slack_client.rtm_connect():
             LOG.info("Watson Online Store bot is connected and running!")

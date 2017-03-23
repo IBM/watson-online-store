@@ -37,8 +37,7 @@ class WOSTestCase(unittest.TestCase):
         self.wosbot.handle_message("this is a test", sender)
 
         self.conv_client.assert_has_calls([
-            mock.call.message(context={'email': None,
-                                       'logged_in': False},
+            mock.call.message(context={},
                               message_input={'text': 'this is a test'},
                               workspace_id=mock.ANY)
         ])
