@@ -2,14 +2,17 @@
 
 import json
 import os
+
 from cloudant.client import Cloudant
 from dotenv import load_dotenv
 from slackclient import SlackClient
 from watson_developer_cloud import ConversationV1
 from watson_developer_cloud import DiscoveryV1
 
+from watsononlinestore.database.cloudant_online_store import \
+    CloudantOnlineStore
 from watsononlinestore.watson_online_store import WatsonOnlineStore
-from database.cloudant_online_store import CloudantOnlineStore
+
 
 MISSING_ENV_VARS = "ERROR: Required environment variables are not set."
 

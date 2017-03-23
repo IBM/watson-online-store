@@ -1,9 +1,10 @@
 import logging
-import random
 import os
+import random
 import re
 import time
-from watsononlinestore.fake_discovery import FAKE_DISCOVERY
+
+from watsononlinestore.tests.fake_discovery import FAKE_DISCOVERY
 
 logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
@@ -92,7 +93,7 @@ class WatsonOnlineStore:
         if output_list and len(output_list) > 0:
             for output in output_list:
                 if output and 'text' in output and 'user' in output and (
-                            'user_profile' not in output):
+                        'user_profile' not in output):
                     if self.at_bot in output['text']:
                         return (
                             ''.join(output['text'].split(self.at_bot
