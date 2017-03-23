@@ -90,7 +90,7 @@ for item in items:
     url = item['url']
     title = item['title']
     category = item['category']
-    print "Getting search results for: " + url
+    print ("Getting search results for: " + url)
 
     # Add product title and category to help seed Watson results
     resp = urllib.urlopen(url).read()
@@ -104,7 +104,7 @@ for item in items:
     resp = resp1 + resp2
 
     file_object = open(str(counter) + '.html', 'w')
-    print "      title = " + title
+    print ("      title = " + title)
     file_object.write(resp)
     file_object.close()
 
