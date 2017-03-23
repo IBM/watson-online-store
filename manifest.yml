@@ -1,25 +1,23 @@
 declared-services:
-  conversation-service:
+  wos-conversation-service:
     label: conversation
     plan: free
-  cloudantNoSQLDB-service:
+  wos-cloudantNoSQLDB-service:
     label: cloudantNoSQLDB
     plan: Lite
-  Discovery-service:
+  wos-discovery-service:
     label: discovery
     plan: free
 applications:
 - services:
-   - conversation-service
-   - cloudantNoSQLDB-service
-   - Discovery-service
+   - wos-conversation-service
+   - wos-cloudantNoSQLDB-service
+   - wos-discovery-service
   path: .
   command: python ./run.py
   memory: 128M
   instances: 1
-  domain: mybluemix.net
   name: watson-online-store
-  host: watson-online-store
   disk_quota: 1024M
   health-check-type: process
   no-route: true
