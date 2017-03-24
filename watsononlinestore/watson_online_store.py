@@ -373,14 +373,27 @@ class WatsonOnlineStore:
 
     @staticmethod
     def format_discovery_response(response):
-        """Specific to ibm_store_html data
+        """Takes specific ibm_store_html data and formats for Slack.
+
+        This method is particular to the data in ibm_store_html and a new
+        method would be needed for other data. The formatted output is also
+        specific for Slack.
+
+        :param dict response: input from Discovery
+        :returns: cart_numer, name, url, image for each item returned
+        :rtype: dict
         """
         output = []
         if not ('results' in response and response['results']):
             return output
 
         def slack_encode(input_text):
-            """Slack does not like <, &, >. That's all."""
+            """Remove chars <, &, > for Slack.
+
+            :param str input_text: text to be cleaned for Slack
+            :returns: text without undesirable chars
+            :rtype: str
+            """
 
             if not input_text:
                 return input_text
@@ -448,6 +461,16 @@ class WatsonOnlineStore:
         return output
 
     def get_discovery_response(self, input_text):
+        """Call discovery with input_text and return formatted response.
+
+        Formatted response_tuple is saved for WatsonOnlineStore to allow item
+        to be easily added to shopping cart.
+        Response is then further formatted to be passed to UI.
+
+        :param str input_text: query to be used with Watson Discovery Service
+        :returns: Discovery response in format for Watson Conversation
+        :rtype: dict
+        """
 
         discovery_response = self.discovery_client.query(
             environment_id=self.discovery_environment_id,
@@ -477,8 +500,10 @@ class WatsonOnlineStore:
         return {'discovery_result': formatted_response}
 
     def handle_list_shopping_cart(self):
-        """ Get shopping_cart from DB and return to Watson
-            Returns: list of shopping_cart items
+        """Get shopping_cart from DB and return formatted version to Watson
+
+        :returns: formatted shopping_cart items
+        :rtype: str
         """
         cust = self.customer.email
         formatted_out = ""
@@ -492,11 +517,15 @@ class WatsonOnlineStore:
         return False
 
     def clear_shopping_cart(self):
+        """Clear shopping_cart and cart_item fields in context
+        """
         self.context['shopping_cart'] = ''
         self.context['cart_item'] = ''
 
     def handle_delete_from_cart(self):
-        """ Delete an item from this Customers shopping cart
+        """Pulls cart_item from Watson context and deletes from Cloudant DB
+
+        cart_item in context must be an int or delete will silently fail.
         """
         email = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(email)
@@ -516,7 +545,9 @@ class WatsonOnlineStore:
         return False
 
     def handle_add_to_cart(self):
-        """ Add an item to this Customers shopping cart
+        """Adds cart_item from Watson context and saves in Cloudant DB
+
+        cart_item in context must be an int or add/save will silently fail.
         """
         try:
             cart_item = int(self.context['cart_item'])
@@ -535,13 +566,16 @@ class WatsonOnlineStore:
         return False
 
     def handle_message(self, message, sender):
-        """ Handler for messages.
+        """Handler for messages coming from Watson Conversation using context.
 
-            param: message from UI (slackbot)
-            param: sender to use for send_message
+        Fields in context will trigger various actions in this application.
 
-            returns True if UI(slackbot) input is required
-            returns False if we want app processing and no input
+        :param str message: text from UI
+        :param SlackSender sender: used for send_message, hard-coded as Slack
+
+        :returns: True if UI input is required, False if we want app
+         processing and no input
+        :rtype: Bool
         """
 
         watson_response = self.get_watson_response(message)
@@ -582,6 +616,8 @@ class WatsonOnlineStore:
         return True
 
     def run(self):
+        """Main run loop of the application
+        """
         # make sure DB exists
         self.cloudant_online_store.init()
 
