@@ -81,7 +81,7 @@ class WatsonOnlineStore:
         self.conversation_client = conversation_client
         self.discovery_client = discovery_client
         self.workspace_id = self.setup_conversation_workspace(
-            conversation_client)
+            conversation_client, os.environ)
 
         # IBM Cloudant noSQL database
         self.cloudant_online_store = cloudant_online_store
@@ -97,7 +97,8 @@ class WatsonOnlineStore:
         self.response_tuple = None
         self.delay = 0.5  # second
 
-    def setup_conversation_workspace(self, conversation_client):
+    @staticmethod
+    def setup_conversation_workspace(conversation_client, environ):
         """Verify and/or initialize the conversation workspace.
 
         If a WORKSPACE_ID is specified in the runtime environment,
@@ -112,6 +113,7 @@ class WatsonOnlineStore:
         was created.
 
         :param conversation_client: Conversation service client
+        :param environ: Runtime environment variables
         :return: ID of conversation workspace to use
         :rtype: str
         :raise Exception: When workspace is not found and cannot be created
@@ -120,7 +122,7 @@ class WatsonOnlineStore:
         # Get the actual workspaces
         workspaces = conversation_client.list_workspaces()['workspaces']
 
-        env_workspace_id = os.environ.get('WORKSPACE_ID')
+        env_workspace_id = environ.get('WORKSPACE_ID')
         if env_workspace_id:
             # Optionally, we have an env var to give us a WORKSPACE_ID.
             # If one was set in the env, require that it can be found.
@@ -135,7 +137,7 @@ class WatsonOnlineStore:
                                 "does not exist." % env_workspace_id)
         else:
             # Find it by name. We may have already created it.
-            name = os.environ.get('WORKSPACE_NAME', 'watson-online-store')
+            name = environ.get('WORKSPACE_NAME', 'watson-online-store')
             for workspace in workspaces:
                 if workspace['name'] == name:
                     ret = workspace['workspace_id']
@@ -145,8 +147,7 @@ class WatsonOnlineStore:
             else:
                 # Not found, so create it.
                 LOG.debug("Creating workspace from data/workspace.json...")
-                with open('data/workspace.json') as workspace_file:
-                    workspace = json.load(workspace_file)
+                workspace = WatsonOnlineStore.get_workspace_json()
                 created = conversation_client.create_workspace(
                     name,
                     "Conversation workspace created by watson-online-store.",
@@ -160,6 +161,12 @@ class WatsonOnlineStore:
                 LOG.debug("Created WORKSPACE_ID=%(id)s with "
                           "name=%(name)s" % {'id': ret, 'name': name})
         return ret
+
+    @staticmethod
+    def get_workspace_json():
+        with open('data/workspace.json') as workspace_file:
+            workspace = json.load(workspace_file)
+        return workspace
 
     def context_merge(self, dict1, dict2):
         new_dict = dict1.copy()
