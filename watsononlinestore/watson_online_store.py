@@ -317,7 +317,7 @@ class WatsonOnlineStore:
         # attempt to filter out the "weakest" results.
         if self.discovery_score_filter and 'results' in discovery_response:
             fr = [x for x in discovery_response['results'] if 'score' in x and
-                x['score'] > self.discovery_score_filter]
+                  x['score'] > self.discovery_score_filter]
 
             discovery_response['matching_results'] = len(fr)
             discovery_response['results'] = fr
