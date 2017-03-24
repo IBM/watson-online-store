@@ -189,8 +189,8 @@ class WatsonOnlineStore:
 
         Common data in dict2 will override data in dict1
 
-        :param: dict dict1: original context dictionary
-        :param: dict dict2: new context dictionary - will override fields
+        :param dict dict1: original context dictionary
+        :param dict dict2: new context dictionary - will override fields
         :returns: new_dict new dict for context
         :rtype: dict
         """
@@ -495,6 +495,7 @@ class WatsonOnlineStore:
 
     def handle_message(self, message, sender):
         """ Handler for messages.
+
             param: message from UI (slackbot)
             param: sender to use for send_message
 
