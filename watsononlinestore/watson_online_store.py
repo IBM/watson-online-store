@@ -22,9 +22,9 @@ logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
 
 # Limit the result count when calling Discovery query.
-DISCOVERY_QUERY_COUNT = 5
-# Limit more when formatting. This one could be removed now that the above
-# was added, but keeping it allows us to log more results for dev/test even
+DISCOVERY_QUERY_COUNT = 10
+# Limit more when formatting and filtering out "weak" results.
+# Also useful for allowing us to log more results for dev/test even
 # though we return fewer to the client.
 DISCOVERY_KEEP_COUNT = 5
 # Truncate the Discovery 'text'. It can be a lot. We'll add "..." if truncated.
@@ -89,6 +89,15 @@ class WatsonOnlineStore:
             'DISCOVERY_ENVIRONMENT_ID')
         self.discovery_collection_id = os.environ.get(
             'DISCOVERY_COLLECTION_ID')
+
+        try:
+            self.discovery_score_filter = float(os.environ.get(
+                "DISCOVERY_SCORE_FILTER", 0))
+        except ValueError:
+            LOG.error("DISCOVERY_SCORE_FILTER must be a number between " +
+                      "0.0 and 1.0. Using default value of 0.0")
+            self.discovery_score_filter = 0
+            pass
 
         self.context = {}
         self.customer = None
@@ -315,6 +324,16 @@ class WatsonOnlineStore:
             collection_id=self.discovery_collection_id,
             query_options={'query': input_text, 'count': DISCOVERY_QUERY_COUNT}
         )
+
+        # Watson discovery assigns a confidence level to each result.
+        # Based on data mix, we can assign a minimum tolerance value in an
+        # attempt to filter out the "weakest" results.
+        if self.discovery_score_filter and 'results' in discovery_response:
+            fr = [x for x in discovery_response['results'] if 'score' in x and
+                  x['score'] > self.discovery_score_filter]
+
+            discovery_response['matching_results'] = len(fr)
+            discovery_response['results'] = fr
 
         response = self.format_discovery_response(discovery_response)
         self.response_tuple = response
