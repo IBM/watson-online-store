@@ -84,10 +84,6 @@ class WatsonOnlineStore:
         # IBM Cloudant noSQL database
         self.cloudant_online_store = cloudant_online_store
 
-        self.at_bot = "<@" + bot_id + ">"
-        self.delay = 0.5  # second
-        self.workspace_id = os.environ.get("WORKSPACE_ID")
-
         # IBM Discovery Service
         self.discovery_data_source = os.environ.get(
             'DISCOVERY_DATA_SOURCE')
