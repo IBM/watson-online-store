@@ -27,4 +27,3 @@ env:
   SLACK_BOT_TOKEN: placeholder
   DISCOVERY_ENVIRONMENT_ID: placeholder
   DISCOVERY_COLLECTION_ID: placeholder
-  WORKSPACE_ID: placeholder
