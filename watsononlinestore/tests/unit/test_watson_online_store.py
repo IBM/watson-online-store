@@ -10,8 +10,12 @@ from watsononlinestore import watson_online_store
 class WOSTestCase(unittest.TestCase):
 
     def setUp(self):
+        mock.Mock(watson_online_store.os.environ, return_value={})
         self.slack_client = mock.Mock()
         self.conv_client = mock.Mock()
+        self.conv_client.list_workspaces.return_value = {
+            'workspaces': [{'workspace_id': 'fake workspace id',
+                            'name': 'watson-online-store'}]}
         self.cloudant_store = mock.Mock()
         self.discovery_client = mock.Mock()
 
