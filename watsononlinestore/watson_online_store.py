@@ -39,9 +39,9 @@ class SlackSender:
         self.channel = channel
 
     def send_message(self, message):
-        """Sends message via Slack API
+        """Sends message via Slack API.
 
-        :param: str message: The message to be sent to slack
+        :param str message: The message to be sent to slack
         """
         self.slack_client.api_call("chat.postMessage",
                                    channel=self.channel,
@@ -189,9 +189,9 @@ class WatsonOnlineStore:
 
         Common data in dict2 will override data in dict1
 
-        :param: dict dict1: original context dictionary
-        :param: dict dict2: new context dictionary - will override fields
-        :returns: new_dict new dict for context
+        :param dict dict1: original context dictionary
+        :param dict dict2: new context dictionary - will override fields
+        :returns: new_dict for context
         :rtype: dict
         """
         new_dict = dict1.copy()
@@ -200,9 +200,15 @@ class WatsonOnlineStore:
 
         return new_dict
 
-    def parse_slack_output(self, output_list):
-        if output_list and len(output_list) > 0:
-            for output in output_list:
+    def parse_slack_output(self, output_dict):
+        """Prepare output when using Slack as UI.
+
+        :param dict output: text, channel, user, etc from slack posting
+        :returns: text, channel, user
+        :rtype: str, str, str
+        """
+        if output_dict and len(output_dict) > 0:
+            for output in output_dict:
                 if output and 'text' in output and 'user' in output and (
                         'user_profile' not in output):
                     if self.at_bot in output['text']:
@@ -220,22 +226,32 @@ class WatsonOnlineStore:
         return None, None, None
 
     def post_to_slack(self, response, channel):
+        """API for posting to Slack.
+
+        :param str response: text from Watson to post to Slack
+        :param str channel: Slack channel
+        """
         self.slack_client.api_call("chat.postMessage",
                                    channel=channel,
                                    text=response,
                                    as_user=True)
 
     def add_customer_to_context(self):
-        """ We have a customer, send info to Watson
+        """Send Customer info to Watson using context.
 
-           The customer data from the UI is in the Cloudant DB, or has
-            been added. Now add it to the context and pass back to Watson.
+        The customer data from the UI is in the Cloudant DB, or has
+        been added. Now add it to the context and pass back to Watson.
         """
         self.context = self.context_merge(self.context,
                                           self.customer.get_customer_dict())
 
     def customer_from_db(self, user_data):
-        """ Set the customer using data from Cloudant DB
+        """Set the customer using data from Cloudant DB.
+
+        We have the Customer in the Cloudant DB. Create a Customer object from
+        this data and set for this instance of WatsonOnlineStore
+
+        :param dict user_data: email, first_name, and last_name
         """
 
         email_addr = user_data['email']
@@ -247,11 +263,14 @@ class WatsonOnlineStore:
                                             shopping_cart=[])
 
     def create_user_from_ui(self, user_json):
-        """Create a new user from data in Slack
+        """Set the customer using data from Slack.
 
-            Authenticated user in slack will have email, First, and Last
-           names. Create a user in the DB for this. Note that a different
-           UI will require different code here
+        Authenticated user in slack will have email, First, and Last
+        names. Create a user in the DB for this. Note that a different
+        UI will require different code here.
+        json info in ['user']['profile']
+
+        :param dict user_json: email, first_name, and last_name
         """
 
         email_addr = user_json['user']['profile']['email']
@@ -263,11 +282,12 @@ class WatsonOnlineStore:
                                             shopping_cart=[])
 
     def init_customer(self, user_id):
-        """ Get user from DB, or create entry for user.
+        """Get user from DB, or create entry for user.
 
-            Note that this is specific to using Slack as the UI.
-             A different UI will require different code for the API
-             calls.
+        Note that this is specific to using Slack as the UI.
+        A different UI will require different code for the API calls.
+
+        :param str user_id: email address of user
         """
         assert user_id
 
@@ -300,12 +320,25 @@ class WatsonOnlineStore:
                 self.add_customer_to_context()
 
     def get_fake_discovery_response(self, input_text):
+        """Returns fake response from IBM Discovery for testing purposes.
+
+        :param str input_text: search request from UI
+        :returns: list of Urls
+        :rtype: list
+        """
         index = random.randint(0, len(FAKE_DISCOVERY)-1)
         ret_string = {'discovery_result': FAKE_DISCOVERY[index]}
         return ret_string
 
     def handle_DiscoveryQuery(self):
-        """ Do a Discovery query
+        """Take query string from Watson Context and send to Discovery.
+
+        Discovery reponse will be merged into context in order to allow it to
+        be returned to Watson. In the case where there is no discovery client,
+        a fake response will be returned, for testing purposes.
+
+        :returns: False indicating no need for UI input, just return to Watson
+        :rtype: Bool
         """
         query_string = self.context['discovery_string']
         if self.discovery_client:
@@ -324,6 +357,14 @@ class WatsonOnlineStore:
         return False
 
     def get_watson_response(self, message):
+        """Sends text and context to Watson and gets reply.
+
+        Message input is text, self.context is also added and sent to Watson.
+
+        :param str message: text to send to Watson
+        :returns: json dict from Watson
+        :rtype: dict
+        """
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
             message_input={'text': message},
@@ -495,6 +536,7 @@ class WatsonOnlineStore:
 
     def handle_message(self, message, sender):
         """ Handler for messages.
+
             param: message from UI (slackbot)
             param: sender to use for send_message
 
