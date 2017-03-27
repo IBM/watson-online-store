@@ -252,7 +252,7 @@ class WatsonOnlineStore:
         def get_product_name(entry, data_source):
             """ Pull product name from entry data for nice user display.
 
-            param: string data_source The name of the discovery data source
+            param: string data_source The name of the discovery data source.
             """
             product_name = ""
 
@@ -262,7 +262,7 @@ class WatsonOnlineStore:
                     metadata = entry['extracted_metadata']
                     if 'title' in metadata:
                         product_name = metadata['title']
-            else:
+            elif data_source == "ibm_store":
                 # Pull out product name from page text.
                 if 'text' in entry:
                     product_tag = "Product:"
@@ -281,7 +281,7 @@ class WatsonOnlineStore:
             """ Pull product url from entry data so user can navigate
             to product page.
 
-            param: string data_source The name of the discovery data source
+            param: string data_source The name of the discovery data source.
             """
             product_url = ""
 
@@ -297,7 +297,7 @@ class WatsonOnlineStore:
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-                else:
+                elif data_source == "ibm_store":
                     # Pull out product number so that we can build url link.
                     url_start = "http://www.logostore-globalid.us"
                     href_tag = "/ProductDetail.aspx?pid="
@@ -313,14 +313,14 @@ class WatsonOnlineStore:
             """ Pull product image url from entry data to allow
             pictures in slack.
 
-            param: string data_source The name of the discovery data source
+            param: string data_source The name of the discovery data source.
             """
             image_url = ""
 
             if data_source == "amazon":
                 # No image url in Amazon data, so use product url
                 return get_product_url(entry, data_source)
-            else:
+            elif data_source == "ibm_store":
                 # Grab the image url from html.
                 if 'html' in entry:
                     html = entry['html']
