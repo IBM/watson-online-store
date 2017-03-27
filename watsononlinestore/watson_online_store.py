@@ -39,6 +39,10 @@ class SlackSender:
         self.channel = channel
 
     def send_message(self, message):
+        """Sends message via Slack API
+
+        :param: str message: The message to be sent to slack
+        """
         self.slack_client.api_call("chat.postMessage",
                                    channel=self.channel,
                                    text=message,
@@ -55,7 +59,10 @@ class OnlineStoreCustomer:
         self.shopping_cart = shopping_cart
 
     def get_customer_dict(self):
-        """ Specific to our cloudant_online_store
+        """Returns a dict in form usable by our cloudant_online_store DB
+
+        :returns: customer dict of customer data for noSQL doc
+        :rtype: dict
         """
         customer = {
             'type': 'customer',
@@ -178,6 +185,15 @@ class WatsonOnlineStore:
         return workspace
 
     def context_merge(self, dict1, dict2):
+        """Combine 2 dicts into one for Watson Conversation context.
+
+        Common data in dict2 will override data in dict1
+
+        :param: dict dict1: original context dictionary
+        :param: dict dict2: new context dictionary - will override fields
+        :returns: new_dict new dict for context
+        :rtype: dict
+        """
         new_dict = dict1.copy()
         if dict2:
             new_dict.update(dict2)
