@@ -180,6 +180,54 @@ class WatsonOnlineStore:
         return ret
 
     @staticmethod
+    def setup_discovery_collection(discovery_client, environ):
+        # Get the actual discovery environments
+        environments = discovery_client.get_environments()
+
+        env_environment_id = environ.get('DISCOVERY_ENVIRONMENT_ID')
+        if env_environment_id:
+            # Optionally, we have an env var to give us a
+            # DISCOVERY_ENVIRONMENT_ID.
+            # If one was set in the env, require that it can be found.
+            LOG.debug("Using DISCOVERY_ENVIRONMENT_ID=%s" % env_environment_id)
+            for environment in environments:
+                if environment['workspace_id'] == env_environment_id:
+                    ret = env_environment_id
+                    break
+            else:
+                raise Exception("DISCOVERY_ENVIRONMENT_ID=%s is specified "
+                                "in a runtime environment variable, but that "
+                                "environment does not "
+                                "exist." % env_environment_id)
+        else:
+            # Find it by name. We may have already created it.
+            name = environ.get('WORKSPACE_NAME', 'watson-online-store')
+            for workspace in workspaces:
+                if workspace['name'] == name:
+                    ret = workspace['workspace_id']
+                    LOG.debug("Found WORKSPACE_ID=%(id)s using lookup by "
+                              "name=%(name)s" % {'id': ret, 'name': name})
+                    break
+            else:
+                # Not found, so create it.
+                LOG.debug("Creating workspace from data/workspace.json...")
+                workspace = WatsonOnlineStore.get_workspace_json()
+                created = conversation_client.create_workspace(
+                    name,
+                    "Conversation workspace created by watson-online-store.",
+                    workspace['language'],
+                    intents=workspace['intents'],
+                    entities=workspace['entities'],
+                    dialog_nodes=workspace['dialog_nodes'],
+                    counterexamples=workspace['counterexamples'],
+                    metadata=workspace['metadata'])
+                ret = created['workspace_id']
+                LOG.debug("Created WORKSPACE_ID=%(id)s with "
+                          "name=%(name)s" % {'id': ret, 'name': name})
+
+        return ret
+
+    @staticmethod
     def get_workspace_json():
         with open('data/workspace.json') as workspace_file:
             workspace = json.load(workspace_file)
