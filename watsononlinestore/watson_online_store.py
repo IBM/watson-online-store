@@ -392,7 +392,7 @@ class WatsonOnlineStore:
             """ Pull product name from entry data for nice user display.
 
             :param str data_source: The name of the discovery data source.
-            :returns: name of product 
+            :returns: name of product
             :rtype: str
             """
             product_name = ""
@@ -423,7 +423,7 @@ class WatsonOnlineStore:
             to product page.
 
             :param str data_source: The name of the discovery data source.
-            :returns: url link to product description 
+            :returns: url link to product description
             :rtype: str
             """
             product_url = ""
@@ -457,7 +457,7 @@ class WatsonOnlineStore:
             pictures in slack.
 
             :param str data_source: The name of the discovery data source.
-            :returns: url link to product image 
+            :returns: url link to product image
             :rtype: str
             """
             image_url = ""
