@@ -213,18 +213,18 @@ class WatsonOnlineStore:
         collection = discovery_client.get_collection(environment_id,
                                                      collection_id)
 
-        # if collection:
-        #     return collection_id
+        if collection:
+            return collection_id
 
         # Try to find collection by name.
-        # for coll in \
-        #         discovery_client.list_collections(
-        #             environment_id).get('collections', []):
-        #     if ((data_source == "AMAZON" and
-        #             coll['name'] == "amazon-shopping") or
-        #             (data_source == "IBM_STORE" and
-        #             coll['name'] == "ibm-logo-store")):
-        #         return coll['collection_id']
+        for coll in \
+                discovery_client.list_collections(
+                    environment_id).get('collections', []):
+            if ((data_source == "AMAZON" and
+                    coll['name'] == "amazon-shopping") or
+                    (data_source == "IBM_STORE" and
+                    coll['name'] == "ibm-logo-store")):
+                return coll['collection_id']
 
         # Doesn't exist, so create it.
         try:
