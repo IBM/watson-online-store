@@ -94,11 +94,12 @@ class WatsonOnlineStore:
         self.cloudant_online_store = cloudant_online_store
 
         # IBM Discovery Service
+        self.discovery_data_source = os.environ.get(
+            'DISCOVERY_DATA_SOURCE')
         self.discovery_environment_id = os.environ.get(
             'DISCOVERY_ENVIRONMENT_ID')
         self.discovery_collection_id = os.environ.get(
             'DISCOVERY_COLLECTION_ID')
-
         try:
             self.discovery_score_filter = float(os.environ.get(
                 "DISCOVERY_SCORE_FILTER", 0))
@@ -372,15 +373,122 @@ class WatsonOnlineStore:
         return response
 
     @staticmethod
-    def format_discovery_response(response):
-        """Specific to ibm_store_html data
+    def format_discovery_response(response, data_source):
+        """Format data for Slack based on discovery data source.
+
+        This method is handles the different data source data and formats
+        it specifically for Slack.
+
+        :param dict response: input from Discovery
+        :param string data_source: The name of the discovery data source.
+        :returns: cart_numer, name, url, image for each item returned
+        :rtype: dict
         """
         output = []
         if not ('results' in response and response['results']):
             return output
 
+        def get_product_name(entry, data_source):
+            """ Pull product name from entry data for nice user display.
+
+            :param str data_source: The name of the discovery data source.
+            :returns: name of product
+            :rtype: str
+            """
+            product_name = ""
+
+            if data_source == "amazon":
+                # Pull out product name from enriched metadata.
+                if 'extracted_metadata' in entry:
+                    metadata = entry['extracted_metadata']
+                    if 'title' in metadata:
+                        product_name = metadata['title']
+            elif data_source == "ibm_store":
+                # Pull out product name from page text.
+                if 'text' in entry:
+                    product_tag = "Product:"
+                    category_tag = "Category:"
+                    text = entry['text']
+                    sidx = text.find(product_tag)
+                    if sidx > 0:
+                        sidx += len(product_tag)
+                        eidx = text.find(category_tag, sidx, len(text))
+                        if eidx > 0:
+                            product_name = text[sidx:eidx-1]
+
+            return product_name
+
+        def get_product_url(entry, data_source):
+            """ Pull product url from entry data so user can navigate
+            to product page.
+
+            :param str data_source: The name of the discovery data source.
+            :returns: url link to product description
+            :rtype: str
+            """
+            product_url = ""
+
+            if 'html' in entry:
+                html = entry['html']
+
+                if data_source == "amazon":
+                    # URL is found at the end of the html doc.
+                    href_tag = "<a href="
+                    sidx = html.rfind(href_tag)
+                    if sidx > 0:
+                        sidx += len(href_tag)
+                        eidx = html.find('>', sidx, len(html))
+                        if eidx > 0:
+                            product_url = html[sidx+1:eidx-1]
+                elif data_source == "ibm_store":
+                    # Pull out product number so that we can build url link.
+                    url_start = "http://www.logostore-globalid.us"
+                    href_tag = "/ProductDetail.aspx?pid="
+                    sidx = html.find(href_tag)
+                    if sidx > 0:
+                        sidx += len(href_tag)
+                        product_id = html[sidx:sidx+6]
+                        product_url = url_start + href_tag + product_id
+
+            return product_url
+
+        def get_image_url(entry, data_source):
+            """Pull product image url from entry data to allow
+            pictures in slack.
+
+            :param str data_source: The name of the discovery data source.
+            :returns: url link to product image
+            :rtype: str
+            """
+            image_url = ""
+
+            if data_source == "amazon":
+                # No image url in Amazon data, so use product url
+                return get_product_url(entry, data_source)
+            elif data_source == "ibm_store":
+                # Grab the image url from html.
+                if 'html' in entry:
+                    html = entry['html']
+                    img_tag = '<a class="jqzoom" href="'
+                    simg = html.find(img_tag)
+                    if simg > 0:
+                        simg += len(img_tag)
+                        eimg = html.find('"', simg)
+                        if eimg > 0:
+                            img = html[simg:eimg]
+                            # shrink the picture
+                            image_url = re.sub(
+                                r'scale\[[0-9]+\]', 'scale[50]', img)
+
+            return image_url
+
         def slack_encode(input_text):
-            """Slack does not like <, &, >. That's all."""
+            """Remove chars <, &, > for Slack.
+
+            :param str input_text: text to be cleaned for Slack
+            :returns: text without undesirable chars
+            :rtype: str
+            """
 
             if not input_text:
                 return input_text
@@ -394,60 +502,31 @@ class WatsonOnlineStore:
         results = response['results']
 
         cart_number = 1
-        href_tag = "/ProductDetail.aspx?pid="
-        img_tag = '<a class="jqzoom" href="'
-        product_tag = "Product:"
-        category_tag = "Category:"
-        url_start = "http://www.logostore-globalid.us"
-
         for i in range(min(len(results), DISCOVERY_KEEP_COUNT)):
             result = results[i]
 
-            product_name = ""
-            product_url = ""
-            img_url = ""
-
-            # Pull out product number so that we can build url link.
-            if 'html' in result:
-                html = result['html']
-                sidx = html.find(href_tag)
-                if sidx > 0:
-                    sidx += len(href_tag)
-                    product_id = html[sidx:sidx+6]
-                    product_url = url_start + href_tag + product_id
-
-                # grab the image url to allow pictures in slack
-                simg = html.find(img_tag)
-                if simg > 0:
-                    simg += len(img_tag)
-                    eimg = html.find('"', simg)
-                    if eimg > 0:
-                        img = html[simg:eimg]
-                        # shrink the picture
-                        img_url = re.sub(
-                            r'scale\[[0-9]+\]', 'scale[50]', img)
-
-            # Pull out product name from page text.
-            if 'text' in result:
-                text = result['text']
-                sidx = text.find(product_tag)
-                if sidx > 0:
-                    sidx += len(product_tag)
-                    eidx = text.find(category_tag, sidx, len(text))
-                    if eidx > 0:
-                        product_name = text[sidx:eidx-1]
-
-            product_data = {"cart_number": str(cart_number),
-                            "name": slack_encode(product_name),
-                            "url": slack_encode(product_url),
-                            "image": slack_encode(img_url),
-                            }
+            product_data = {
+                "cart_number": str(cart_number),
+                "name": slack_encode(get_product_name(result, data_source)),
+                "url": slack_encode(get_product_url(result, data_source)),
+                "image": slack_encode(get_image_url(result, data_source)),
+            }
             cart_number += 1
             output.append(product_data)
 
         return output
 
     def get_discovery_response(self, input_text):
+        """Call discovery with input_text and return formatted response.
+
+        Formatted response_tuple is saved for WatsonOnlineStore to allow item
+        to be easily added to shopping cart.
+        Response is then further formatted to be passed to UI.
+
+        :param str input_text: query to be used with Watson Discovery Service
+        :returns: Discovery response in format for Watson Conversation
+        :rtype: dict
+        """
 
         discovery_response = self.discovery_client.query(
             environment_id=self.discovery_environment_id,
@@ -465,7 +544,8 @@ class WatsonOnlineStore:
             discovery_response['matching_results'] = len(fr)
             discovery_response['results'] = fr
 
-        response = self.format_discovery_response(discovery_response)
+        response = self.format_discovery_response(discovery_response,
+                                                  self.discovery_data_source)
         self.response_tuple = response
 
         formatted_response = ""
@@ -477,14 +557,17 @@ class WatsonOnlineStore:
         return {'discovery_result': formatted_response}
 
     def handle_list_shopping_cart(self):
-        """ Get shopping_cart from DB and return to Watson
-            Returns: list of shopping_cart items
+        """Get shopping_cart from DB and return formatted version to Watson
+
+        :returns: formatted shopping_cart items
+        :rtype: str
         """
         cust = self.customer.email
         formatted_out = ""
         shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
         for index, item in enumerate(shopping_list):
-            formatted_out += str(index+1) + ") " + str(item) + "\n"
+            formatted_out += str(index+1) + ") " + \
+                             str(item.encode('utf-8')) + "\n"
 
         self.context['shopping_cart'] = formatted_out
 
@@ -492,11 +575,15 @@ class WatsonOnlineStore:
         return False
 
     def clear_shopping_cart(self):
+        """Clear shopping_cart and cart_item fields in context
+        """
         self.context['shopping_cart'] = ''
         self.context['cart_item'] = ''
 
     def handle_delete_from_cart(self):
-        """ Delete an item from this Customers shopping cart
+        """Pulls cart_item from Watson context and deletes from Cloudant DB
+
+        cart_item in context must be an int or delete will silently fail.
         """
         email = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(email)
@@ -516,7 +603,9 @@ class WatsonOnlineStore:
         return False
 
     def handle_add_to_cart(self):
-        """ Add an item to this Customers shopping cart
+        """Adds cart_item from Watson context and saves in Cloudant DB
+
+        cart_item in context must be an int or add/save will silently fail.
         """
         try:
             cart_item = int(self.context['cart_item'])
@@ -535,13 +624,16 @@ class WatsonOnlineStore:
         return False
 
     def handle_message(self, message, sender):
-        """ Handler for messages.
+        """Handler for messages coming from Watson Conversation using context.
 
-            param: message from UI (slackbot)
-            param: sender to use for send_message
+        Fields in context will trigger various actions in this application.
 
-            returns True if UI(slackbot) input is required
-            returns False if we want app processing and no input
+        :param str message: text from UI
+        :param SlackSender sender: used for send_message, hard-coded as Slack
+
+        :returns: True if UI input is required, False if we want app
+         processing and no input
+        :rtype: Bool
         """
 
         watson_response = self.get_watson_response(message)
@@ -582,6 +674,8 @@ class WatsonOnlineStore:
         return True
 
     def run(self):
+        """Main run loop of the application
+        """
         # make sure DB exists
         self.cloudant_online_store.init()
 
