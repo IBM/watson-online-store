@@ -99,6 +99,11 @@ class WatsonOnlineStore:
             os.environ.get('DISCOVERY_ENVIRONMENT_ID')
         self.discovery_data_source = \
             os.environ.get('DISCOVERY_DATA_SOURCE')
+
+        if not self.discovery_data_source:
+            raise Exception("DISCOVERY_DATA_SOURCE is not specified in "
+                            "a runtime environment variable.")
+
         self.discovery_collection_id = \
             os.environ.get(self.discovery_data_source + '_DISCO_COLLECTION_ID')
         discovery_score_filter = \
@@ -428,8 +433,8 @@ class WatsonOnlineStore:
             response = self.get_fake_discovery_response(query_string)
 
         self.context = self.context_merge(self.context, response)
-        LOG.debug("watson_discovery:\n{}\ncontext:\n{}".format(
-                   response, self.context))
+        LOG.debug("watson_discovery:\n{}\ncontext:\n{}".format(response,
+                                                               self.context))
 
         # no need for user input, return to Watson Dialogue
         return False
@@ -670,7 +675,7 @@ class WatsonOnlineStore:
         shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
         for index, item in enumerate(shopping_list):
             formatted_out += str(index+1) + ") " + \
-                             str(item.encode('utf-8')) + "\n"
+                str(item.encode('utf-8')) + "\n"
 
         self.context['shopping_cart'] = formatted_out
 
