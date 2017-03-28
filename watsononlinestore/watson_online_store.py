@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import logging
 import os
 import random
@@ -38,6 +39,10 @@ class SlackSender:
         self.channel = channel
 
     def send_message(self, message):
+        """Sends message via Slack API.
+
+        :param str message: The message to be sent to slack
+        """
         self.slack_client.api_call("chat.postMessage",
                                    channel=self.channel,
                                    text=message,
@@ -54,7 +59,10 @@ class OnlineStoreCustomer:
         self.shopping_cart = shopping_cart
 
     def get_customer_dict(self):
-        """ Specific to our cloudant_online_store
+        """Returns a dict in form usable by our cloudant_online_store DB
+
+        :returns: customer dict of customer data for noSQL doc
+        :rtype: dict
         """
         customer = {
             'type': 'customer',
@@ -79,7 +87,8 @@ class WatsonOnlineStore:
         # IBM Watson Conversation
         self.conversation_client = conversation_client
         self.discovery_client = discovery_client
-        self.workspace_id = os.environ.get("WORKSPACE_ID")
+        self.workspace_id = self.setup_conversation_workspace(
+            conversation_client, os.environ)
 
         # IBM Cloudant noSQL database
         self.cloudant_online_store = cloudant_online_store
@@ -105,16 +114,102 @@ class WatsonOnlineStore:
         self.response_tuple = None
         self.delay = 0.5  # second
 
+    @staticmethod
+    def setup_conversation_workspace(conversation_client, environ):
+        """Verify and/or initialize the conversation workspace.
+
+        If a WORKSPACE_ID is specified in the runtime environment,
+        make sure that workspace exists. If no WORKSTATION_ID is
+        specified then try to find it using a lookup by name.
+        Name will be 'watson-online-store' unless overridden
+        using the WORKSPACE_NAME environment variable.
+
+        If a workspace is not found by ID or name, then try to
+        create one from the JSON in data/workspace.json. Use the
+        name as mentioned above so future lookup will find what
+        was created.
+
+        :param conversation_client: Conversation service client
+        :param environ: Runtime environment variables
+        :return: ID of conversation workspace to use
+        :rtype: str
+        :raise Exception: When workspace is not found and cannot be created
+        """
+
+        # Get the actual workspaces
+        workspaces = conversation_client.list_workspaces()['workspaces']
+
+        env_workspace_id = environ.get('WORKSPACE_ID')
+        if env_workspace_id:
+            # Optionally, we have an env var to give us a WORKSPACE_ID.
+            # If one was set in the env, require that it can be found.
+            LOG.debug("Using WORKSPACE_ID=%s" % env_workspace_id)
+            for workspace in workspaces:
+                if workspace['workspace_id'] == env_workspace_id:
+                    ret = env_workspace_id
+                    break
+            else:
+                raise Exception("WORKSPACE_ID=%s is specified in a runtime "
+                                "environment variable, but that workspace "
+                                "does not exist." % env_workspace_id)
+        else:
+            # Find it by name. We may have already created it.
+            name = environ.get('WORKSPACE_NAME', 'watson-online-store')
+            for workspace in workspaces:
+                if workspace['name'] == name:
+                    ret = workspace['workspace_id']
+                    LOG.debug("Found WORKSPACE_ID=%(id)s using lookup by "
+                              "name=%(name)s" % {'id': ret, 'name': name})
+                    break
+            else:
+                # Not found, so create it.
+                LOG.debug("Creating workspace from data/workspace.json...")
+                workspace = WatsonOnlineStore.get_workspace_json()
+                created = conversation_client.create_workspace(
+                    name,
+                    "Conversation workspace created by watson-online-store.",
+                    workspace['language'],
+                    intents=workspace['intents'],
+                    entities=workspace['entities'],
+                    dialog_nodes=workspace['dialog_nodes'],
+                    counterexamples=workspace['counterexamples'],
+                    metadata=workspace['metadata'])
+                ret = created['workspace_id']
+                LOG.debug("Created WORKSPACE_ID=%(id)s with "
+                          "name=%(name)s" % {'id': ret, 'name': name})
+        return ret
+
+    @staticmethod
+    def get_workspace_json():
+        with open('data/workspace.json') as workspace_file:
+            workspace = json.load(workspace_file)
+        return workspace
+
     def context_merge(self, dict1, dict2):
+        """Combine 2 dicts into one for Watson Conversation context.
+
+        Common data in dict2 will override data in dict1
+
+        :param dict dict1: original context dictionary
+        :param dict dict2: new context dictionary - will override fields
+        :returns: new_dict for context
+        :rtype: dict
+        """
         new_dict = dict1.copy()
         if dict2:
             new_dict.update(dict2)
 
         return new_dict
 
-    def parse_slack_output(self, output_list):
-        if output_list and len(output_list) > 0:
-            for output in output_list:
+    def parse_slack_output(self, output_dict):
+        """Prepare output when using Slack as UI.
+
+        :param dict output: text, channel, user, etc from slack posting
+        :returns: text, channel, user
+        :rtype: str, str, str
+        """
+        if output_dict and len(output_dict) > 0:
+            for output in output_dict:
                 if output and 'text' in output and 'user' in output and (
                         'user_profile' not in output):
                     if self.at_bot in output['text']:
@@ -132,22 +227,32 @@ class WatsonOnlineStore:
         return None, None, None
 
     def post_to_slack(self, response, channel):
+        """API for posting to Slack.
+
+        :param str response: text from Watson to post to Slack
+        :param str channel: Slack channel
+        """
         self.slack_client.api_call("chat.postMessage",
                                    channel=channel,
                                    text=response,
                                    as_user=True)
 
     def add_customer_to_context(self):
-        """ We have a customer, send info to Watson
+        """Send Customer info to Watson using context.
 
-           The customer data from the UI is in the Cloudant DB, or has
-            been added. Now add it to the context and pass back to Watson.
+        The customer data from the UI is in the Cloudant DB, or has
+        been added. Now add it to the context and pass back to Watson.
         """
         self.context = self.context_merge(self.context,
                                           self.customer.get_customer_dict())
 
     def customer_from_db(self, user_data):
-        """ Set the customer using data from Cloudant DB
+        """Set the customer using data from Cloudant DB.
+
+        We have the Customer in the Cloudant DB. Create a Customer object from
+        this data and set for this instance of WatsonOnlineStore
+
+        :param dict user_data: email, first_name, and last_name
         """
 
         email_addr = user_data['email']
@@ -159,11 +264,14 @@ class WatsonOnlineStore:
                                             shopping_cart=[])
 
     def create_user_from_ui(self, user_json):
-        """Create a new user from data in Slack
+        """Set the customer using data from Slack.
 
-            Authenticated user in slack will have email, First, and Last
-           names. Create a user in the DB for this. Note that a different
-           UI will require different code here
+        Authenticated user in slack will have email, First, and Last
+        names. Create a user in the DB for this. Note that a different
+        UI will require different code here.
+        json info in ['user']['profile']
+
+        :param dict user_json: email, first_name, and last_name
         """
 
         email_addr = user_json['user']['profile']['email']
@@ -175,11 +283,12 @@ class WatsonOnlineStore:
                                             shopping_cart=[])
 
     def init_customer(self, user_id):
-        """ Get user from DB, or create entry for user.
+        """Get user from DB, or create entry for user.
 
-            Note that this is specific to using Slack as the UI.
-             A different UI will require different code for the API
-             calls.
+        Note that this is specific to using Slack as the UI.
+        A different UI will require different code for the API calls.
+
+        :param str user_id: email address of user
         """
         assert user_id
 
@@ -212,12 +321,25 @@ class WatsonOnlineStore:
                 self.add_customer_to_context()
 
     def get_fake_discovery_response(self, input_text):
+        """Returns fake response from IBM Discovery for testing purposes.
+
+        :param str input_text: search request from UI
+        :returns: list of Urls
+        :rtype: list
+        """
         index = random.randint(0, len(FAKE_DISCOVERY)-1)
         ret_string = {'discovery_result': FAKE_DISCOVERY[index]}
         return ret_string
 
     def handle_DiscoveryQuery(self):
-        """ Do a Discovery query
+        """Take query string from Watson Context and send to Discovery.
+
+        Discovery reponse will be merged into context in order to allow it to
+        be returned to Watson. In the case where there is no discovery client,
+        a fake response will be returned, for testing purposes.
+
+        :returns: False indicating no need for UI input, just return to Watson
+        :rtype: Bool
         """
         query_string = self.context['discovery_string']
         if self.discovery_client:
@@ -236,6 +358,14 @@ class WatsonOnlineStore:
         return False
 
     def get_watson_response(self, message):
+        """Sends text and context to Watson and gets reply.
+
+        Message input is text, self.context is also added and sent to Watson.
+
+        :param str message: text to send to Watson
+        :returns: json dict from Watson
+        :rtype: dict
+        """
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
             message_input={'text': message},
@@ -244,7 +374,16 @@ class WatsonOnlineStore:
 
     @staticmethod
     def format_discovery_response(response, data_source):
-        """Format results based on discovery data source."""
+        """Format data for Slack based on discovery data source.
+
+        This method is handles the different data source data and formats
+        it specifically for Slack.
+
+        :param dict response: input from Discovery
+        :param string data_source: The name of the discovery data source.
+        :returns: cart_numer, name, url, image for each item returned
+        :rtype: dict
+        """
         output = []
         if not ('results' in response and response['results']):
             return output
@@ -252,7 +391,9 @@ class WatsonOnlineStore:
         def get_product_name(entry, data_source):
             """ Pull product name from entry data for nice user display.
 
-            param: string data_source The name of the discovery data source.
+            :param str data_source: The name of the discovery data source.
+            :returns: name of product 
+            :rtype: str
             """
             product_name = ""
 
@@ -281,7 +422,9 @@ class WatsonOnlineStore:
             """ Pull product url from entry data so user can navigate
             to product page.
 
-            param: string data_source The name of the discovery data source.
+            :param str data_source: The name of the discovery data source.
+            :returns: url link to product description 
+            :rtype: str
             """
             product_url = ""
 
@@ -310,10 +453,12 @@ class WatsonOnlineStore:
             return product_url
 
         def get_image_url(entry, data_source):
-            """ Pull product image url from entry data to allow
+            """Pull product image url from entry data to allow
             pictures in slack.
 
-            param: string data_source The name of the discovery data source.
+            :param str data_source: The name of the discovery data source.
+            :returns: url link to product image 
+            :rtype: str
             """
             image_url = ""
 
@@ -338,7 +483,12 @@ class WatsonOnlineStore:
             return image_url
 
         def slack_encode(input_text):
-            """Slack does not like <, &, >. That's all."""
+            """Remove chars <, &, > for Slack.
+
+            :param str input_text: text to be cleaned for Slack
+            :returns: text without undesirable chars
+            :rtype: str
+            """
 
             if not input_text:
                 return input_text
@@ -367,6 +517,16 @@ class WatsonOnlineStore:
         return output
 
     def get_discovery_response(self, input_text):
+        """Call discovery with input_text and return formatted response.
+
+        Formatted response_tuple is saved for WatsonOnlineStore to allow item
+        to be easily added to shopping cart.
+        Response is then further formatted to be passed to UI.
+
+        :param str input_text: query to be used with Watson Discovery Service
+        :returns: Discovery response in format for Watson Conversation
+        :rtype: dict
+        """
 
         discovery_response = self.discovery_client.query(
             environment_id=self.discovery_environment_id,
@@ -397,8 +557,10 @@ class WatsonOnlineStore:
         return {'discovery_result': formatted_response}
 
     def handle_list_shopping_cart(self):
-        """ Get shopping_cart from DB and return to Watson
-            Returns: list of shopping_cart items
+        """Get shopping_cart from DB and return formatted version to Watson
+
+        :returns: formatted shopping_cart items
+        :rtype: str
         """
         cust = self.customer.email
         formatted_out = ""
@@ -413,11 +575,15 @@ class WatsonOnlineStore:
         return False
 
     def clear_shopping_cart(self):
+        """Clear shopping_cart and cart_item fields in context
+        """
         self.context['shopping_cart'] = ''
         self.context['cart_item'] = ''
 
     def handle_delete_from_cart(self):
-        """ Delete an item from this Customers shopping cart
+        """Pulls cart_item from Watson context and deletes from Cloudant DB
+
+        cart_item in context must be an int or delete will silently fail.
         """
         email = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(email)
@@ -437,7 +603,9 @@ class WatsonOnlineStore:
         return False
 
     def handle_add_to_cart(self):
-        """ Add an item to this Customers shopping cart
+        """Adds cart_item from Watson context and saves in Cloudant DB
+
+        cart_item in context must be an int or add/save will silently fail.
         """
         try:
             cart_item = int(self.context['cart_item'])
@@ -456,12 +624,16 @@ class WatsonOnlineStore:
         return False
 
     def handle_message(self, message, sender):
-        """ Handler for messages.
-            param: message from UI (slackbot)
-            param: sender to use for send_message
+        """Handler for messages coming from Watson Conversation using context.
 
-            returns True if UI(slackbot) input is required
-            returns False if we want app processing and no input
+        Fields in context will trigger various actions in this application.
+
+        :param str message: text from UI
+        :param SlackSender sender: used for send_message, hard-coded as Slack
+
+        :returns: True if UI input is required, False if we want app
+         processing and no input
+        :rtype: Bool
         """
 
         watson_response = self.get_watson_response(message)
@@ -502,6 +674,8 @@ class WatsonOnlineStore:
         return True
 
     def run(self):
+        """Main run loop of the application
+        """
         # make sure DB exists
         self.cloudant_online_store.init()
 

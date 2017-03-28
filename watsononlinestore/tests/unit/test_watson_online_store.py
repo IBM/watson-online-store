@@ -10,8 +10,13 @@ from watsononlinestore import watson_online_store
 class WOSTestCase(unittest.TestCase):
 
     def setUp(self):
+        mock.Mock(watson_online_store.os.environ, return_value={})
         self.slack_client = mock.Mock()
         self.conv_client = mock.Mock()
+        self.fake_workspace_id = 'fake workspace id'
+        self.conv_client.list_workspaces.return_value = {
+            'workspaces': [{'workspace_id': self.fake_workspace_id,
+                            'name': 'watson-online-store'}]}
         self.cloudant_store = mock.Mock()
         self.discovery_client = mock.Mock()
 
@@ -139,3 +144,97 @@ class WOSTestCase(unittest.TestCase):
         expected = (None, None, None)
         actual = self.wosbot.parse_slack_output(output_list)
         self.assertEqual(expected, actual)
+
+    def test_setup_conversation_workspace_by_name_default(self):
+        test_environ = {}
+        expected_workspace_id = 'this is the one'
+        self.conv_client.list_workspaces = mock.Mock(return_value={
+            'workspaces': [{'workspace_id': 'other', 'name': 'foo'},
+                           {'workspace_id': expected_workspace_id,
+                            'name': 'watson-online-store'}]})
+
+        wos = watson_online_store.WatsonOnlineStore
+        actual = wos.setup_conversation_workspace(self.conv_client,
+                                                  test_environ)
+
+        self.conv_client.list_workspaces.assert_called_once()
+        self.assertEqual(expected_workspace_id, actual)
+
+    def test_setup_conversation_workspace_by_name_env(self):
+        test_environ = {'WORKSPACE_NAME': 'foo name'}
+        expected_workspace_id = 'this is the one'
+        self.conv_client.list_workspaces = mock.Mock(return_value={
+            'workspaces': [{'workspace_id': 'other', 'name': 'foo'},
+                           {'workspace_id': expected_workspace_id,
+                            'name': test_environ['WORKSPACE_NAME']}]})
+
+        wos = watson_online_store.WatsonOnlineStore
+        actual = wos.setup_conversation_workspace(self.conv_client,
+                                                  test_environ)
+
+        self.conv_client.list_workspaces.assert_called_once()
+        self.assertEqual(expected_workspace_id, actual)
+
+    def test_setup_conversation_workspace_by_id(self):
+        expected_workspace_id = 'testing with a ws ID'
+        test_environ = {'WORKSPACE_ID': expected_workspace_id}
+        self.conv_client.list_workspaces = mock.Mock(return_value={
+            'workspaces': [{'workspace_id': 'other'},
+                           {'workspace_id': expected_workspace_id,
+                            'name': 'foo'}]})
+
+        wos = watson_online_store.WatsonOnlineStore
+        actual = wos.setup_conversation_workspace(
+            self.conv_client, test_environ)
+
+        self.conv_client.list_workspaces.assert_called_once()
+        self.assertEqual(expected_workspace_id, actual)
+
+    def test_setup_conversation_workspace_by_id_not_found(self):
+        expected_workspace_id = 'testing with a ws ID'
+        test_environ = {'WORKSPACE_ID': expected_workspace_id}
+        self.conv_client.list_workspaces = mock.Mock(return_value={
+            'workspaces': [{'workspace_id': 'other'},
+                           {'workspace_id': 'wrong again'}]})
+
+        wos = watson_online_store.WatsonOnlineStore
+        self.assertRaises(Exception,
+                          wos.setup_conversation_workspace,
+                          self.conv_client,
+                          test_environ)
+
+        self.conv_client.list_workspaces.assert_called_once()
+
+    def test_setup_conversation_workspace_create(self):
+        expected_workspace_id = 'this was created'
+        expected_workspace_name = 'and this was its name'
+        test_environ = {'WORKSPACE_NAME': expected_workspace_name}
+        self.conv_client.list_workspaces = mock.Mock(return_value={
+            'workspaces': [{'workspace_id': 'other', 'name': 'any'}]})
+        self.conv_client.create_workspace = mock.Mock(return_value={
+            'workspace_id': expected_workspace_id})
+        wos = watson_online_store.WatsonOnlineStore
+        ws_json = {
+            'counterexamples': 'c',
+            'intents': 'i',
+            'entities': 'e',
+            'dialog_nodes': 'd',
+            'metadata': 'm',
+            'language': 'en',
+        }
+        wos.get_workspace_json = mock.Mock(return_value=ws_json)
+
+        actual = wos.setup_conversation_workspace(
+            self.conv_client, test_environ)
+
+        self.conv_client.list_workspaces.assert_called_once()
+        self.conv_client.create_workspace.assert_called_once_with(
+            expected_workspace_name,
+            'Conversation workspace created by watson-online-store.',
+            ws_json['language'],
+            intents=ws_json['intents'],
+            entities=ws_json['entities'],
+            dialog_nodes=ws_json['dialog_nodes'],
+            counterexamples=ws_json['counterexamples'],
+            metadata=ws_json['metadata'])
+        self.assertEqual(expected_workspace_id, actual)
