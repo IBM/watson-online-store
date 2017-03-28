@@ -223,7 +223,7 @@ class WatsonOnlineStore:
             if ((data_source == "AMAZON" and
                     coll['name'] == "amazon-shopping") or
                     (data_source == "IBM_STORE" and
-                    coll['name'] == "ibm-logo-store")):
+                        coll['name'] == "ibm-logo-store")):
                 return coll['collection_id']
 
         # Doesn't exist, so create it.
