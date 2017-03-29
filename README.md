@@ -47,9 +47,9 @@ We’ll be using the file `data/workspace.json` and the folder `data/ibm_store_h
 
 Create the following services:
 
-  * Watson Conversation
-  * Watson Discovery
-  * Cloudant NoSQL DB
+  * [**Watson Conversation**](https://console.ng.bluemix.net/catalog/services/conversation)
+  * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
+  * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
 ## 3. Configure Watson Conversation
 
