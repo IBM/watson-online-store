@@ -80,6 +80,9 @@ class WatsonOnlineStore:
                  conversation_client, discovery_client,
                  cloudant_online_store):
 
+        # Default discovery data source
+        IBM = "IBM_STORE"
+
         # specific for Slack as UI
         self.bot_id = bot_id
         self.slack_client = slack_client
@@ -97,13 +100,9 @@ class WatsonOnlineStore:
         self.discovery_client = discovery_client
         self.discovery_environment_id = \
             os.environ.get('DISCOVERY_ENVIRONMENT_ID')
-        self.discovery_data_source = \
+        discovery_data_source = \
             os.environ.get('DISCOVERY_DATA_SOURCE')
-
-        if not self.discovery_data_source:
-            raise Exception("DISCOVERY_DATA_SOURCE is not specified in "
-                            "a runtime environment variable.")
-
+        self.discovery_data_source = discovery_data_source or IBM
         self.discovery_collection_id = \
             os.environ.get(self.discovery_data_source + '_DISCO_COLLECTION_ID')
         discovery_score_filter = \
@@ -207,38 +206,55 @@ class WatsonOnlineStore:
         :raise Exception: When collection is not found and cannot be created
         """
 
+        # Data source names
+        AMAZON = "AMAZON"
+        IBM = "IBM_STORE"
+        # Discovery collection names
+        AMAZON_COLLECTION = "amazon-shopping"
+        IBM_COLLECTION = "ibm-logo-store"
+        # Alternate discovery collection names if we must re-create
+        AMAZON_ALT_COLLECTION = "amazon-shopping-alt"
+        IBM_ALT_COLLECTION = "ibm-logo-store-alt"
+        # File path location to discovery html files
+        AMAZON_DATA_PATH = "data/amazon_data_html/"
+        IBM_DATA_PATH = "data/ibm_store_html/"
+
         # Ensure we a valid environment exists.
-        environment = discovery_client.get_environment(environment_id)
-        if not environment:
+        try:
+            discovery_client.get_environment(environment_id)
+        except Exception:
             raise Exception("DISCOVERY_ENVIRONMENT_ID=%s is specified in "
                             "a runtime environment variable, but that "
                             "environment does not exist." % environment_id)
 
         # Determine if collection exists.
-        collection = discovery_client.get_collection(environment_id,
-                                                     collection_id)
-
-        if collection:
-            return collection_id
+        try:
+            collection = discovery_client.get_collection(environment_id,
+                                                         collection_id)
+            if collection:
+                return collection_id
+        except Exception as e:
+            LOG.debug("Watson Discovery - unable to find collection. "
+                      "Error: %s" % repr(e))
 
         # Try to find collection by name.
         for coll in \
                 discovery_client.list_collections(
                     environment_id).get('collections', []):
-            if ((data_source == "AMAZON" and
-                    coll['name'] == "amazon-shopping") or
-                    (data_source == "IBM_STORE" and
-                        coll['name'] == "ibm-logo-store")):
+            if ((data_source == AMAZON and
+                    coll['name'] == AMAZON_COLLECTION) or
+                    (data_source == IBM and
+                        coll['name'] == IBM_COLLECTION)):
                 return coll['collection_id']
 
         # Doesn't exist, so create it.
         try:
-            if data_source == "AMAZON":
-                name = "amazon-shopping-alt"
-                path = "data/amazon_data_html"
-            elif data_source == "IBM_STORE":
-                name = "ibm-logo-store-alt"
-                path = "data/ibm_store_html"
+            if data_source == AMAZON:
+                name = AMAZON_ALT_COLLECTION
+                path = AMAZON_DATA_PATH
+            elif data_source == IBM:
+                name = IBM_ALT_COLLECTION
+                path = IBM_DATA_PATH
             if name:
                 collection = discovery_client.create_collection(environment_id,
                                                                 name)
@@ -249,7 +265,7 @@ class WatsonOnlineStore:
                 for root, dirs, files in os.walk(path):
                     for file in files:
                         if file.endswith('.html'):
-                            with open(path + "/" + file, 'r') as f:
+                            with open(path + file, 'r') as f:
                                 data = f.read()
                             discovery_client.add_document(environment_id,
                                                           collection_id,
@@ -483,16 +499,18 @@ class WatsonOnlineStore:
         if not ('results' in response and response['results']):
             return output
 
-        def get_product_name(entry, data_source):
+        AMAZON = "AMAZON"
+        IBM = "IBM_STORE"
+
+        def get_product_name(entry):
             """ Pull product name from entry data for nice user display.
 
-            :param str data_source: name of the discovery data source
             :returns: name of product
             :rtype: str
             """
             product_name = ""
 
-            if data_source == "AMAZON":
+            if data_source == AMAZON:
                 # For amazon data, Watson Discovery has pulled the
                 # product name from the html page and stored it as
                 # "title" in its enriched metadata that it generates.
@@ -500,28 +518,27 @@ class WatsonOnlineStore:
                     metadata = entry['extracted_metadata']
                     if 'title' in metadata:
                         product_name = metadata['title']
-            elif data_source == "IBM_STORE":
+            elif data_source == IBM:
                 # For IBM store data, the product name was placed in
                 # text of the page, in the format:
                 # "Product: <product name> "Category".
                 if 'text' in entry:
-                    product_tag = "Product:"
-                    category_tag = "Category:"
+                    PRODUCT_TAG = "Product:"
+                    CATEGORY_TAG = "Category:"
                     text = entry['text']
-                    sidx = text.find(product_tag)
+                    sidx = text.find(PRODUCT_TAG)
                     if sidx > 0:
-                        sidx += len(product_tag)
-                        eidx = text.find(category_tag, sidx, len(text))
+                        sidx += len(PRODUCT_TAG)
+                        eidx = text.find(CATEGORY_TAG, sidx, len(text))
                         if eidx > 0:
                             product_name = text[sidx:eidx-1]
 
             return product_name
 
-        def get_product_url(entry, data_source):
+        def get_product_url(entry):
             """ Pull product url from entry data so user can navigate
             to product page.
 
-            :param str data_source: name of the discovery data source
             :returns: url link to product description
             :rtype: str
             """
@@ -530,35 +547,35 @@ class WatsonOnlineStore:
             if 'html' in entry:
                 html = entry['html']
 
-                if data_source == "AMAZON":
-                    # For amazon data, the product URL is stored in a
-                    # "<a href" tag located at the end of the html doc.
-                    href_tag = "<a href="
+                if data_source == AMAZON:
+                    # For amazon data, the product URL is stored in an
+                    # href tag located at the end of the html doc.
+                    HREF_TAG = "<a href="
                     # Search from bottom of the doc.
-                    sidx = html.rfind(href_tag)
+                    sidx = html.rfind(HREF_TAG)
                     if sidx > 0:
-                        sidx += len(href_tag)
+                        sidx += len(HREF_TAG)
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-                elif data_source == "IBM_STORE":
+                elif data_source == IBM:
                     # For IBM store data, the product URL requires a
                     # product ID. The product ID can be found by searching
                     # the html doc for "/ProductDetail.aspx?pid=<PID>".
                     # The product URL can then be built by appending
                     # this string to:
                     # ""http://www.logostore-globalid.us".
-                    url_start = "http://www.logostore-globalid.us"
-                    href_tag = "/ProductDetail.aspx?pid="
-                    sidx = html.find(href_tag)
+                    URL_START = "http://www.logostore-globalid.us"
+                    HREF_TAG = "/ProductDetail.aspx?pid="
+                    sidx = html.find(HREF_TAG)
                     if sidx > 0:
-                        sidx += len(href_tag)
+                        sidx += len(HREF_TAG)
                         product_id = html[sidx:sidx+6]
-                        product_url = url_start + href_tag + product_id
+                        product_url = URL_START + URL_START + product_id
 
             return product_url
 
-        def get_image_url(entry, data_source):
+        def get_image_url(entry):
             """Pull product image url from entry data to allow
             pictures in slack.
 
@@ -568,19 +585,19 @@ class WatsonOnlineStore:
             """
             image_url = ""
 
-            if data_source == "AMAZON":
+            if data_source == AMAZON:
                 # There is no image url for Amazon data,
                 # so use the product url.
-                return get_product_url(entry, data_source)
-            elif data_source == "IBM_STORE":
+                return get_product_url(entry)
+            elif data_source == IBM:
                 # For IBM store data, the image url is located in the
                 # html page, and is specified with a "<a class='jqzoom'" tag.
                 if 'html' in entry:
                     html = entry['html']
-                    img_tag = '<a class="jqzoom" href="'
-                    simg = html.find(img_tag)
+                    IMG_TAG = '<a class="jqzoom" href="'
+                    simg = html.find(IMG_TAG)
                     if simg > 0:
-                        simg += len(img_tag)
+                        simg += len(IMG_TAG)
                         eimg = html.find('"', simg)
                         if eimg > 0:
                             img = html[simg:eimg]
@@ -615,9 +632,9 @@ class WatsonOnlineStore:
 
             product_data = {
                 "cart_number": str(cart_number),
-                "name": slack_encode(get_product_name(result, data_source)),
-                "url": slack_encode(get_product_url(result, data_source)),
-                "image": slack_encode(get_image_url(result, data_source)),
+                "name": slack_encode(get_product_name(result)),
+                "url": slack_encode(get_product_url(result)),
+                "image": slack_encode(get_image_url(result)),
             }
             cart_number += 1
             output.append(product_data)
