@@ -107,12 +107,12 @@ class WatsonOnlineStore:
         try:
             self.discovery_score_filter = float(
                 os.environ.get(self.discovery_data_source +
-                               '_DISCO_SCORE_FILTER', 1.0))
+                               '_DISCO_SCORE_FILTER', 0))
         except ValueError:
             LOG.debug(self.discovery_source + "_DISCO_SCORE_FILTER must " +
                       "be a number between 0.0 and 1.0. " +
-                      "Using default value of 1.0")
-            self.discovery_score_filter = 1.0
+                      "Using default value of 0.0")
+            self.discovery_score_filter = 0.0
             pass
 
         self.discovery_collection_id = self.setup_discovery_collection(
