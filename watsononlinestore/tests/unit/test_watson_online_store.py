@@ -19,6 +19,18 @@ class WOSTestCase(unittest.TestCase):
                             'name': 'watson-online-store'}]}
         self.cloudant_store = mock.Mock()
         self.discovery_client = mock.Mock()
+        self.fake_environment_id = 'fake env id'
+        self.fake_collection_id = "fake collection id"
+        self.discovery_client.get_enviornment.return_value = {
+            'environment_id': self.fake_environment_id
+        }
+        self.discovery_client.get_collection.return_value = {
+            'collection_id': self.fake_collection_id
+        }
+        self.discovery_client.list_collections.return_value = {
+            'collections': [{'collection_id': self.fake_collection_id,
+                             'name': 'ibm-logo-store'}]
+        }
 
         self.wosbot = watson_online_store.WatsonOnlineStore(
             'UBOTID',
