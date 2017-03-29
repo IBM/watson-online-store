@@ -83,23 +83,7 @@ class WatsonEnv:
         cloudant_url = os.environ.get("CLOUDANT_URL")
         cloudant_db_name = os.environ.get("CLOUDANT_DB_NAME")
         discovery_username = os.environ.get('DISCOVERY_USERNAME')
-        discovery_environment_id = os.environ.get('DISCOVERY_ENVIRONMENT_ID')
         discovery_password = os.environ.get('DISCOVERY_PASSWORD')
-        discovery_source = os.environ.get('DISCOVERY_DATA_SOURCE')
-        discovery_collection_id = None
-        discovery_score_filter = 1.0
-        if discovery_source:
-            discovery_collection_id = \
-                os.environ.get(discovery_source + '_DISCO_COLLECTION_ID')
-
-            try:
-                discovery_score_filter = float(os.environ.get(
-                    discovery_source + "_DISCO_SCORE_FILTER", 0))
-            except ValueError:
-                print(discovery_source + "_DISCO_SCORE_FILTER must be a " +
-                      "number between 0.0 and 1.0. " +
-                      "Using default value of 0.0")
-                pass
 
         if not all((conversation_username,
                     conversation_password,
@@ -145,11 +129,7 @@ class WatsonEnv:
                     cloudant_url,
                     cloudant_db_name,
                     discovery_username,
-                    discovery_password,
-                    discovery_environment_id,
-                    discovery_source,
-                    discovery_collection_id,
-                    discovery_score_filter)):
+                    discovery_password)):
             print(MISSING_ENV_VARS)
             return None
 

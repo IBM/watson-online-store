@@ -30,6 +30,9 @@ DISCOVERY_QUERY_COUNT = 10
 DISCOVERY_KEEP_COUNT = 5
 # Truncate the Discovery 'text'. It can be a lot. We'll add "..." if truncated.
 DISCOVERY_TRUNCATE = 500
+# Available data sources for Discovery
+DISCOVERY_AMAZON_STORE = "AMAZON"
+DiSCOVERY_IBM_STORE = "IBM_STORE"
 
 
 class SlackSender:
@@ -43,11 +46,10 @@ class SlackSender:
 
         :param str message: The message to be sent to slack
         """
-        for line in message.splitlines(True):
-            self.slack_client.api_call("chat.postMessage",
-                                       channel=self.channel,
-                                       text=line,
-                                       as_user=True)
+        self.slack_client.api_call("chat.postMessage",
+                                   channel=self.channel,
+                                   text=message,
+                                   as_user=True)
 
 
 class OnlineStoreCustomer:
@@ -80,9 +82,6 @@ class WatsonOnlineStore:
                  conversation_client, discovery_client,
                  cloudant_online_store):
 
-        # Default discovery data source
-        IBM = "IBM_STORE"
-
         # specific for Slack as UI
         self.bot_id = bot_id
         self.slack_client = slack_client
@@ -98,27 +97,29 @@ class WatsonOnlineStore:
 
         # IBM Watson Discovery Service
         self.discovery_client = discovery_client
-        self.discovery_environment_id = \
-            os.environ.get('DISCOVERY_ENVIRONMENT_ID')
-        discovery_data_source = \
-            os.environ.get('DISCOVERY_DATA_SOURCE')
-        self.discovery_data_source = discovery_data_source or IBM
-        self.discovery_collection_id = \
-            os.environ.get(self.discovery_data_source + '_DISCO_COLLECTION_ID')
-        discovery_score_filter = \
-            os.environ.get(self.discovery_data_source + '_DISCO_SCORE_FILTER')
-        if discovery_score_filter:
-            # All discovery results must have a min confidence level
-            self.discovery_score_filter = float(discovery_score_filter)
-        else:
-            # Default is show all discovery items
-            self.discovery_score_filter = 1.0
+        self.discovery_environment_id = os.environ.get(
+            'DISCOVERY_ENVIRONMENT_ID')
+        self.discovery_data_source = os.environ.get(
+            'DISCOVERY_DATA_SOURCE', DiSCOVERY_IBM_STORE)
+        self.discovery_collection_id = os.environ.get(
+            self.discovery_data_source + '_DISCO_COLLECTION_ID')
 
-        self.discovery_collection_id = \
-            self.setup_discovery_collection(discovery_client,
-                                            self.discovery_environment_id,
-                                            self.discovery_collection_id,
-                                            self.discovery_data_source)
+        try:
+            self.discovery_score_filter = float(
+                os.environ.get(self.discovery_data_source +
+                               '_DISCO_SCORE_FILTER', 1.0))
+        except ValueError:
+            LOG.debug(self.discovery_source + "_DISCO_SCORE_FILTER must " +
+                      "be a number between 0.0 and 1.0. " +
+                      "Using default value of 1.0")
+            self.discovery_score_filter = 1.0
+            pass
+
+        self.discovery_collection_id = self.setup_discovery_collection(
+            discovery_client,
+            self.discovery_environment_id,
+            self.discovery_collection_id,
+            self.discovery_data_source)
 
         self.context = {}
         self.customer = None
@@ -206,75 +207,77 @@ class WatsonOnlineStore:
         :raise Exception: When collection is not found and cannot be created
         """
 
-        # Data source names
-        AMAZON = "AMAZON"
-        IBM = "IBM_STORE"
-        # Discovery collection names
-        AMAZON_COLLECTION = "amazon-shopping"
-        IBM_COLLECTION = "ibm-logo-store"
-        # Alternate discovery collection names if we must re-create
-        AMAZON_ALT_COLLECTION = "amazon-shopping-alt"
-        IBM_ALT_COLLECTION = "ibm-logo-store-alt"
-        # File path location to discovery html files
-        AMAZON_DATA_PATH = "data/amazon_data_html/"
-        IBM_DATA_PATH = "data/ibm_store_html/"
-
-        # Ensure we a valid environment exists.
+        # Ensure a valid environment exists.
         try:
+            LOG.debug("Using DISCOVERY_ENVIRONMENT_ID=%s" % environment_id)
             discovery_client.get_environment(environment_id)
         except Exception:
-            raise Exception("DISCOVERY_ENVIRONMENT_ID=%s is specified in "
-                            "a runtime environment variable, but that "
-                            "environment does not exist." % environment_id)
+            raise Exception("Environment with DISCOVERY_ENVIRONMENT_ID=%s "
+                            "does not exist." % environment_id)
 
         # Determine if collection exists.
-        try:
-            collection = discovery_client.get_collection(environment_id,
-                                                         collection_id)
-            if collection:
+        if collection_id:
+            try:
+                LOG.debug("Using DISCOVERY_COLLECTION_ID=%s" % collection_id)
+                discovery_client.get_collection(environment_id,
+                                                collection_id)
                 return collection_id
-        except Exception as e:
-            LOG.debug("Watson Discovery - unable to find collection. "
-                      "Error: %s" % repr(e))
+            except Exception:
+                raise Exception("Collection with DISCOVERY_COLLECTION_ID=%s "
+                                "does not exist." % collection_id)
+        else:
+            # Try to find collection by name. Search all collections
+            # that exist in the discovery environment.
 
-        # Try to find collection by name.
-        for coll in \
-                discovery_client.list_collections(
-                    environment_id).get('collections', []):
-            if ((data_source == AMAZON and
-                    coll['name'] == AMAZON_COLLECTION) or
-                    (data_source == IBM and
-                        coll['name'] == IBM_COLLECTION)):
-                return coll['collection_id']
+            # Discovery collection names
+            amazon_collection_name = "amazon-shopping"
+            ibm_collection_name = "ibm-logo-store"
+            # File path location to discovery html files
+            amazon_data_path = "data/amazon_data_html/"
+            ibm_data_path = "data/ibm_store_html/"
+
+            for coll in \
+                    discovery_client.list_collections(
+                        environment_id).get('collections', []):
+                if ((data_source == DISCOVERY_AMAZON_STORE and
+                        coll['name'] == amazon_collection_name) or
+                        (data_source == DiSCOVERY_IBM_STORE and
+                            coll['name'] == ibm_collection_name)):
+                    return coll['collection_id']
 
         # Doesn't exist, so create it.
+        LOG.debug("Creating collection from html files...")
         try:
-            if data_source == AMAZON:
-                name = AMAZON_ALT_COLLECTION
-                path = AMAZON_DATA_PATH
-            elif data_source == IBM:
-                name = IBM_ALT_COLLECTION
-                path = IBM_DATA_PATH
+            if data_source == DISCOVERY_AMAZON_STORE:
+                name = amazon_collection_name
+                path = amazon_data_path
+            elif data_source == DiSCOVERY_IBM_STORE:
+                name = ibm_collection_name
+                path = ibm_data_path
             if name:
-                collection = discovery_client.create_collection(environment_id,
-                                                                name)
+                collection = discovery_client.create_collection(
+                    environment_id,
+                    name)
 
-            # Add documents to collection
-            if collection:
-                collection_id = collection['collection_id']
-                for root, dirs, files in os.walk(path):
-                    for file in files:
-                        if file.endswith('.html'):
-                            with open(path + file, 'r') as f:
-                                data = f.read()
-                            discovery_client.add_document(environment_id,
-                                                          collection_id,
-                                                          file_data=data)
+                # Add documents to collection
+                if collection:
+                    collection_id = collection['collection_id']
+                    for _, _, files in os.walk(path):
+                        for file in files:
+                            if file.endswith('.html'):
+                                with open(os.path.join(path, file), 'r') as f:
+                                    data = f.read()
+                                discovery_client.add_document(environment_id,
+                                                              collection_id,
+                                                              file_data=data)
 
         except Exception as e:
             raise Exception("Discovery Collection could not be created. "
-                            "Error: " % repr(e))
+                            "Error: %s" % repr(e))
 
+        if not collection_id:
+            raise Exception("Discovery Collection could not be found "
+                            "or created.")
         return collection_id
 
     @staticmethod
@@ -499,9 +502,6 @@ class WatsonOnlineStore:
         if not ('results' in response and response['results']):
             return output
 
-        AMAZON = "AMAZON"
-        IBM = "IBM_STORE"
-
         def get_product_name(entry):
             """ Pull product name from entry data for nice user display.
 
@@ -510,7 +510,7 @@ class WatsonOnlineStore:
             """
             product_name = ""
 
-            if data_source == AMAZON:
+            if data_source == DISCOVERY_AMAZON_STORE:
                 # For amazon data, Watson Discovery has pulled the
                 # product name from the html page and stored it as
                 # "title" in its enriched metadata that it generates.
@@ -518,18 +518,18 @@ class WatsonOnlineStore:
                     metadata = entry['extracted_metadata']
                     if 'title' in metadata:
                         product_name = metadata['title']
-            elif data_source == IBM:
+            elif data_source == DiSCOVERY_IBM_STORE:
                 # For IBM store data, the product name was placed in
                 # text of the page, in the format:
                 # "Product: <product name> "Category".
                 if 'text' in entry:
-                    PRODUCT_TAG = "Product:"
-                    CATEGORY_TAG = "Category:"
+                    product_tag = "Product:"
+                    category_tag = "Category:"
                     text = entry['text']
-                    sidx = text.find(PRODUCT_TAG)
+                    sidx = text.find(product_tag)
                     if sidx > 0:
-                        sidx += len(PRODUCT_TAG)
-                        eidx = text.find(CATEGORY_TAG, sidx, len(text))
+                        sidx += len(product_tag)
+                        eidx = text.find(category_tag, sidx, len(text))
                         if eidx > 0:
                             product_name = text[sidx:eidx-1]
 
@@ -547,31 +547,31 @@ class WatsonOnlineStore:
             if 'html' in entry:
                 html = entry['html']
 
-                if data_source == AMAZON:
+                if data_source == DISCOVERY_AMAZON_STORE:
                     # For amazon data, the product URL is stored in an
                     # href tag located at the end of the html doc.
-                    HREF_TAG = "<a href="
+                    href_tag = "<a href="
                     # Search from bottom of the doc.
-                    sidx = html.rfind(HREF_TAG)
+                    sidx = html.rfind(href_tag)
                     if sidx > 0:
-                        sidx += len(HREF_TAG)
+                        sidx += len(href_tag)
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-                elif data_source == IBM:
+                elif data_source == DiSCOVERY_IBM_STORE:
                     # For IBM store data, the product URL requires a
                     # product ID. The product ID can be found by searching
                     # the html doc for "/ProductDetail.aspx?pid=<PID>".
                     # The product URL can then be built by appending
                     # this string to:
                     # ""http://www.logostore-globalid.us".
-                    URL_START = "http://www.logostore-globalid.us"
-                    HREF_TAG = "/ProductDetail.aspx?pid="
-                    sidx = html.find(HREF_TAG)
+                    url_start = "http://www.logostore-globalid.us"
+                    href_tag = "/ProductDetail.aspx?pid="
+                    sidx = html.find(href_tag)
                     if sidx > 0:
-                        sidx += len(HREF_TAG)
+                        sidx += len(href_tag)
                         product_id = html[sidx:sidx+6]
-                        product_url = URL_START + URL_START + product_id
+                        product_url = url_start + href_tag + product_id
 
             return product_url
 
@@ -585,19 +585,19 @@ class WatsonOnlineStore:
             """
             image_url = ""
 
-            if data_source == AMAZON:
+            if data_source == DISCOVERY_AMAZON_STORE:
                 # There is no image url for Amazon data,
                 # so use the product url.
                 return get_product_url(entry)
-            elif data_source == IBM:
+            elif data_source == DiSCOVERY_IBM_STORE:
                 # For IBM store data, the image url is located in the
                 # html page, and is specified with a "<a class='jqzoom'" tag.
                 if 'html' in entry:
                     html = entry['html']
-                    IMG_TAG = '<a class="jqzoom" href="'
-                    simg = html.find(IMG_TAG)
+                    img_tag = '<a class="jqzoom" href="'
+                    simg = html.find(img_tag)
                     if simg > 0:
-                        simg += len(IMG_TAG)
+                        simg += len(img_tag)
                         eimg = html.find('"', simg)
                         if eimg > 0:
                             img = html[simg:eimg]
