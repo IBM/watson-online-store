@@ -24,7 +24,7 @@ When the reader has completed this journey, they will understand how to:
 
 # Steps
 
-Perform steps 1-6 or choose the **Deploy to Bluemix** button and jump to step 5.
+Perform steps 1-6 OR perform step 1 then click the **Deploy to Bluemix** button and jump to step 4.
 
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/ibm/watson-online-store)
 
