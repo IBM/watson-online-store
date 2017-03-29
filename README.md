@@ -55,13 +55,17 @@ Create the following services:
 
 Launch the **Watson Conversation** tool. Use the **import** icon button on the right
 
-<div style="text-align:center"><img src="doc/source/images/import_conversation_workspace.png" width="50%"></div>
+<p align="center">
+  <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
+</p>
 
 Find the local version of `data/workspace.json` and select **Import**. Find the
 **Workspace ID** by clicking on the context menu of the new workspace, and selecting
 **View details**, save this ID for later.
 
-<div style="text-align:center"><img src="doc/source/images/open_conversation_menu.png" width="75%"></div>
+<p align="center">
+  <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
+</p>
 
 *Optionally*, to view the conversation dialog select the workspace and choose the
 **Dialog** tab, here's a snippet of the dialog:
@@ -73,13 +77,17 @@ Find the local version of `data/workspace.json` and select **Import**. Find the
 Launch the **Watson Conversation** tool. Create a **new data collection** and give the data
 collection a unique name.
 
-<div style="text-align:center"><img src="doc/source/images/name_discovery.png" width="50%"></div>
+<p align="center">
+  <img width="400" height="300" src="doc/source/images/name_discovery.png">
+</p>
 
 Seed the content by selecting **Add data to this collection** in the dialog,
 choose the HTML files under `data/ibm_store_html/`. When completed, save the
 **environment_id** and **configuration_id**.
 
-<div style="text-align:center"><img src="doc/source/images/view_discovery_ids.png" width="75%"></div>
+<p align="center">
+  <img width="800" height="225" src="doc/source/images/view_discovery_ids.png">
+</p>
 
 ## 5. Configure Slack
 
@@ -96,7 +104,9 @@ Give the bot a fun name. Once created save the **API Token** that is generated
 
 Run `/invite <botame>` in a channel to invite the bot, or message it directly.
 
-<div style="text-align:center"><img src="doc/source/images/invite_bot.png" width="50%"></div>
+<p align="center">
+  <img width="400" height="125" src="doc/source/images/invite_bot.png">
+</p>
 
 ## 6. Run the application
 
