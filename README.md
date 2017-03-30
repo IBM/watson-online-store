@@ -153,7 +153,7 @@ Add an item to your cart:
 
   # Slack
   SLACK_BOT_TOKEN=xoxb-cbe837f60865-bjgftpFM6tnJXTvZzIw8Ihui
-  SLACK_BOT_NAME=hal
+  SLACK_BOT_USER=wos
 ```
 
 # License
