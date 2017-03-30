@@ -41,7 +41,8 @@ Clone the `watson-online-store` locally. In a terminal, run:
 
   `$ git clone https://github.com/ibm/watson-online-store`
 
-We’ll be using the file `data/workspace.json` and the folder `data/ibm_store_html/`
+We’ll be using the file [`data/workspace.json`](data/workspace.json) and the folder
+[`data/ibm_store_html/`](data/ibm_store_html)
 
 ## 2. Create Bluemix services
 
@@ -59,9 +60,9 @@ Launch the **Watson Conversation** tool. Use the **import** icon button on the r
   <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
 </p>
 
-Find the local version of `data/workspace.json` and select **Import**. Find the
-**Workspace ID** by clicking on the context menu of the new workspace, and selecting
-**View details**, save this ID for later.
+Find the local version of [`data/workspace.json`](data/workspace.json) and select
+**Import**. Find the **Workspace ID** by clicking on the context menu of the new
+workspace, and selecting **View details**, save this ID for later.
 
 <p align="center">
   <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
@@ -82,8 +83,8 @@ collection a unique name.
 </p>
 
 Seed the content by selecting **Add data to this collection** in the dialog,
-choose the HTML files under `data/ibm_store_html/`. When completed, save the
-**environment_id** and **configuration_id**.
+choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html). When
+completed, save the **environment_id** and **configuration_id**.
 
 <p align="center">
   <img width="800" height="225" src="doc/source/images/view_discovery_ids.png">
@@ -110,7 +111,7 @@ Run `/invite <botame>` in a channel to invite the bot, or message it directly.
 
 ## 6. Run the application
 
-Copy the `env.sample` to `.env`, edit it with the necessary IDs and run the application.
+Copy the [`env.sample`](env.sample) to `.env`, edit it with the necessary IDs and run the application.
 
 ```
 $ cp env.sample .env
@@ -157,4 +158,4 @@ Add an item to your cart:
 
 # License
 
-[Apache 2.0](LICENSE.txt)
+[Apache 2.0](LICENSE)
