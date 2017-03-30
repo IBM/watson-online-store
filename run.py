@@ -82,12 +82,8 @@ class WatsonEnv:
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
         cloudant_url = os.environ.get("CLOUDANT_URL")
         cloudant_db_name = os.environ.get("CLOUDANT_DB_NAME")
-
-        # TODO: It looks like we'll want to make discovery required too.
         discovery_username = os.environ.get('DISCOVERY_USERNAME')
         discovery_password = os.environ.get('DISCOVERY_PASSWORD')
-        discovery_environment_id = os.environ.get('DISCOVERY_ENVIRONMENT_ID')
-        discovery_collection_id = os.environ.get('DISCOVERY_COLLECTION_ID')
 
         if not all((conversation_username,
                     conversation_password,
@@ -131,7 +127,9 @@ class WatsonEnv:
                     cloudant_username,
                     cloudant_password,
                     cloudant_url,
-                    cloudant_db_name)):
+                    cloudant_db_name,
+                    discovery_username,
+                    discovery_password)):
             print(MISSING_ENV_VARS)
             return None
 
@@ -160,18 +158,12 @@ class WatsonEnv:
             ),
             cloudant_db_name
         )
-        #
-        # Init Watson Discovery only if all the env vars are set.
-        #
-        discovery_client = None
-        if all((discovery_username,
-                discovery_password,
-                discovery_environment_id,
-                discovery_collection_id)):
-            discovery_client = DiscoveryV1(
-                version='2016-11-07',
-                username=discovery_username,
-                password=discovery_password)
+
+        discovery_client = DiscoveryV1(
+            version='2016-11-07',
+            username=discovery_username,
+            password=discovery_password)
+
         watsononlinestore = WatsonOnlineStore(bot_id,
                                               slack_client,
                                               conversation_client,
