@@ -23,5 +23,5 @@ applications:
   no-route: true
 env:
   CLOUDANT_DB_NAME: watson-online-store
-  SLACK_BOT_USER: wosbot
+  SLACK_BOT_USER: wos
   SLACK_BOT_TOKEN: placeholder

@@ -454,10 +454,9 @@ class WatsonOnlineStore:
                 # Now Watson will have customer info
                 self.add_customer_to_context()
 
-    def get_fake_discovery_response(self, input_text):
+    def get_fake_discovery_response(self):
         """Returns fake response from IBM Discovery for testing purposes.
 
-        :param str input_text: search request from UI
         :returns: list of Urls
         :rtype: list
         """
@@ -465,10 +464,10 @@ class WatsonOnlineStore:
         ret_string = {'discovery_result': FAKE_DISCOVERY[index]}
         return ret_string
 
-    def handle_DiscoveryQuery(self):
+    def handle_discovery_query(self):
         """Take query string from Watson Context and send to Discovery.
 
-        Discovery reponse will be merged into context in order to allow it to
+        Discovery response will be merged into context in order to allow it to
         be returned to Watson. In the case where there is no discovery client,
         a fake response will be returned, for testing purposes.
 
@@ -482,7 +481,7 @@ class WatsonOnlineStore:
             except Exception as e:
                 response = {'discovery_result': repr(e)}
         else:
-            response = self.get_fake_discovery_response(query_string)
+            response = self.get_fake_discovery_response()
 
         self.context = self.context_merge(self.context, response)
         LOG.debug("watson_discovery:\n{}\ncontext:\n{}".format(response,
@@ -528,7 +527,7 @@ class WatsonOnlineStore:
 
         :param dict response: output from Discovery
         :param string data_source: name of the discovery data source
-        :returns: cart_numer, name, url, image for each item returned
+        :returns: cart_number, name, url, image for each item returned
         :rtype: dict
         """
         output = []
@@ -809,7 +808,7 @@ class WatsonOnlineStore:
 
         if ('discovery_string' in self.context.keys() and
            self.context['discovery_string'] and self.discovery_client):
-            return self.handle_DiscoveryQuery()
+            return self.handle_discovery_query()
 
         if ('shopping_cart' in self.context.keys() and
                 self.context['shopping_cart'] == 'list'):
