@@ -19,22 +19,19 @@ class WOSTestCase(unittest.TestCase):
                             'name': 'watson-online-store'}]}
         self.cloudant_store = mock.Mock()
         self.discovery_client = mock.Mock()
+        self.fake_data_source = 'IBM_STORE'
         self.fake_environment_id = 'fake env id'
         self.fake_collection_id = "fake collection id"
         self.discovery_client.get_environment.return_value = {
-            'environment_id': self.fake_environment_id
-        }
+            'environment_id': self.fake_environment_id}
         self.discovery_client.get_environments.return_value = {
             'environments': [{'environment_id': self.fake_environment_id,
-                             'name': 'ibm-logo-store'}]
-        }
+                             'name': 'ibm-logo-store'}]}
         self.discovery_client.get_collection.return_value = {
-            'collection_id': self.fake_collection_id
-        }
+            'collection_id': self.fake_collection_id}
         self.discovery_client.list_collections.return_value = {
             'collections': [{'collection_id': self.fake_collection_id,
-                             'name': 'ibm-logo-store'}]
-        }
+                             'name': 'ibm-logo-store'}]}
 
         self.wosbot = watson_online_store.WatsonOnlineStore(
             'UBOTID',
@@ -254,3 +251,50 @@ class WOSTestCase(unittest.TestCase):
             counterexamples=ws_json['counterexamples'],
             metadata=ws_json['metadata'])
         self.assertEqual(expected_workspace_id, actual)
+
+    def test_setup_discovery_environment_by_id(self):
+        expected_environment_id = 'testing with a env ID'
+        expected_collection_id = 'testing with a coll ID'
+        test_environ = {'DISCOVERY_ENVIRONMENT_ID': expected_environment_id,
+                        self.fake_data_source + '_DISCO_COLLECTION_ID':
+                            expected_collection_id}
+
+        self.discovery_client.get_environment = mock.Mock(return_value={
+            'environment_id': expected_environment_id})
+        self.discovery_client.get_collection = mock.Mock(return_value={
+            'collection_id': expected_collection_id})
+
+        wos = watson_online_store.WatsonOnlineStore
+        actual_env, actual_coll = (
+            wos.setup_discovery_collection(self.discovery_client,
+                                           self.fake_data_source,
+                                           test_environ))
+
+        self.discovery_client.get_environment.assert_called_once()
+        self.discovery_client.get_collection.assert_called_once()
+        self.assertEqual(expected_environment_id, actual_env)
+        self.assertEqual(expected_collection_id, actual_coll)
+
+    def test_setup_discovery_environment_by_name_default(self):
+        test_environ = {}
+        expected_environment_id = 'this is the env'
+        expected_collection_id = 'this is the coll'
+        self.discovery_client.get_environments = mock.Mock(return_value={
+            'environments': [{'environment_id': 'other', 'name': 'foo'},
+                             {'environment_id': expected_environment_id,
+                              'name': 'watson-online-store'}]})
+        self.discovery_client.list_collections = mock.Mock(return_value={
+            'collections': [{'collection_id': 'other', 'name': 'foo'},
+                            {'collection_id': expected_collection_id,
+                             'name': 'ibm-logo-store'}]})
+
+        wos = watson_online_store.WatsonOnlineStore
+        actual_env, actual_coll = (
+            wos.setup_discovery_collection(self.discovery_client,
+                                           self.fake_data_source,
+                                           test_environ))
+
+        self.discovery_client.get_environments.assert_called_once()
+        self.discovery_client.list_collections.assert_called_once()
+        self.assertEqual(expected_environment_id, actual_env)
+        self.assertEqual(expected_collection_id, actual_coll)
