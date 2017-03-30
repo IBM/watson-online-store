@@ -204,7 +204,7 @@ class WatsonOnlineStore:
     def parse_slack_output(self, output_dict):
         """Prepare output when using Slack as UI.
 
-        :param dict output: text, channel, user, etc from slack posting
+        :param dict output_dict: text, channel, user, etc from slack posting
         :returns: text, channel, user
         :rtype: str, str, str
         """
@@ -320,10 +320,9 @@ class WatsonOnlineStore:
                 # Now Watson will have customer info
                 self.add_customer_to_context()
 
-    def get_fake_discovery_response(self, input_text):
+    def get_fake_discovery_response(self):
         """Returns fake response from IBM Discovery for testing purposes.
 
-        :param str input_text: search request from UI
         :returns: list of Urls
         :rtype: list
         """
@@ -331,10 +330,10 @@ class WatsonOnlineStore:
         ret_string = {'discovery_result': FAKE_DISCOVERY[index]}
         return ret_string
 
-    def handle_DiscoveryQuery(self):
+    def handle_discovery_query(self):
         """Take query string from Watson Context and send to Discovery.
 
-        Discovery reponse will be merged into context in order to allow it to
+        Discovery response will be merged into context in order to allow it to
         be returned to Watson. In the case where there is no discovery client,
         a fake response will be returned, for testing purposes.
 
@@ -348,7 +347,7 @@ class WatsonOnlineStore:
             except Exception as e:
                 response = {'discovery_result': repr(e)}
         else:
-            response = self.get_fake_discovery_response(query_string)
+            response = self.get_fake_discovery_response()
 
         self.context = self.context_merge(self.context, response)
         LOG.debug("watson_discovery:\n{}\ncontext:\n{}".format(
@@ -386,7 +385,7 @@ class WatsonOnlineStore:
         the following key values:
 
         DISCOVERY_COLLECTION_ID=<collection id of requested data source>
-        DISCOVERY_SCORE_FILTER=<float value betweem 0.0. and 1.0>
+        DISCOVERY_SCORE_FILTER=<float value between 0.0. and 1.0>
         DISCOVERY_DATA_SOURCE="<data source string name>"
 
         This pattern should be followed if additional data sources are
@@ -394,7 +393,7 @@ class WatsonOnlineStore:
 
         :param dict response: input from Discovery
         :param string data_source: name of the discovery data source
-        :returns: cart_numer, name, url, image for each item returned
+        :returns: cart_number, name, url, image for each item returned
         :rtype: dict
         """
         output = []
@@ -404,6 +403,7 @@ class WatsonOnlineStore:
         def get_product_name(entry, data_source):
             """ Pull product name from entry data for nice user display.
 
+            :param dict entry: the data to pull the product name out of
             :param str data_source: name of the discovery data source
             :returns: name of product
             :rtype: str
@@ -439,6 +439,7 @@ class WatsonOnlineStore:
             """ Pull product url from entry data so user can navigate
             to product page.
 
+            :param dict entry: the data to pull the product url out of
             :param str data_source: name of the discovery data source
             :returns: url link to product description
             :rtype: str
@@ -480,6 +481,7 @@ class WatsonOnlineStore:
             """Pull product image url from entry data to allow
             pictures in slack.
 
+            :param dict entry: the data to pull the image url out of
             :param str data_source: name of the discovery data source
             :returns: url link to product image
             :rtype: str
@@ -675,7 +677,7 @@ class WatsonOnlineStore:
 
         if ('discovery_string' in self.context.keys() and
            self.context['discovery_string'] and self.discovery_client):
-            return self.handle_DiscoveryQuery()
+            return self.handle_discovery_query()
 
         if ('shopping_cart' in self.context.keys() and
                 self.context['shopping_cart'] == 'list'):
