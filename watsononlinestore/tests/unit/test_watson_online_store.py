@@ -21,8 +21,12 @@ class WOSTestCase(unittest.TestCase):
         self.discovery_client = mock.Mock()
         self.fake_environment_id = 'fake env id'
         self.fake_collection_id = "fake collection id"
-        self.discovery_client.get_enviornment.return_value = {
+        self.discovery_client.get_environment.return_value = {
             'environment_id': self.fake_environment_id
+        }
+        self.discovery_client.get_environments.return_value = {
+            'environments': [{'environment_id': self.fake_environment_id,
+                             'name': 'ibm-logo-store'}]
         }
         self.discovery_client.get_collection.return_value = {
             'collection_id': self.fake_collection_id

@@ -97,13 +97,8 @@ class WatsonOnlineStore:
 
         # IBM Watson Discovery Service
         self.discovery_client = discovery_client
-        self.discovery_environment_id = os.environ.get(
-            'DISCOVERY_ENVIRONMENT_ID')
         self.discovery_data_source = os.environ.get(
             'DISCOVERY_DATA_SOURCE', DiSCOVERY_IBM_STORE)
-        self.discovery_collection_id = os.environ.get(
-            self.discovery_data_source + '_DISCO_COLLECTION_ID')
-
         try:
             self.discovery_score_filter = float(
                 os.environ.get(self.discovery_data_source +
@@ -115,11 +110,10 @@ class WatsonOnlineStore:
             self.discovery_score_filter = 0.0
             pass
 
-        self.discovery_collection_id = self.setup_discovery_collection(
-            discovery_client,
-            self.discovery_environment_id,
-            self.discovery_collection_id,
-            self.discovery_data_source)
+        self.discovery_environment_id, self.discovery_collection_id = (
+            self.setup_discovery_collection(discovery_client,
+                                            self.discovery_data_source,
+                                            os.environ))
 
         self.context = {}
         self.customer = None
@@ -193,35 +187,73 @@ class WatsonOnlineStore:
 
     @staticmethod
     def setup_discovery_collection(discovery_client,
-                                   environment_id,
-                                   collection_id,
-                                   data_source):
+                                   data_source,
+                                   environ):
         """ Ensure that the collection exists in the Watson Discovery service.
 
         :param discovery_client: discovery service client
-        :param str environment_id: discovery service environment id
-        :param str collection_id: discovery service collection id
         :param str data_source: name of the discovery data source
-        :return: ID of discovery collection to use
+        :param environ: Runtime environment variables
+        :return: ID of discovery environment and collection to use
         :rtype: str
         :raise Exception: When collection is not found and cannot be created
         """
 
-        # Ensure a valid environment exists.
-        try:
-            LOG.debug("Using DISCOVERY_ENVIRONMENT_ID=%s" % environment_id)
-            discovery_client.get_environment(environment_id)
-        except Exception:
-            raise Exception("Environment with DISCOVERY_ENVIRONMENT_ID=%s "
-                            "does not exist." % environment_id)
+        # If environment id exist, ensure it is valid.
+        environment_id = environ.get('DISCOVERY_ENVIRONMENT_ID')
+        if environment_id:
+            try:
+                LOG.debug("Using DISCOVERY_ENVIRONMENT_ID=%s" % environment_id)
+                discovery_client.get_environment(environment_id)
+            except Exception:
+                raise Exception("Environment with DISCOVERY_ENVIRONMENT_ID=%s "
+                                "does not exist." % environment_id)
+        else:
+            # Try to find the environment by name.
+            name = environ.get('DISCOVERY_ENVIRONMENT_NAME',
+                               'watson-online-store')
+            # Can't use/modify the defaullt discovery environment
+            reserved_name = "Watson News Environment"
+
+            environments = discovery_client.get_environments()['environments']
+            for environment in environments:
+                if environment['name'] == name:
+                    environment_id = environment['environment_id']
+                    LOG.debug("Found DISCOVERY_ENVIRONMENT_ID=%(id)s using "
+                              "lookup by name=%(name)s" %
+                              {'id': environment_id, 'name': name})
+                    break
+                elif environment['name'] != reserved_name:
+                    # Last resort will be to use an available one
+                    environment_id = environment['environment_id']
+
+            if not environment_id:
+                # No existing environment found, so create it.
+                # NOTE that the number of environments that can be created
+                # under a trial Bluemix account is limited to one environment
+                # per organization.
+                try:
+                    LOG.debug("Creating discovery environment...")
+                    created = discovery_client.create_environment(
+                        name,
+                        "Discovery environment created by "
+                        "watson-online-store.", 0)
+                    environment_id = created['environment_id']
+                    LOG.debug("Created DISCOVERY_ENVIRONMENT_ID=%(id)s with "
+                              "name=%(name)s" %
+                              {'id': environment_id, 'name': name})
+                except Exception as e:
+                    raise Exception("Error creating Discovery "
+                                    "Error: %s" % repr(e))
 
         # Determine if collection exists.
+        collection_id = environ.get(data_source + '_DISCO_COLLECTION_ID')
         if collection_id:
             try:
                 LOG.debug("Using DISCOVERY_COLLECTION_ID=%s" % collection_id)
                 discovery_client.get_collection(environment_id,
                                                 collection_id)
-                return collection_id
+                return environment_id, collection_id
             except Exception:
                 raise Exception("Collection with DISCOVERY_COLLECTION_ID=%s "
                                 "does not exist." % collection_id)
@@ -236,14 +268,14 @@ class WatsonOnlineStore:
             amazon_data_path = "data/amazon_data_html/"
             ibm_data_path = "data/ibm_store_html/"
 
-            for coll in \
-                    discovery_client.list_collections(
-                        environment_id).get('collections', []):
+            collections = discovery_client.list_collections(
+                environment_id)['collections']
+            for coll in collections:
                 if ((data_source == DISCOVERY_AMAZON_STORE and
                         coll['name'] == amazon_collection_name) or
                         (data_source == DiSCOVERY_IBM_STORE and
                             coll['name'] == ibm_collection_name)):
-                    return coll['collection_id']
+                    return environment_id, coll['collection_id']
 
         # Doesn't exist, so create it.
         LOG.debug("Creating collection from html files...")
@@ -278,7 +310,8 @@ class WatsonOnlineStore:
         if not collection_id:
             raise Exception("Discovery Collection could not be found "
                             "or created.")
-        return collection_id
+
+        return environment_id, collection_id
 
     @staticmethod
     def get_workspace_json():
