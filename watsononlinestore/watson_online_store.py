@@ -32,7 +32,7 @@ DISCOVERY_KEEP_COUNT = 5
 DISCOVERY_TRUNCATE = 500
 # Available data sources for Discovery
 DISCOVERY_AMAZON_STORE = "AMAZON"
-DiSCOVERY_IBM_STORE = "IBM_STORE"
+DISCOVERY_IBM_STORE = "IBM_STORE"
 
 
 class SlackSender:
@@ -98,7 +98,7 @@ class WatsonOnlineStore:
         # IBM Watson Discovery Service
         self.discovery_client = discovery_client
         self.discovery_data_source = os.environ.get(
-            'DISCOVERY_DATA_SOURCE', DiSCOVERY_IBM_STORE)
+            'DISCOVERY_DATA_SOURCE', DISCOVERY_IBM_STORE)
         try:
             self.discovery_score_filter = float(
                 os.environ.get(self.discovery_data_source +
@@ -136,7 +136,7 @@ class WatsonOnlineStore:
         was created.
 
         :param conversation_client: Conversation service client
-        :param environ: Runtime environment variables
+        :param object environ: runtime environment variables
         :return: ID of conversation workspace to use
         :rtype: str
         :raise Exception: When workspace is not found and cannot be created
@@ -193,7 +193,7 @@ class WatsonOnlineStore:
 
         :param discovery_client: discovery service client
         :param str data_source: name of the discovery data source
-        :param environ: Runtime environment variables
+        :param object environ: runtime environment variables
         :return: ID of discovery environment and collection to use
         :rtype: str
         :raise Exception: When collection is not found and cannot be created
@@ -273,7 +273,7 @@ class WatsonOnlineStore:
             for coll in collections:
                 if ((data_source == DISCOVERY_AMAZON_STORE and
                         coll['name'] == amazon_collection_name) or
-                        (data_source == DiSCOVERY_IBM_STORE and
+                        (data_source == DISCOVERY_IBM_STORE and
                             coll['name'] == ibm_collection_name)):
                     return environment_id, coll['collection_id']
 
@@ -283,7 +283,7 @@ class WatsonOnlineStore:
             if data_source == DISCOVERY_AMAZON_STORE:
                 name = amazon_collection_name
                 path = amazon_data_path
-            elif data_source == DiSCOVERY_IBM_STORE:
+            elif data_source == DISCOVERY_IBM_STORE:
                 name = ibm_collection_name
                 path = ibm_data_path
             if name:
@@ -526,7 +526,7 @@ class WatsonOnlineStore:
         This pattern should be followed if additional data sources are
         added.
 
-        :param dict response: input from Discovery
+        :param dict response: output from Discovery
         :param string data_source: name of the discovery data source
         :returns: cart_numer, name, url, image for each item returned
         :rtype: dict
@@ -538,6 +538,7 @@ class WatsonOnlineStore:
         def get_product_name(entry):
             """ Pull product name from entry data for nice user display.
 
+            :param dict entry: output from Discovery
             :returns: name of product
             :rtype: str
             """
@@ -551,7 +552,7 @@ class WatsonOnlineStore:
                     metadata = entry['extracted_metadata']
                     if 'title' in metadata:
                         product_name = metadata['title']
-            elif data_source == DiSCOVERY_IBM_STORE:
+            elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the product name was placed in
                 # text of the page, in the format:
                 # "Product: <product name> "Category".
@@ -572,6 +573,7 @@ class WatsonOnlineStore:
             """ Pull product url from entry data so user can navigate
             to product page.
 
+            :param dict entry: output from Discovery
             :returns: url link to product description
             :rtype: str
             """
@@ -591,7 +593,7 @@ class WatsonOnlineStore:
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-                elif data_source == DiSCOVERY_IBM_STORE:
+                elif data_source == DISCOVERY_IBM_STORE:
                     # For IBM store data, the product URL requires a
                     # product ID. The product ID can be found by searching
                     # the html doc for "/ProductDetail.aspx?pid=<PID>".
@@ -612,7 +614,7 @@ class WatsonOnlineStore:
             """Pull product image url from entry data to allow
             pictures in slack.
 
-            :param str data_source: name of the discovery data source
+            :param dict entry: output from Discovery
             :returns: url link to product image
             :rtype: str
             """
@@ -622,7 +624,7 @@ class WatsonOnlineStore:
                 # There is no image url for Amazon data,
                 # so use the product url.
                 return get_product_url(entry)
-            elif data_source == DiSCOVERY_IBM_STORE:
+            elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the image url is located in the
                 # html page, and is specified with a "<a class='jqzoom'" tag.
                 if 'html' in entry:
