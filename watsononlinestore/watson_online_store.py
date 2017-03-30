@@ -519,8 +519,8 @@ class WatsonOnlineStore:
         source is being used is specified in the ".env" file by setting
         the following key values:
 
-        DISCOVERY_COLLECTION_ID=<collection id of requested data source>
-        DISCOVERY_SCORE_FILTER=<float value betweem 0.0. and 1.0>
+        <data_source>_DISCO_COLLECTION_ID=<collection id of data source>
+        <data_source>_DISCO_SCORE_FILTER=<float value betweem 0.0. and 1.0>
         DISCOVERY_DATA_SOURCE="<data source string name>"
 
         This pattern should be followed if additional data sources are
