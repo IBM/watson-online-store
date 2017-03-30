@@ -62,7 +62,7 @@ Launch the **Watson Conversation** tool. Use the **import** icon button on the r
 
 Find the local version of [`data/workspace.json`](data/workspace.json) and select
 **Import**. Find the **Workspace ID** by clicking on the context menu of the new
-workspace, and selecting **View details**, save this ID for later.
+workspace and select **View details**. Save this ID for later.
 
 <p align="center">
   <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
