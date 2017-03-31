@@ -84,7 +84,7 @@ collection a unique name.
 
 Seed the content by selecting **Add data to this collection** in the dialog,
 choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html). When
-completed, save the **environment_id** and **configuration_id**.
+completed, save the **environment_id** and **collection_id**.
 
 <p align="center">
   <img width="800" height="225" src="doc/source/images/view_discovery_ids.png">
