@@ -111,6 +111,34 @@ Run `/invite <botame>` in a channel to invite the bot, or message it directly.
 
 ## 6. Run the application
 
+### Deployed to Bluemix
+
+If you used ``Deploy to Bluemix``, most of the setup is automatic, but not
+quite all of it.
+
+1. Add SLACK_BOT_TOKEN
+* Use your Bluemix dashboard and click on the App. that was created.
+* Click on ``Runtime`` on the left.
+* Click on the ``Environment variables`` tab.
+* Scroll-down to see 3 environment variables:
+    * Set SLACK_BOT_TOKEN to the token you saved during Slack setup.
+    * Set SLACK_BOT_USER to the name of your bot.
+    * CLOUDANT_DB_NAME is probably OK to leave as watson-online-store.
+* Hit ``Save``.
+* Hit the restart icon and watch the logs for errors.
+
+2. There currently a work-around before the Discovery collection can be
+automatically created.
+* Use your Bluemix dashboard and click on the wos-discovery-service.
+* Click on the ``Service credentials`` tab.
+* If there are no service credentials, click ``New credential`` and ``Add``.
+* Click on the ``Manage`` tab and click ``Launch Tool``.
+* Click on the gear icon. If it prompts you to create a Private Storage
+Environment, then create one.
+
+Restart your App. and start chatting with your bot.
+
+### Run local
 Copy the [`env.sample`](env.sample) to `.env`, edit it with the necessary IDs and run the application.
 
 ```
