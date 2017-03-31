@@ -1,4 +1,4 @@
 cloudant==2.4.0
 python-dotenv==0.5.1
 slackclient==1.0.5
-watson-developer-cloud==0.25.1
+watson-developer-cloud>=0.25.2
