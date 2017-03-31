@@ -139,7 +139,12 @@ Environment, then create one.
 Restart your App. and start chatting with your bot.
 
 ### Run local
-Copy the [`env.sample`](env.sample) to `.env`, edit it with the necessary IDs and run the application.
+Copy the [`env.sample`](env.sample) to `.env`, edit it with the necessary IDs
+and run the application.
+
+The USERNAME, PASSWORD, and URL settings for each service can be obtained from
+the `Service Credentials` tab in BlueMix. The other settings were collected
+during the earlier setup steps.
 
 ```
 $ cp env.sample .env
