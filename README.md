@@ -24,7 +24,7 @@ When the reader has completed this journey, they will understand how to:
 
 # Steps
 
-Perform steps 1-6 OR perform click the **Deploy to Bluemix** button and jump to step 5.
+**NOTE:** Perform steps 1-6 **OR** click the **Deploy to Bluemix** button and jump to step 5.
 
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/ibm/watson-online-store)
 
@@ -111,7 +111,6 @@ Run `/invite <botame>` in a channel to invite the bot, or message it directly.
 
 ## 6. Run the application
 
-
 ### If you used the Deploy to Bluemix button...
 
 If you used ``Deploy to Bluemix``, most of the setup is automatic, but not
@@ -129,18 +128,18 @@ Update the three environment variables:
 
 Save the new values and restart the application, watch the logs for errors.
 
-### If you decide to run the app locally...
+### If you decided to run the app locally...
 
 Copy the [`env.sample`](env.sample) to `.env`, edit it with the necessary IDs
 and run the application.
 
-The USERNAME, PASSWORD, and URL settings for each service can be obtained from
-the `Service Credentials` tab in BlueMix. The other settings were collected
+The `USERNAME`, `PASSWORD`, and `URL` settings for each service can be obtained
+from the `Service Credentials` tab in BlueMix. The other settings were collected
 during the earlier setup steps.
 
 ```
 $ cp env.sample .env
-$ # edit .env
+### edit .env
 $ python run.py
 ```
 
@@ -155,6 +154,14 @@ Add an item to your cart:
 ![](doc/source/images/convo_add.png)
 
 # Troubleshooting
+
+* Help! I'm seeing errors in my log
+
+This is expected during the first run. The app tries to start before the Discovery
+service is fully created. Allow a minute or two to pass, the following message
+should appear:
+
+``Watson Online Store bot is connected and running!``
 
 * Setting environment variables for a local run
 
@@ -186,15 +193,6 @@ option.
   SLACK_BOT_TOKEN=xoxb-cbe837f60865-bjgftpFM6tnJXTvZzIw8Ihui
   SLACK_BOT_USER=wos
 ```
-
-* Help! I'm seeing errors in my log
-
-This is expected during the first run. The app tries to start before the Discovery
-service is fully created. Allow a minute or two to pass, the following message
-should appear:
-
-``Watson Online Store bot is connected and running!``
-
 
 # License
 
