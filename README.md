@@ -172,26 +172,26 @@ be found in the ``Services`` menu in Bluemix, and selecting the ``Service Creden
 option.
 
 ```
-  # Watson conversation
-  CONVERSATION_USERNAME=<add_converstaion_username>
-  CONVERSATION_PASSWORD=<add_converstaion_passsord>
-  WORKSPACE_ID=<add_converstaion_workspance>
+# Watson conversation
+CONVERSATION_USERNAME=<add_conversation_username>
+CONVERSATION_PASSWORD=<add_conversation_passsword>
+WORKSPACE_ID=<add_conversation_workspace>
 
-  # Cloudant DB
-  CLOUDANT_USERNAME=<add_cloudant_username>
-  CLOUDANT_PASSWORD=<add_cloudant_password>
-  CLOUDANT_DB_NAME=<add_cloudant_db_name>
-  CLOUDANT_URL=<add_cloudant_url>
+# Cloudant DB
+CLOUDANT_USERNAME=<add_cloudant_username>
+CLOUDANT_PASSWORD=<add_cloudant_password>
+CLOUDANT_DB_NAME=watson_online_store
+CLOUDANT_URL=<add_cloudant_url>
 
-  # Watson Discovery
-  DISCOVERY_USERNAME=<add_discovery_username>
-  DISCOVERY_PASSWORD=<add_discovery_password>
-  DISCOVERY_ENVIRONMENT_ID=<add_discovery_environment>
-  DISCOVERY_COLLECTION_ID=<add_discovery_collection>
+# Watson Discovery
+DISCOVERY_USERNAME=<add_discovery_username>
+DISCOVERY_PASSWORD=<add_discovery_password>
+DISCOVERY_ENVIRONMENT_ID=<add_discovery_environment>
+DISCOVERY_COLLECTION_ID=<add_discovery_collection>
 
-  # Slack
-  SLACK_BOT_TOKEN=<add_slack_bot_token>
-  SLACK_BOT_USER=wos
+# Slack
+SLACK_BOT_TOKEN=<add_slack_bot_token>
+SLACK_BOT_USER=wos
 ```
 
 # License
