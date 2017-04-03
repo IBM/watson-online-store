@@ -174,7 +174,7 @@ option.
 ```
 # Watson conversation
 CONVERSATION_USERNAME=<add_conversation_username>
-CONVERSATION_PASSWORD=<add_conversation_passsword>
+CONVERSATION_PASSWORD=<add_conversation_password>
 WORKSPACE_ID=<add_conversation_workspace>
 
 # Cloudant DB
