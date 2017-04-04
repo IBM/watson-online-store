@@ -33,7 +33,7 @@ class WOSTestCase(unittest.TestCase):
             'collections': [{'collection_id': self.fake_collection_id,
                              'name': 'ibm-logo-store'}]}
 
-        self.wosbot = watson_online_store.WatsonOnlineStore(
+        self.wos = watson_online_store.WatsonOnlineStore(
             'UBOTID',
             self.slack_client,
             self.conv_client,
@@ -52,7 +52,7 @@ class WOSTestCase(unittest.TestCase):
             'output': {'text': [fake_response]},
         }
 
-        self.wosbot.handle_message("this is a test", sender)
+        self.wos.handle_message("this is a test", sender)
 
         self.conv_client.assert_has_calls([
             mock.call.message(context={},
@@ -71,13 +71,13 @@ class WOSTestCase(unittest.TestCase):
     def test_init_customer_no_user_id(self, no_user_id):
 
         self.assertRaises(
-            AssertionError, self.wosbot.init_customer, no_user_id)
+            AssertionError, self.wos.init_customer, no_user_id)
 
     def test_init_customer_slack_fail(self):
         self.slack_client.api_call = mock.Mock(side_effect=Exception("Boom"))
         user = "testuser"
 
-        self.wosbot.init_customer(user)
+        self.wos.init_customer(user)
 
         self.slack_client.api_call.assert_called_once_with(
             'users.info', user=user)
@@ -92,7 +92,7 @@ class WOSTestCase(unittest.TestCase):
         self.slack_client.api_call = mock.Mock(return_value=ret)
         user = "testuser"
 
-        self.wosbot.init_customer(user)
+        self.wos.init_customer(user)
 
         self.slack_client.api_call.assert_called_once_with(
             'users.info', user=user)
@@ -108,7 +108,7 @@ class WOSTestCase(unittest.TestCase):
         })
         user = "testuser"
 
-        self.wosbot.init_customer(user)
+        self.wos.init_customer(user)
 
         self.slack_client.api_call.assert_called_once_with(
             'users.info', user=user)
@@ -125,7 +125,7 @@ class WOSTestCase(unittest.TestCase):
         self.cloudant_store.find_customer = mock.Mock(return_value={})
         user = "testuser"
 
-        self.wosbot.init_customer(user)
+        self.wos.init_customer(user)
 
         self.slack_client.api_call.assert_called_once_with(
             'users.info', user=user)
@@ -146,7 +146,7 @@ class WOSTestCase(unittest.TestCase):
          ('this is a dm', 'DXXX', 'U')))
     @ddt.unpack
     def test_parse_slack_output(self, output_list, expected):
-        actual = self.wosbot.parse_slack_output(output_list)
+        actual = self.wos.parse_slack_output(output_list)
         self.assertEqual(expected, actual)
 
     @ddt.data([{},  # no text
@@ -155,7 +155,7 @@ class WOSTestCase(unittest.TestCase):
                ])
     def test_parse_slack_output_to_skip(self, output_list):
         expected = (None, None, None)
-        actual = self.wosbot.parse_slack_output(output_list)
+        actual = self.wos.parse_slack_output(output_list)
         self.assertEqual(expected, actual)
 
     def test_setup_conversation_workspace_by_name_default(self):
