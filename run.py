@@ -133,6 +133,30 @@ class WatsonEnv:
             print(MISSING_ENV_VARS)
             return None
 
+        # Instantiate Watson Conversation client.
+        conversation_client = ConversationV1(
+            username=conversation_username,
+            password=conversation_password,
+            version='2016-07-11')
+
+        # Instantiate Cloudant DB.
+        cloudant_online_store = CloudantOnlineStore(
+            Cloudant(
+                cloudant_username,
+                cloudant_password,
+                url=cloudant_url,
+                connect=True
+            ),
+            cloudant_db_name
+        )
+
+        # Instantiate Watson Discovery client.
+        discovery_client = DiscoveryV1(
+            version='2016-11-07',
+            username=discovery_username,
+            password=discovery_password)
+
+        # Instantiate Slack chatbot.
         if 'placeholder' in slack_bot_token:
             raise Exception("SLACK_BOT_TOKEN needs to be set correctly. "
                             "It is currently set to 'placeholder'.")
@@ -144,26 +168,7 @@ class WatsonEnv:
                 print("Error: Missing BOT_ID or invalid SLACK_BOT_USER.")
                 return None
 
-        conversation_client = ConversationV1(
-            username=conversation_username,
-            password=conversation_password,
-            version='2016-07-11')
-
-        cloudant_online_store = CloudantOnlineStore(
-            Cloudant(
-                cloudant_username,
-                cloudant_password,
-                url=cloudant_url,
-                connect=True
-            ),
-            cloudant_db_name
-        )
-
-        discovery_client = DiscoveryV1(
-            version='2016-11-07',
-            username=discovery_username,
-            password=discovery_password)
-
+        # Start Watson Online Store app.
         watsononlinestore = WatsonOnlineStore(bot_id,
                                               slack_client,
                                               conversation_client,
