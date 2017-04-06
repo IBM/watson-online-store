@@ -15,6 +15,7 @@
 import json
 import os
 
+import cf_deployment_tracker
 from cloudant.client import Cloudant
 from dotenv import load_dotenv
 from slackclient import SlackClient
@@ -178,6 +179,8 @@ class WatsonEnv:
 
 
 if __name__ == "__main__":
+    cf_deployment_tracker.track()
+
     watsononlinestore = WatsonEnv.get_watson_online_store()
 
     watsononlinestore.run()
