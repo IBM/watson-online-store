@@ -298,3 +298,56 @@ class WOSTestCase(unittest.TestCase):
         self.discovery_client.list_collections.assert_called_once()
         self.assertEqual(expected_environment_id, actual_env)
         self.assertEqual(expected_collection_id, actual_coll)
+
+    def test_format_ibm_store_output(self):
+        ibm_product_name = "IBM Shirt"
+        ibm_product_id = "012345"
+        ibm_image_tag = '<a class="jqzoom" href="'
+        ibm_image_url = 'https://www.test.xxx/scale[50]'
+        ibm_product_tag = "/ProductDetail.aspx?pid="
+        ibm_product_url = ("http://www.logostore-globalid.us" +
+                          ibm_product_tag)
+        ibm_expected_response = [{
+            'cart_number': "1",
+            'name': ibm_product_name,
+            'url': ibm_product_url + ibm_product_id,
+            'image': ibm_image_url
+        },]
+
+        wos = watson_online_store.WatsonOnlineStore
+
+        # Test IBM Store formatting.
+        # Note: use "XXX" to simlate that these tags are not at [0]
+        ibm_results = [{
+            'text': "XXXProduct:" + ibm_product_name + " Category:",
+            'html': ("XXX"+ ibm_product_tag + ibm_product_id +
+                     ibm_image_tag + ibm_image_url + '"')
+        },]
+        ibm_response = {'results': ibm_results}
+        output = wos.format_discovery_response(ibm_response, "IBM_STORE")
+        self.assertEqual(ibm_expected_response, output)
+
+    def test_format_amazon_store_output(self):
+        amz_product_name = "Amazon Shirt"
+        amz_product_tag = '<a href='
+        amz_product_url = 'http://www.test.xxx'
+        amz_expected_response = [{
+            'cart_number': "1",
+            'name': amz_product_name,
+            'url': amz_product_url,
+            'image': amz_product_url
+        },]
+
+        wos = watson_online_store.WatsonOnlineStore
+
+        # Test Amazon Store formatting.
+        # Note: use "XXX" to simlate that these tags are not at [0]
+        amz_results = [{
+            'extracted_metadata': {
+                'title': amz_product_name
+            },
+            'html': "XXX" + amz_product_tag + " " + amz_product_url + ' >'
+        },]
+        amz_response = {'results': amz_results}
+        output = wos.format_discovery_response(amz_response, "AMAZON")
+        self.assertEqual(amz_expected_response, output)
