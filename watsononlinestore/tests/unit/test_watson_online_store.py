@@ -317,7 +317,7 @@ class WOSTestCase(unittest.TestCase):
         wos = watson_online_store.WatsonOnlineStore
 
         # Test IBM Store formatting.
-        # Note: use "XXX" to simlate that these tags are not at [0]
+        # Note: use "XXX" to simulate that these tags are not at [0]
         ibm_results = [{
             'text': "XXXProduct:" + ibm_product_name + " Category:",
             'html': ("XXX"+ ibm_product_tag + ibm_product_id +
@@ -341,7 +341,7 @@ class WOSTestCase(unittest.TestCase):
         wos = watson_online_store.WatsonOnlineStore
 
         # Test Amazon Store formatting.
-        # Note: use "XXX" to simlate that these tags are not at [0]
+        # Note: use "XXX" to simulate that these tags are not at [0]
         amz_results = [{
             'extracted_metadata': {
                 'title': amz_product_name
