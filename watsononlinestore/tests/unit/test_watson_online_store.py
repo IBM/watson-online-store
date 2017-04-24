@@ -132,6 +132,23 @@ class WOSTestCase(unittest.TestCase):
         self.cloudant_store.find_customer.assert_called_once_with(
             test_email_addr)
 
+    def test_init_customer_slack_no_name(self):
+        test_email_addr = 'e@mail'
+        self.slack_client.api_call = mock.Mock(
+            return_value={'user': {'profile': {'email': test_email_addr,
+                                               'first_name': '',
+                                               'last_name': '',
+                                               }}})
+        self.cloudant_store.find_customer = mock.Mock(return_value={})
+        user = "testuser"
+
+        self.wos.init_customer(user)
+
+        self.slack_client.api_call.assert_called_once_with(
+            'users.info', user=user)
+        self.cloudant_store.find_customer.assert_called_once_with(
+            test_email_addr)
+
     @ddt.data(
         ([{'text': '<@UBOTID> suFFix', 'channel': 'C', 'user': 'U'}],
          ('suffix', 'C', 'U')),
