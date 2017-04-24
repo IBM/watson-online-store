@@ -410,8 +410,14 @@ class WatsonOnlineStore:
         """
 
         email_addr = user_json['user']['profile']['email']
-        first = user_json['user']['profile']['first_name']
-        last = user_json['user']['profile']['last_name']
+        try:
+            first = user_json['user']['profile']['first_name']
+        except KeyError:
+            first = email_addr
+        try:
+            last = user_json['user']['profile']['last_name']
+        except KeyError:
+            last = email_addr
         self.customer = OnlineStoreCustomer(email=email_addr,
                                             first_name=first,
                                             last_name=last,
