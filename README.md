@@ -76,7 +76,7 @@ workspace and select **View details**. Save this ID for later.
 
 ## 4. Configure Watson Discovery
 
-Launch the **Watson Conversation** tool. Create a **new data collection** and give the data
+Launch the **Watson Discovery** tool. Create a **new data collection** and give the data
 collection a unique name.
 
 <p align="center">
