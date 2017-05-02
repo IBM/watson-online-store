@@ -16,6 +16,10 @@ When the reader has completed this journey, they will understand how to:
 
 ![Flow](doc/source/images/architecture.png)
 
+### With Watson
+
+Want to take your Watson app to the next level? Looking to leverage Watson Brand assets? Join the [With Watson](https://www.ibm.com/watson/with-watson) program which provides exclusive brand, marketing, and tech resources to amplify and accelerate your Watson embedded commercial solution.
+
 ## Included Components
 - Bluemix Watson Conversation
 - Bluemix Watson Discovery
