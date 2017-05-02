@@ -25,9 +25,9 @@ When the reader has completed this journey, they will understand how to:
 
 # Steps
 
-**NOTE:** Perform steps 1-6 **OR** click the **Deploy to Bluemix** button and hit "Create" and then jump to step 5.
+**NOTE:** Perform steps 1-6 **OR** click the ``Deploy to Bluemix`` button and hit ``Create`` and then jump to step 5.
 
-> There is no web UI (only Slack), so don't use the "View app" button to see the app. Use the Bluemix dashboard to find and manage the app. Use your Slack UI to chat.
+> There is no web UI (only Slack), so don't use the ``View app`` button to see the app. Use the Bluemix dashboard to find and manage the app. Use your Slack UI to chat.
 
 
 [![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
