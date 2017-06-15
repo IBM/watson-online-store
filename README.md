@@ -27,6 +27,10 @@ Want to take your Watson app to the next level? Looking to leverage Watson Brand
 - Slack
 - Python
 
+# Watch the Video
+
+[![](http://img.youtube.com/vi/94B3O1czU/0.jpg)](https://www.youtube.com/watch?v=94B3O1czU)
+
 # Steps
 
 **NOTE:** Perform steps 1-6 **OR** click the ``Deploy to Bluemix`` button and hit ``Create`` and then jump to step 5.
