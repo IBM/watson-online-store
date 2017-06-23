@@ -104,7 +104,8 @@ class WatsonOnlineStore:
                 os.environ.get(self.discovery_data_source +
                                '_DISCO_SCORE_FILTER', 0))
         except ValueError:
-            LOG.debug(self.discovery_source + "_DISCO_SCORE_FILTER must " +
+            LOG.debug(self.discovery_data_source +
+                      "_DISCO_SCORE_FILTER must " +
                       "be a number between 0.0 and 1.0. " +
                       "Using default value of 0.0")
             self.discovery_score_filter = 0.0
