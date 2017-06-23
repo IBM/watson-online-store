@@ -199,23 +199,27 @@ class WatsonOnlineStore:
         :raise Exception: When collection is not found and cannot be created
         """
 
-        def fixed_create_collection(environment_id, name, description="", configuration_id=None):
-            """ Temporary fix while this fix finds its way into a pypi version."""
+        def fixed_create_collection(
+                environment_id, name, description="", configuration_id=None):
+            """ Temporary fix until pypi version is released."""
 
             if configuration_id is None:
-                default_config = discovery_client.get_default_configuration_id(environment_id=environment_id)
+                default_config = discovery_client.get_default_configuration_id(
+                    environment_id=environment_id)
                 configuration_id = default_config
 
             data_dict = {'configuration_id': configuration_id,
                          'name': name,
                          'description': description}
 
-            url_string = '/v1/environments/{0}/collections'.format(environment_id)
+            url_string = '/v1/environments/{0}/collections'.format(
+                environment_id)
 
-            return discovery_client.request(method='POST',
-                                            url=url_string,
-                                            json=data_dict,
-                                            params={'version': discovery_client.version}, accept_json=True)
+            return discovery_client.request(
+                method='POST',
+                url=url_string,
+                json=data_dict,
+                params={'version': discovery_client.version}, accept_json=True)
 
         # If environment id exist, ensure it is valid.
         environment_id = environ.get('DISCOVERY_ENVIRONMENT_ID')
