@@ -740,7 +740,7 @@ class WatsonOnlineStore:
 
         fmt = "{cart_number}) {name}\n{image}"
         formatted_response = "\n".join(fmt.format(**item) for item in response)
-        return {'discovery_result': "\n" + formatted_response}
+        return {'discovery_result': formatted_response}
 
     def handle_list_shopping_cart(self):
         """Get shopping_cart from DB and return formatted version to Watson
@@ -823,7 +823,7 @@ class WatsonOnlineStore:
         LOG.debug("watson_response:\n{}\n".format(watson_response))
         if 'context' in watson_response:
             self.context = watson_response['context']
-        sender.send_message("\n".join(watson_response['output']['text']))
+        sender.send_message("\n".join(watson_response['output']['text']) + "\n")
 
         if (self.context.get('discovery_string') and self.discovery_client):
             return self.handle_discovery_query()
