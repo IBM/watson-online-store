@@ -562,7 +562,7 @@ class WatsonOnlineStore:
         :rtype: dict
         """
         output = []
-        if not ('results' in response and response['results']):
+        if not response.get('results'):
             return output
 
         def get_product_name(entry):
@@ -738,12 +738,8 @@ class WatsonOnlineStore:
                                                   self.discovery_data_source)
         self.response_tuple = response
 
-        formatted_response = ""
-        for item in response:
-            formatted_response += "\n" + item['cart_number'] + ") " + \
-                                  item['name'] + \
-                                  "\n" + item['image']  # "\n" + item['url']
-
+        fmt = "{cart_number}) {name}\n{image}"
+        formatted_response = "\n".join(fmt.format(**item) for item in response)
         return {'discovery_result': formatted_response}
 
     def handle_list_shopping_cart(self):
@@ -753,12 +749,9 @@ class WatsonOnlineStore:
         :rtype: str
         """
         cust = self.customer.email
-        formatted_out = ""
         shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
-        for index, item in enumerate(shopping_list):
-            formatted_out += str(index+1) + ") " + \
-                str(item.encode('utf-8')) + "\n"
-
+        formatted_out = "\n".join("{}) {}".format(i + 1, item.encode('utf-8'))
+                                  for i, item in enumerate(shopping_list))
         self.context['shopping_cart'] = formatted_out
 
         # no need for user input, return to Watson Dialogue
@@ -830,35 +823,24 @@ class WatsonOnlineStore:
         LOG.debug("watson_response:\n{}\n".format(watson_response))
         if 'context' in watson_response:
             self.context = watson_response['context']
+        sender.send_message("\n".join(watson_response['output']['text']))
 
-        response = ''
-        for text in watson_response['output']['text']:
-            response += text + "\n"
-
-        sender.send_message(response)
-
-        if ('discovery_string' in self.context.keys() and
-           self.context['discovery_string'] and self.discovery_client):
+        if (self.context.get('discovery_string') and self.discovery_client):
             return self.handle_discovery_query()
 
-        if ('shopping_cart' in self.context.keys() and
-                self.context['shopping_cart'] == 'list'):
+        cart_action = self.context.get('shopping_cart')
+        if cart_action == 'list':
             return self.handle_list_shopping_cart()
+        elif cart_action == 'add':
+            if ('cart_item' in self.context and
+               self.context['cart_item'] != ''):
+                return self.handle_add_to_cart()
+        elif cart_action == 'delete':
+            if ('cart_item' in self.context.keys() and
+               self.context['cart_item'] != ''):
+                return self.handle_delete_from_cart()
 
-        if ('shopping_cart' in self.context.keys() and
-                self.context['shopping_cart'] == 'add' and
-            'cart_item' in self.context.keys() and
-                self.context['cart_item'] != ''):
-            return self.handle_add_to_cart()
-
-        if ('shopping_cart' in self.context.keys() and
-                self.context['shopping_cart'] == 'delete' and
-            'cart_item' in self.context.keys() and
-                self.context['cart_item'] != ''):
-            return self.handle_delete_from_cart()
-
-        if ('get_input' in self.context.keys() and
-                self.context['get_input'] == 'no'):
+        if self.context.get('get_input') == 'no':
             return False
 
         return True
