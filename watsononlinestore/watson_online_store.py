@@ -823,7 +823,8 @@ class WatsonOnlineStore:
         LOG.debug("watson_response:\n{}\n".format(watson_response))
         if 'context' in watson_response:
             self.context = watson_response['context']
-        sender.send_message("\n".join(watson_response['output']['text']) + "\n")
+        sender.send_message("\n".join(watson_response['output']['text']) +
+                            "\n")
 
         if (self.context.get('discovery_string') and self.discovery_client):
             return self.handle_discovery_query()
