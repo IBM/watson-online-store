@@ -3,7 +3,7 @@
 
 # Creating a Retail Chatbot using Watson Conversation, Discovery and Database Services
 
-*Read this in other languages: [English](README.md), [한국어](README_ko.md)
+*Read this in other languages: [English](README.md), [한국어](README_ko.md)*
 
 In this developer journey we will create a Watson Conversation based chatbot
 that allows a user to: 1) find items to purchase using Watson Discovery, and
