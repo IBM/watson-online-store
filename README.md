@@ -35,7 +35,7 @@ Want to take your Watson app to the next level? Looking to leverage Watson Brand
 
 # Steps
 
-**NOTE:** Perform steps 1-6 **OR** click the ``Deploy to Bluemix`` button and hit ``Create`` and then jump to step 5.
+**NOTE:** Perform steps 1-7 **OR** click the ``Deploy to Bluemix`` button and hit ``Create`` and then jump to step 6.
 
 > There is no web UI (only Slack), so don't use the ``View app`` button to see the app. Use the Bluemix dashboard to find and manage the app. Use your Slack UI to chat.
 
@@ -44,10 +44,11 @@ Want to take your Watson app to the next level? Looking to leverage Watson Brand
 
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create Bluemix services](#2-create-bluemix-services)
-3. [Configure Watson Conversation](#3-configure-watson-conversation)
-4. [Configure Watson Discovery](#4-configure-watson-discovery)
-5. [Configure Slack](#5-configure-slack)
-6. [Run the application](#6-run-the-application)
+3. [Get Bluemix credentials and add to .env](#3-get-creds-add-to-.env)
+4. [Configure Watson Conversation](#4-configure-watson-conversation)
+5. [Configure Watson Discovery](#5-configure-watson-discovery)
+6. [Configure Slack](#6-configure-slack)
+7. [Run the application](#7-run-the-application)
 
 ## 1. Clone the repo
 
@@ -66,124 +67,18 @@ Create the following services:
   * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
   * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
-## 3. Configure Watson Conversation
+## 3. Get Bluemix Services Credentials and add to .env file
 
-Launch the **Watson Conversation** tool. Use the **import** icon button on the right
+As you create the Blumix Services, you'll need to create service credentials and get the
+username and password:
 
-<p align="center">
-  <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
-</p>
-
-Find the local version of [`data/workspace.json`](data/workspace.json) and select
-**Import**. Find the **Workspace ID** by clicking on the context menu of the new
-workspace and select **View details**. Save this ID for later.
 
 <p align="center">
-  <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
+  <img width="500" height="350" src="doc/source/images/credentials2.png">
 </p>
 
-*Optionally*, to view the conversation dialog select the workspace and choose the
-**Dialog** tab, here's a snippet of the dialog:
-
-![](doc/source/images/dialog.png)
-
-## 4. Configure Watson Discovery
-
-Launch the **Watson Discovery** tool. Create a **new data collection** and give the data
-collection a unique name.
-
-<p align="center">
-  <img width="400" height="300" src="doc/source/images/name_discovery.png">
-</p>
-
-Seed the content by selecting **Add data to this collection** in the dialog,
-choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html). When
-completed, save the **environment_id** and **collection_id**.
-
-<p align="center">
-  <img width="800" height="225" src="doc/source/images/view_discovery_ids.png">
-</p>
-
-## 5. Configure Slack
-
-[Create a slack group](https://slack.com/create) or use an existing one if you
-have sufficient authorization. (Refer to [Slack's how-to](https://get.slack.help/hc/en-us/articles/206845317-Create-a-Slack-team)
-on creating new groups.) To add a new bot, go to the Slack group’s application settings
-by navigating to `https://<slack_group>.slack.com/apps/manage` and selecting the
-**Custom Integrations** menu on the left.
-
-![](doc/source/images/manage_slack_settings.png)
-
-Give the bot a fun name. Once created save the **API Token** that is generated
-![](doc/source/images/view_bot_token.png)
-
-Run `/invite <botame>` in a channel to invite the bot, or message it directly.
-
-<p align="center">
-  <img width="400" height="125" src="doc/source/images/invite_bot.png">
-</p>
-
-## 6. Run the application
-
-### If you used the Deploy to Bluemix button...
-
-If you used ``Deploy to Bluemix``, most of the setup is automatic, but not
-quite all of it. We have to update a few environment variables.
-
-In the Bluemix dashboard find the App that was created. Click on ``Runtime`` on the menu and navigate to the ``Environment variables`` tab.
-
-![](doc/source/images/env_vars.png)
-
-Update the three environment variables:
-
-  * Set ``SLACK_BOT_TOKEN`` to the token you saved in Step 5
-  * Set ``SLACK_BOT_USER`` to the name of your bot
-  * It's probably OK to leave ``CLOUDANT_DB_NAME`` set to ``watson-online-store``
-
-Save the new values and restart the application, watch the logs for errors.
-
-### If you decided to run the app locally...
-
-Copy the [`env.sample`](env.sample) to `.env`, edit it with the necessary IDs
-and run the application.
-
-The `USERNAME`, `PASSWORD`, and `URL` settings for each service can be obtained
-from the `Service Credentials` tab in BlueMix. The other settings were collected
-during the earlier setup steps.
-
-```
-$ cp env.sample .env
-### edit .env
-$ python run.py
-```
-
-# Sample output
-
-Start a conversation with your bot:
-
-![](doc/source/images/convo_init.png)
-
-Add an item to your cart:
-
-![](doc/source/images/convo_add.png)
-
-# Troubleshooting
-
-* Help! I'm seeing errors in my log
-
-This is expected during the first run. The app tries to start before the Discovery
-service is fully created. Allow a minute or two to pass, the following message
-should appear:
-
-``Watson Online Store bot is connected and running!``
-
-* Setting environment variables for a local run
-
-> NOTE: This only needs to be set if the application is running locally.
-
-The credentials for Bluemix services (Conversation, Cloudant, and Discovery), can
-be found in the ``Services`` menu in Bluemix, and selecting the ``Service Credentials``
-option.
+Move the watson-online-store/env.sample file to /.env and populate the service
+credentials (and Cloudant URL) as you create the credentials:
 
 ```
 # Watson conversation
@@ -207,6 +102,128 @@ DISCOVERY_COLLECTION_ID=<add_discovery_collection>
 SLACK_BOT_TOKEN=<add_slack_bot_token>
 SLACK_BOT_USER=wos
 ```
+
+## 4. Configure Watson Conversation
+
+Launch the **Watson Conversation** tool. Use the **import** icon button on the right
+
+<p align="center">
+  <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
+</p>
+
+Find the local version of [`data/workspace.json`](data/workspace.json) and select
+**Import**. Find the **Workspace ID** by clicking on the context menu of the new
+workspace and select **View details**.
+
+<p align="center">
+  <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
+</p>
+
+ Put this Workspace ID into the .env file
+as WORKSPACE_ID.
+
+*Optionally*, to view the conversation dialog select the workspace and choose the
+**Dialog** tab, here's a snippet of the dialog:
+
+![](doc/source/images/dialog.png)
+
+## 5. Configure Watson Discovery
+
+Launch the **Watson Discovery** tool. The first time you do this, you will see
+"Before working with private data, we will need to set up your storage". Click 'Continue' and
+wait for the storage to be set up.
+Create a **new data collection** and give the data
+collection a unique name.
+
+<p align="center">
+  <img width="400" height="300" src="doc/source/images/name_discovery.png">
+</p>
+
+Seed the content by selecting **Add data to this collection** in the dialog,
+choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html). When
+completed, add the **environment_id** and **collection_id** to the .env file
+as DISCOVERY_ENVIRONMENT_ID and DISCOVERY_COLLECTION_ID.
+
+<p align="center">
+  <img width="800" height="225" src="doc/source/images/view_discovery_ids.png">
+</p>
+
+## 6. Configure Slack
+
+[Create a slack group](https://slack.com/create) or use an existing one if you
+have sufficient authorization. (Refer to [Slack's how-to](https://get.slack.help/hc/en-us/articles/206845317-Create-a-Slack-team)
+on creating new groups.) To add a new bot, go to the Slack group’s application settings
+by navigating to `https://<slack_group>.slack.com/apps/manage` and selecting the
+**Custom Integrations** menu on the left.
+
+![](doc/source/images/manage_slack_settings.png)
+
+Click on 'Bots' and then click the green 'Add Configuration' button.
+
+Give the bot a meaningful name. Note that the '@' symbol is pre-populated by Slack
+and you do not include that in your .env configuration file. Save this in .env
+as SLACK_BOT_USER.
+
+<p align="center">
+  <img width="300" height="125" src="doc/source/images/nameSlackbot.png">
+</p>
+
+ Once created save the **API Token** that is generated into the .env file
+as SLACK_BOT_TOKEN if you are running locally, or save this if you are using
+Deploy to Bluemix.
+
+![](doc/source/images/view_bot_token.png)
+
+Run `/invite <botame>` in a channel to invite the bot, or message it directly.
+
+<p align="center">
+  <img width="400" height="125" src="doc/source/images/invite_bot.png">
+</p>
+
+## 7. Run the application
+
+### If you used the Deploy to Bluemix button...
+
+If you used ``Deploy to Bluemix``, most of the setup is automatic, but not
+quite all of it. We have to update a few environment variables.
+
+In the Bluemix dashboard find the App that was created. Click on ``Runtime`` on the menu and navigate to the ``Environment variables`` tab.
+
+![](doc/source/images/env_vars.png)
+
+Update the three environment variables:
+
+  * Set ``SLACK_BOT_TOKEN`` to the token you saved in Step 6
+  * Set ``SLACK_BOT_USER`` to the name of your bot from Step 6
+  * Leave ``CLOUDANT_DB_NAME`` set to ``watson-online-store``
+
+Save the new values and restart the application, watch the logs for errors.
+
+### If you decided to run the app locally...
+
+```
+$ python run.py
+```
+
+# Sample output
+
+Start a conversation with your bot:
+
+![](doc/source/images/convo_init.png)
+
+Add an item to your cart:
+
+![](doc/source/images/convo_add.png)
+
+# Troubleshooting
+
+* Help! I'm seeing errors in my log using Deploy to Bluemix
+
+This is expected during the first run. The app tries to start before the Discovery
+service is fully created. Allow a minute or two to pass, the following message
+should appear:
+
+``Watson Online Store bot is connected and running!``
 
 # License
 
