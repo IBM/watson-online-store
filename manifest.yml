@@ -7,7 +7,7 @@ declared-services:
     plan: Lite
   wos-discovery-service:
     label: discovery
-    plan: free
+    plan: Lite
 applications:
 - services:
    - wos-conversation-service
