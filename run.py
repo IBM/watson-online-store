@@ -153,7 +153,7 @@ class WatsonEnv:
 
         # Instantiate Watson Discovery client.
         discovery_client = DiscoveryV1(
-            version='2016-11-07',
+            version='2017-07-19',
             username=discovery_username,
             password=discovery_password)
 
