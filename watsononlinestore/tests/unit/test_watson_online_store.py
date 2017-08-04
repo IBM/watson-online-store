@@ -273,8 +273,7 @@ class WOSTestCase(unittest.TestCase):
         expected_environment_id = 'testing with a env ID'
         expected_collection_id = 'testing with a coll ID'
         test_environ = {'DISCOVERY_ENVIRONMENT_ID': expected_environment_id,
-                        self.fake_data_source + '_DISCO_COLLECTION_ID':
-                            expected_collection_id}
+                        'DISCOVERY_COLLECTION_ID': expected_collection_id}
 
         self.discovery_client.get_environment = mock.Mock(return_value={
             'environment_id': expected_environment_id})

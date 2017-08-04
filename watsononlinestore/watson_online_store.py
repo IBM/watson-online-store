@@ -271,7 +271,7 @@ class WatsonOnlineStore:
                                     "Error: %s" % repr(e))
 
         # Determine if collection exists.
-        collection_id = environ.get(data_source + '_DISCO_COLLECTION_ID')
+        collection_id = environ.get('DISCOVERY_COLLECTION_ID')
         if collection_id:
             try:
                 LOG.debug("Using DISCOVERY_COLLECTION_ID=%s" % collection_id)
