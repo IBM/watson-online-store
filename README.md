@@ -35,7 +35,7 @@ Want to take your Watson app to the next level? Looking to leverage Watson Brand
 
 # Steps
 
-**NOTE:** Perform steps 1-7 **OR** click the ``Deploy to Bluemix`` button and hit ``Create`` and then jump to step 6.
+**NOTE:** Perform steps 1-7 **OR** click the ``Deploy to Bluemix`` button and hit ``Deploy`` and then jump to step 6.
 
 > There is no web UI (only Slack), so don't use the ``View app`` button to see the app. Use the Bluemix dashboard to find and manage the app. Use your Slack UI to chat.
 
