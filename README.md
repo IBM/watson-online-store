@@ -225,6 +225,13 @@ should appear:
 
 ``Watson Online Store bot is connected and running!``
 
+* Large amount of Red Logging info appears.
+
+This is expected. The color for logging in Bluemix will be red, regardless of the
+nature of the message. The log levels are set to "Debug" to assist the developer
+in seeing how the code is executing. This can be changed to logging.WARN or 
+logging.ERROR in the [python code](https://github.com/IBM/watson-online-store/blob/master/watsononlinestore/watson_online_store.py#L22).
+
 # License
 
 [Apache 2.0](LICENSE)
