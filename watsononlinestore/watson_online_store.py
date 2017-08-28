@@ -866,7 +866,7 @@ class WatsonOnlineStore:
                 if message:
                     LOG.debug("message:\n %s\n channel:\n %s\n" %
                               (message, channel))
-                if message and channel:
+                if message and channel and 'unfurl' not in message:
                     sender = SlackSender(self.slack_client, channel)
                     get_input = self.handle_message(message, sender)
                     while not get_input:
