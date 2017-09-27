@@ -239,8 +239,8 @@ in seeing how the code is executing. This can be changed to ``logging.WARN`` or
 # Privacy Notice
 
 If using the Deploy to Bluemix button some metrics are tracked, the following
-information is sent to a [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) service
-on each deployment:
+information is sent to [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) and 
+[Metrics collector](https://github.com/IBM/metrics-collector-service) service on each deployment:
 
 * Python package version
 * Python repository URL
@@ -250,10 +250,11 @@ on each deployment:
 * Space ID (space_id)
 * Application Version (application_version)
 * Application URIs (application_uris)
+* Cloud Foundry API (cf_api)
 * Labels of bound services
 * Number of instances for each bound service and associated plan information
 
-This data is collected from the setup.py file in the sample application and the ``VCAP_APPLICATION``
+This data is collected from the setup.py and repository.yaml file in the sample application and the ``VCAP_APPLICATION``
 and ``VCAP_SERVICES`` environment variables in IBM Bluemix and other Cloud Foundry platforms. This
 data is used by IBM to track metrics around deployments of sample applications to IBM Bluemix to
 measure the usefulness of our examples, so that we can continuously improve the content we offer
@@ -262,6 +263,6 @@ service will be tracked.
 
 ## Disabling Deployment Tracking
 
-To disable tracking, simply remove ``cf_deployment_tracker.track()`` from the
+To disable tracking, simply remove ``cf_deployment_tracker.track()`` and ``metrics_tracker_client.track()`` from the
 ``run.py`` file in the top level directory.
 
