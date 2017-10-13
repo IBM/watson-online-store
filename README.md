@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
-![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
+![Bluemix Deployments](https://metrics-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
 # Creating a Retail Chatbot using Watson Conversation, Discovery and Database Services
 
@@ -40,11 +40,11 @@ Want to take your Watson app to the next level? Looking to leverage Watson Brand
 > There is no web UI (only Slack), so don't use the ``View app`` button to see the app. Use the Bluemix dashboard to find and manage the app. Use your Slack UI to chat.
 
 
-[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
+[![Deploy to Bluemix](https://metrics-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
 
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create Bluemix services](#2-create-bluemix-services)
-3. [Get Bluemix credentials and add to .env](#3-get-creds-add-to-.env)
+3. [Get Bluemix credentials and add to .env](#3-get-bluemix-services-credentials-and-add-to-env-file)
 4. [Configure Watson Conversation](#4-configure-watson-conversation)
 5. [Configure Watson Discovery](#5-configure-watson-discovery)
 6. [Configure Slack](#6-configure-slack)
