@@ -200,29 +200,7 @@ class WatsonOnlineStore:
         :raise Exception: When collection is not found and cannot be created
         """
 
-        def fixed_create_collection(
-                environment_id, name, description="", configuration_id=None):
-            """ Temporary fix until pypi version is released."""
-
-            if configuration_id is None:
-                default_config = discovery_client.get_default_configuration_id(
-                    environment_id=environment_id)
-                configuration_id = default_config
-
-            data_dict = {'configuration_id': configuration_id,
-                         'name': name,
-                         'description': description}
-
-            url_string = '/v1/environments/{0}/collections'.format(
-                environment_id)
-
-            return discovery_client.request(
-                method='POST',
-                url=url_string,
-                json=data_dict,
-                params={'version': discovery_client.version}, accept_json=True)
-
-        # If environment id exist, ensure it is valid.
+        # If environment id exists, ensure it is valid.
         environment_id = environ.get('DISCOVERY_ENVIRONMENT_ID')
         if environment_id:
             try:
@@ -235,19 +213,19 @@ class WatsonOnlineStore:
             # Try to find the environment by name.
             name = environ.get('DISCOVERY_ENVIRONMENT_NAME',
                                'watson-online-store')
-            # Can't use/modify the defaullt discovery environment
-            reserved_name = "Watson News Environment"
 
-            environments = discovery_client.get_environments()['environments']
-            for environment in environments:
+            environments = discovery_client.list_environments()
+
+            for environment in environments['environments']:
                 if environment['name'] == name:
                     environment_id = environment['environment_id']
                     LOG.debug("Found DISCOVERY_ENVIRONMENT_ID=%(id)s using "
                               "lookup by name=%(name)s" %
                               {'id': environment_id, 'name': name})
                     break
-                elif environment['name'] != reserved_name:
-                    # Last resort will be to use an available one
+                elif not environment['read_only']:
+                    # Last resort will be to use an available one, but
+                    # cannot use/modify a read-only environment.
                     environment_id = environment['environment_id']
 
             if not environment_id:
@@ -311,8 +289,7 @@ class WatsonOnlineStore:
                 name = ibm_collection_name
                 path = ibm_data_path
             if name:
-                # collection = discovery_client.create_collection(
-                collection = fixed_create_collection(
+                collection = discovery_client.create_collection(
                     environment_id,
                     name)
 
@@ -320,13 +297,14 @@ class WatsonOnlineStore:
                 if collection:
                     collection_id = collection['collection_id']
                     for _, _, files in os.walk(path):
-                        for file in files:
-                            if file.endswith('.html'):
-                                with open(os.path.join(path, file), 'r') as f:
+                        for fname in files:
+                            if fname.endswith('.html'):
+                                with open(os.path.join(path, fname), 'r') as f:
                                     data = f.read()
                                 discovery_client.add_document(environment_id,
                                                               collection_id,
-                                                              file_data=data)
+                                                              file=data,
+                                                              filename=fname)
 
         except Exception as e:
             raise Exception("Discovery Collection could not be created. "
@@ -532,7 +510,7 @@ class WatsonOnlineStore:
         """
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
-            message_input={'text': message},
+            input={'text': message},
             context=self.context)
         return response
 
@@ -721,7 +699,8 @@ class WatsonOnlineStore:
         discovery_response = self.discovery_client.query(
             environment_id=self.discovery_environment_id,
             collection_id=self.discovery_collection_id,
-            query_options={'query': input_text, 'count': DISCOVERY_QUERY_COUNT}
+            query=input_text,
+            count=DISCOVERY_QUERY_COUNT
         )
 
         # Watson discovery assigns a confidence level to each result.

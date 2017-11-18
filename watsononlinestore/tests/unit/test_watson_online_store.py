@@ -24,9 +24,10 @@ class WOSTestCase(unittest.TestCase):
         self.fake_collection_id = "fake collection id"
         self.discovery_client.get_environment.return_value = {
             'environment_id': self.fake_environment_id}
-        self.discovery_client.get_environments.return_value = {
+        self.discovery_client.list_environments.return_value = {
             'environments': [{'environment_id': self.fake_environment_id,
-                             'name': 'ibm-logo-store'}]}
+                              'read_only': False,
+                              'name': 'ibm-logo-store'}]}
         self.discovery_client.get_collection.return_value = {
             'collection_id': self.fake_collection_id}
         self.discovery_client.list_collections.return_value = {
@@ -56,7 +57,7 @@ class WOSTestCase(unittest.TestCase):
 
         self.conv_client.assert_has_calls([
             mock.call.message(context={},
-                              message_input={'text': 'this is a test'},
+                              input={'text': 'this is a test'},
                               workspace_id=mock.ANY)
         ])
         self.slack_client.api_call.assert_has_calls([
@@ -295,9 +296,12 @@ class WOSTestCase(unittest.TestCase):
         test_environ = {}
         expected_environment_id = 'this is the env'
         expected_collection_id = 'this is the coll'
-        self.discovery_client.get_environments = mock.Mock(return_value={
-            'environments': [{'environment_id': 'other', 'name': 'foo'},
+        self.discovery_client.list_environments = mock.Mock(return_value={
+            'environments': [{'environment_id': 'other',
+                              'name': 'foo',
+                              'read_only': False},
                              {'environment_id': expected_environment_id,
+                              'read_only': False,
                               'name': 'watson-online-store'}]})
         self.discovery_client.list_collections = mock.Mock(return_value={
             'collections': [{'collection_id': 'other', 'name': 'foo'},
@@ -310,7 +314,7 @@ class WOSTestCase(unittest.TestCase):
                                            self.fake_data_source,
                                            test_environ))
 
-        self.discovery_client.get_environments.assert_called_once()
+        self.discovery_client.list_environments.assert_called_once()
         self.discovery_client.list_collections.assert_called_once()
         self.assertEqual(expected_environment_id, actual_env)
         self.assertEqual(expected_collection_id, actual_coll)

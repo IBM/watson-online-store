@@ -139,7 +139,7 @@ class WatsonEnv:
         conversation_client = ConversationV1(
             username=conversation_username,
             password=conversation_password,
-            version='2016-07-11')
+            version='2017-05-26')
 
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
@@ -154,7 +154,7 @@ class WatsonEnv:
 
         # Instantiate Watson Discovery client.
         discovery_client = DiscoveryV1(
-            version='2017-07-19',
+            version='2017-09-01',
             username=discovery_username,
             password=discovery_password)
 
