@@ -213,8 +213,6 @@ class WatsonOnlineStore:
             # Try to find the environment by name.
             name = environ.get('DISCOVERY_ENVIRONMENT_NAME',
                                'watson-online-store')
-            # Can't use/modify the default discovery environment
-            reserved_name = "Watson News Environment"
 
             environments = discovery_client.list_environments()
 
@@ -225,8 +223,9 @@ class WatsonOnlineStore:
                               "lookup by name=%(name)s" %
                               {'id': environment_id, 'name': name})
                     break
-                elif environment['name'] != reserved_name:
-                    # Last resort will be to use an available one
+                elif not environment['read_only']:
+                    # Last resort will be to use an available one, but
+                    # cannot use/modify a read-only environment.
                     environment_id = environment['environment_id']
 
             if not environment_id:
