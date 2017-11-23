@@ -165,7 +165,7 @@ class WatsonEnv:
             slack_client = None
         else:
             slack_client = SlackClient(slack_bot_token)
-            # If BOT_ID wasn't set, we can get it using SlackClient and user ID.
+            # If BOT_ID wasn't set, we can get it using SLACK_BOT_USER.
             if not bot_id:
                 bot_id = WatsonEnv.get_slack_user_id(slack_client)
                 if not bot_id:
