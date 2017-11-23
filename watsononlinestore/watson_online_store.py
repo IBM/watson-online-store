@@ -97,9 +97,9 @@ class WatsonOnlineStore:
                  cloudant_online_store):
 
         # specific for Slack as UI
-        self.bot_id = bot_id
         self.slack_client = slack_client
-        self.at_bot = "<@" + bot_id + ">"
+        self.bot_id = bot_id or 'unknown bot_id'
+        self.at_bot = "<@" + self.bot_id + ">"
 
         # IBM Watson Conversation
         self.conversation_client = conversation_client
@@ -842,7 +842,8 @@ class WatsonOnlineStore:
         # make sure DB exists
         self.cloudant_online_store.init()
 
-        if self.slack_client.rtm_connect():
+        if self.slack_client and self.slack_client.rtm_connect():
+
             LOG.info("Watson Online Store bot is connected and running!")
             while True:
                 slack_output = self.slack_client.rtm_read()
