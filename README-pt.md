@@ -21,7 +21,8 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 - Slack 
 - Python 
 
-# Assista ao vídeo [![](http://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU) 
+# Assista ao vídeo
+[![](http://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU) 
 
 # Etapas
 **OBSERVAÇÃO:** realize as etapas de 1 a 7 **OU** clique no botão ``Deploy to Bluemix`` e pressione ``Deploy`` e, a seguir, avance para a etapa 6. &gt; Como não há uma interface com o usuário da web (somente o Slack), não use o botão ``View app`` para ver o aplicativo. Utilize o painel do Bluemix para localizar e gerenciar o aplicativo. Use sua interface com o usuário do Slack para conversar. 
