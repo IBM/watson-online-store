@@ -12,12 +12,13 @@
 
 import os
 import sys
-sys.path.insert(0, '../')
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
-from run import WatsonEnv, MISSING_ENV_VARS
+sys.path.append(os.getcwd())
+sys.path.append(os.path.join(os.getcwd(), '..'))
+from run import WatsonEnv, MISSING_ENV_VARS  # noqa
 
 # Async mode allows us to run the Slack chatbot along with the web UI.
 async_mode = "threading"

@@ -160,15 +160,17 @@ class WatsonEnv:
 
         # Instantiate Slack chatbot.
         if 'placeholder' in slack_bot_token:
-            raise Exception("SLACK_BOT_TOKEN needs to be set correctly. "
-                            "It is currently set to 'placeholder'.")
-        slack_client = SlackClient(slack_bot_token)
-        # If BOT_ID wasn't set, we can get it using SlackClient and user ID.
-        if not bot_id:
-            bot_id = WatsonEnv.get_slack_user_id(slack_client)
+            print("SLACK_BOT_TOKEN needs to be set correctly. "
+                  "It is currently set to 'placeholder'.")
+            slack_client = None
+        else:
+            slack_client = SlackClient(slack_bot_token)
+            # If BOT_ID wasn't set, we can get it using SlackClient and user ID.
             if not bot_id:
-                print("Error: Missing BOT_ID or invalid SLACK_BOT_USER.")
-                return None
+                bot_id = WatsonEnv.get_slack_user_id(slack_client)
+                if not bot_id:
+                    print("Error: Missing BOT_ID or invalid SLACK_BOT_USER.")
+                    return None
 
         # Start Watson Online Store app.
         watsononlinestore = WatsonOnlineStore(bot_id,
@@ -185,4 +187,5 @@ if __name__ == "__main__":
 
     watsononlinestore = WatsonEnv.get_watson_online_store()
 
-    watsononlinestore.run()
+    if watsononlinestore:
+        watsononlinestore.run()
