@@ -11,6 +11,8 @@
 # under the License.
 
 import os
+import sys
+sys.path.insert(0, '../')
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
