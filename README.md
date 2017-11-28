@@ -50,7 +50,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 [![Deploy to IBM Cloud](https://metrics-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
 
-> There is no web UI (only Slack), so don't use the ``View app`` button to see the app. Use the IBM Cloud dashboard to find and manage the app. Use your Slack UI to chat.
+> You can use the ``View app`` button to use a simple web UI to chat. For the Slack integration, use your Slack UI to chat after completing the additional [slack configuration](#6-configure-slack). Use the IBM Cloud dashboard to find and manage the app.
 
 ## Run locally
 
@@ -162,6 +162,8 @@ as DISCOVERY_ENVIRONMENT_ID and DISCOVERY_COLLECTION_ID.
 
 ### 6. Configure Slack
 
+> Note: This Code Pattern includes Slack integration, but if you are only interested in the web UI, you can skip this step.
+
 [Create a slack group](https://slack.com/create) or use an existing one if you
 have sufficient authorization. (Refer to [Slack's how-to](https://get.slack.help/hc/en-us/articles/206845317-Create-a-Slack-team)
 on creating new groups.) To add a new bot, go to the Slack group’s application settings
@@ -197,7 +199,7 @@ Run `/invite <botame>` in a channel to invite the bot, or message it directly.
 #### If you used the Deploy to IBM Cloud button...
 
 If you used ``Deploy to IBM Cloud``, most of the setup is automatic, but not
-quite all of it. We have to update a few environment variables.
+the Slack configuration. For that, we have to update a few environment variables.
 
 In the IBM Cloud dashboard find the App that was created. Click on ``Runtime`` on the menu and navigate to the ``Environment variables`` tab.
 
