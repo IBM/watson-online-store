@@ -1,5 +1,5 @@
 ﻿[![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
-![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
+![IBM Cloud Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
 # Criando um chatbot de varejo usando os serviços Watson Conversation, Discovery e Database
 *Ler em outros idiomas: [Inglês](README.md), [한국어](README_ko.md)* 
@@ -15,9 +15,9 @@ Após concluir esta jornada, o leitor saberá como:
 Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ativos da marca Watson? Participe do programa [With Watson](https://www.ibm.com/watson/with-watson), que oferece recursos técnicos, de marketing e da marca exclusivos para amplificar e acelerar sua solução comercial incorporada do Watson. 
 
 ## Componentes inclusos 
-- Bluemix Watson Conversation 
-- Bluemix Watson Discovery
-- Banco de dados NoSQL Bluemix Cloudant 
+- IBM Cloud Watson Conversation 
+- IBM Cloud Watson Discovery
+- Banco de dados NoSQL IBM Cloud Cloudant 
 - Slack 
 - Python 
 
@@ -25,11 +25,11 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 [![](http://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU) 
 
 # Etapas
-**OBSERVAÇÃO:** realize as etapas de 1 a 7 **OU** clique no botão ``Deploy to Bluemix`` e pressione ``Deploy`` e, a seguir, avance para a etapa 6. &gt; Como não há uma interface com o usuário da web (somente o Slack), não use o botão ``View app`` para ver o aplicativo. Utilize o painel do Bluemix para localizar e gerenciar o aplicativo. Use sua interface com o usuário do Slack para conversar. 
-[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&amp;cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix) 
+**OBSERVAÇÃO:** realize as etapas de 1 a 7 **OU** clique no botão ``Deploy to IBM Cloud`` e pressione ``Deploy`` e, a seguir, avance para a etapa 6. &gt; Como não há uma interface com o usuário da web (somente o Slack), não use o botão ``View app`` para ver o aplicativo. Utilize o painel do Bluemix para localizar e gerenciar o aplicativo. Use sua interface com o usuário do Slack para conversar. 
+[![Deploy to IBM Cloud](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&amp;cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix) 
 1. [Clonar o repositório](#1-clone-the-repo) 
-2. [Criar serviços do Bluemix](#2-create-bluemix-services) 
-3. [Obter credenciais do Bluemix e incluir em .env](#3-get-creds-add-to-.env) 
+2. [Criar serviços do IBM Cloud](#2-create-bluemix-services) 
+3. [Obter credenciais do IBM Cloud e incluir em .env](#3-get-creds-add-to-.env) 
 4. [Configurar o Watson Conversation](#4-configure-watson-conversation) 
 5. [Configurar o Watson Discovery](#5-configure-watson-discovery) 
 6. [Configurar o Slack](#6-configure-slack) 
@@ -38,13 +38,13 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 ## 1. Clonar o repositório Clone o `watson-online-store` localmente.
 Em um terminal, execute `$ git clone https://github.com/ibm/watson-online-store`. Utilizaremos o arquivo [`data/workspace.json`](data/workspace.json) e a pasta [`data/ibm_store_html/`](data/ibm_store_html) 
 
-## 2. Criar serviços do Bluemix Crie os serviços a seguir: 
+## 2. Criar serviços do IBM Cloud Crie os serviços a seguir: 
 * [**Watson Conversation**](https://console.ng.bluemix.net/catalog/services/conversation) 
 * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery) 
 * [**Banco de dados NoSQL do Cloudant**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/) 
 
-## 3. Obter as credenciais de serviços do Bluemix e incluir no arquivo .env 
-Enquanto cria os serviços do Bluemix, você precisará criar credenciais de serviços e obter o nome do usuário e a senha:
+## 3. Obter as credenciais de serviços do IBM Cloud e incluir no arquivo .env 
+Enquanto cria os serviços do IBM Cloud, você precisará criar credenciais de serviços e obter o nome do usuário e a senha:
 
 <p align="center">
 <img width="500" height="350" src="doc/source/images/credentials2.png" />
@@ -111,7 +111,7 @@ Dê um nome significativo para o bot. Observe que o símbolo “@” foi preench
 <img width="300" height="125" src="doc/source/images/nameSlackbot.png" />
 </p>
 
-Após a criação, salve o **token da API** gerado no arquivo .env como SLACK_BOT_TOKEN em caso de execução local ou salve se estiver usando o Deploy to Bluemix. 
+Após a criação, salve o **token da API** gerado no arquivo .env como SLACK_BOT_TOKEN em caso de execução local ou salve se estiver usando o Deploy to IBM Cloud. 
 ![](doc/source/images/view_bot_token.png) 
 Execute `/invite <botame>` em um canal para convidar o bot ou envie uma mensagem diretamente.
 
@@ -121,8 +121,8 @@ Execute `/invite <botame>` em um canal para convidar o bot ou envie uma mensagem
 
 ## 7. Executar o aplicativo 
 
-### Se você usou o botão Deploy to Bluemix... 
-Se você usou ``Deploy to Bluemix``, a maior parte da configuração será automática, mas não em sua totalidade. Precisamos atualizar algumas variáveis de ambiente. No painel do Bluemix, localize o aplicativo que foi criado. Clique em ``Runtime`` no menu e navegue até a guia ``Environment variables``. 
+### Se você usou o botão Deploy to IBM Cloud... 
+Se você usou ``Deploy to IBM Cloud``, a maior parte da configuração será automática, mas não em sua totalidade. Precisamos atualizar algumas variáveis de ambiente. No painel do Bluemix, localize o aplicativo que foi criado. Clique em ``Runtime`` no menu e navegue até a guia ``Environment variables``. 
 ![](doc/source/images/env_vars.png) 
 Atualize as três variáveis de ambiente: 
 * Defina ``SLACK_BOT_TOKEN`` como o token que foi salvo na Etapa 6 
@@ -142,19 +142,19 @@ Inclua um item no seu carrinho:
 ![](doc/source/images/convo_add.png) 
 
 # Resolução de Problemas 
-* Ajuda! Encontrei erros no meu log ao usar o Deploy to Bluemix 
+* Ajuda! Encontrei erros no meu log ao usar o Deploy to IBM Cloud 
 Isto é esperado durante a primeira execução. O aplicativo tenta iniciar antes de o serviço Discovery ser totalmente criado. Aguarde um ou dois minutos. Esta mensagem deve aparecer: 
 ``Watson Online Store bot is connected and running!`` 
 * É exibida uma grande quantidade de informações de Criação de Log Vermelho. 
 
-Isto é esperado. A cor da criação de log no Bluemix será vermelha, independentemente da natureza da mensagem. Os níveis de log são definidos como “Debug” para auxiliar o desenvolvedor a ver como o código está sendo executado. 
+Isto é esperado. A cor da criação de log no IBM Cloud será vermelha, independentemente da natureza da mensagem. Os níveis de log são definidos como “Debug” para auxiliar o desenvolvedor a ver como o código está sendo executado. 
 Isso pode ser alterado para ``logging.WARN`` ou ``logging.ERROR`` no [código python](https://github.com/IBM/watson-online-store/blob/master/watsononlinestore/watson_online_store.py#L22). 
 
 # Licença 
 [Apache 2.0](LICENÇA) 
 
 # Aviso de Privacidade 
-Se usar o botão Deploy to Bluemix, algumas métricas serão acompanhadas e as informações a seguir serão enviadas a um serviço de [Rastreador da Implementação](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) em cada implementação: 
+Se usar o botão Deploy to IBM Cloud, algumas métricas serão acompanhadas e as informações a seguir serão enviadas a um serviço de [Rastreador da Implementação](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) em cada implementação: 
 * Versão do pacote do Python 
 * URL do repositório do Python 
 * Nome do Aplicativo (application_name) 
@@ -166,7 +166,7 @@ Se usar o botão Deploy to Bluemix, algumas métricas serão acompanhadas e as i
 * Etiquetas dos serviços de limite 
 * Número de instâncias para cada serviço de limite e informações do plano associado 
 
-Esses dados são coletados do arquivo setup.py no aplicativo de amostra e das variáveis de ambiente ``VCAP_APPLICATION`` e ``VCAP_SERVICES`` no IBM Bluemix e em outras plataformas do Cloud Foundry. Esses dados são utilizados pela IBM para o acompanhamento de métricas a respeito de implementações dos mesmos aplicativos no IBM Bluemix. O objetivo é determinar a utilidade dos nossos exemplos para podermos melhorar continuamente o conteúdo que oferecemos a você. Somente implementações de aplicativos de amostra que incluem código para fazer ping do serviço de Rastreador da Implementação serão acompanhadas. 
+Esses dados são coletados do arquivo setup.py no aplicativo de amostra e das variáveis de ambiente ``VCAP_APPLICATION`` e ``VCAP_SERVICES`` no IBM Cloud e em outras plataformas do Cloud Foundry. Esses dados são utilizados pela IBM para o acompanhamento de métricas a respeito de implementações dos mesmos aplicativos no IBM IBM Cloud. O objetivo é determinar a utilidade dos nossos exemplos para podermos melhorar continuamente o conteúdo que oferecemos a você. Somente implementações de aplicativos de amostra que incluem código para fazer ping do serviço de Rastreador da Implementação serão acompanhadas. 
 
 ## Desativando o Acompanhamento da Implementação 
 Para desativar o acompanhamento, basta remover ``cf_deployment_tracker.track()`` do arquivo ``run.py`` no diretório do nível superior. 
