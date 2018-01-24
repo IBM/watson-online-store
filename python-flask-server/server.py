@@ -132,9 +132,9 @@ if __name__ == '__main__':
     # The Bluemix port is passed in with a PORT environment variable.
     # This allows Bluemix health check to work. Otherwise the default
     # port for a Flask server is 5000.
-    port = os.environ.get("PORT")
+    port = os.environ.get("PORT") or os.environ.get("VCAP_APP_PORT") or 5000
 
     # Run the web app.
     # Use 0.0.0.0 to allow remote connections.
     # Use PORT environment variable (set above) to set the port.
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio.run(app, host='0.0.0.0', port=int(port))
