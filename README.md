@@ -243,13 +243,13 @@ should appear:
 
 This is expected. The color for logging in IBM Cloud will be red, regardless of the
 nature of the message. The log levels are set to "Debug" to assist the developer
-in seeing how the code is executing. This can be changed to ``logging.WARN`` or 
+in seeing how the code is executing. This can be changed to ``logging.WARN`` or
 ``logging.ERROR`` in the [python code](https://github.com/IBM/watson-online-store/blob/master/watsononlinestore/watson_online_store.py#L22).
 
 # Privacy Notice
 
 If using the Deploy to IBM Cloud button some metrics are tracked, the following
-information is sent to [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) and 
+information is sent to [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) and
 [Metrics collector](https://github.com/IBM/metrics-collector-service) service on each deployment:
 
 * Python package version

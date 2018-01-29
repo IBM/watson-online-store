@@ -212,7 +212,7 @@ Deploy to Bluemix버튼을 사용하면 몇몇 항목은 추적이 되는데, �
 * Number of instances for each bound service and associated plan information
 
 이 데이터는 샘플 애플리케이션의 setup.py 파일 및 IBM Bluemix와 여타 Cloud Foundry 플랫폼의  ``VCAP_APPLICATION``
-과 ``VCAP_SERVICES``환경 변수로부터 수집됩니다. IBM은 해당 데이터를 제공된 예제의 유용한 정도를 가늠하여 지속적으로 개발자 여러분들께 제공하는 컨텐츠를 개선하고자 IBM Bluemix의 샘플 애플리케이션의 개발 관련 항목들을 추적 관찰하고 있습니다. Deployment Tracker서비스를 호출하기 위한 코드가 있는 샘플 애플리케이션만 배포시 추적됩니다. 
+과 ``VCAP_SERVICES``환경 변수로부터 수집됩니다. IBM은 해당 데이터를 제공된 예제의 유용한 정도를 가늠하여 지속적으로 개발자 여러분들께 제공하는 컨텐츠를 개선하고자 IBM Bluemix의 샘플 애플리케이션의 개발 관련 항목들을 추적 관찰하고 있습니다. Deployment Tracker서비스를 호출하기 위한 코드가 있는 샘플 애플리케이션만 배포시 추적됩니다.
 
 ## 배포 추적 비활성화하기
 
