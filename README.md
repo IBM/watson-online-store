@@ -151,13 +151,12 @@ collection a unique name.
   <img width="400" height="300" src="doc/source/images/name_discovery.png">
 </p>
 
-Seed the content by selecting **Add data to this collection** in the dialog,
-choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html). When
-completed, add the **environment_id** and **collection_id** to the .env file
-as DISCOVERY_ENVIRONMENT_ID and DISCOVERY_COLLECTION_ID.
+Seed the content by using either `Drag and drop your documents here` or `browse from your computer`. Choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html).
+
+Under the `Overview` tab, `Collection Info` section, click `Use this collection in API` and copy the `Collection ID` and the `Environment ID` into your .env file as `DISCOVERY_COLLECTION_ID` and `DISCOVERY_ENVIRONMENT_ID`.
 
 <p align="center">
-  <img width="800" height="225" src="doc/source/images/view_discovery_ids.png">
+  <img width="300" height="225" src="doc/source/images/view_discovery_ids.png">
 </p>
 
 ### 6. Configure Slack
@@ -216,6 +215,7 @@ Save the new values and restart the application, watch the logs for errors.
 #### If you decided to run the app locally...
 
 ```
+$ pip install -r requirements.txt
 $ python run.py
 ```
 
@@ -243,13 +243,13 @@ should appear:
 
 This is expected. The color for logging in IBM Cloud will be red, regardless of the
 nature of the message. The log levels are set to "Debug" to assist the developer
-in seeing how the code is executing. This can be changed to ``logging.WARN`` or 
+in seeing how the code is executing. This can be changed to ``logging.WARN`` or
 ``logging.ERROR`` in the [python code](https://github.com/IBM/watson-online-store/blob/master/watsononlinestore/watson_online_store.py#L22).
 
 # Privacy Notice
 
 If using the Deploy to IBM Cloud button some metrics are tracked, the following
-information is sent to [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) and 
+information is sent to
 [Metrics collector](https://github.com/IBM/metrics-collector-service) service on each deployment:
 
 * Python package version
