@@ -1,4 +1,3 @@
-cf-deployment-tracker==1.0.4
 cloudant==2.4.0
 Flask>=0.12
 Flask_SocketIO>=2.8.5

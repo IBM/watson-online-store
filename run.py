@@ -15,7 +15,6 @@
 import json
 import os
 
-import cf_deployment_tracker
 import metrics_tracker_client
 from cloudant.client import Cloudant
 from dotenv import load_dotenv
@@ -182,7 +181,6 @@ class WatsonEnv:
 
 
 if __name__ == "__main__":
-    cf_deployment_tracker.track()
     metrics_tracker_client.track()
 
     watsononlinestore = WatsonEnv.get_watson_online_store()
