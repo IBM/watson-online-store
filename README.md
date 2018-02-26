@@ -57,7 +57,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create IBM Cloud services](#2-create-ibm-cloud-services)
 3. [Get IBM Cloud credentials and add to .env](#3-get-ibm-cloud-services-credentials-and-add-to-env-file)
-4. [Configure Watson Assistant for Business](#4-configure-watson-assistant-for-business)
+4. [Configure Watson Assistant for Business](#4-configure-watson-conversation)
 5. [Configure Watson Discovery](#5-configure-watson-discovery)
 6. [Configure Slack](#6-configure-slack)
 7. [Run the application](#7-run-the-application)
