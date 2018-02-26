@@ -1,17 +1,17 @@
 [![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
 ![IBM Cloud Deployments](https://metrics-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
-# Creating a Retail Chatbot using Watson Conversation, Discovery and Database Services
+# Creating a Retail Chatbot using Watson Assistant for Business, Discovery and Database Services
 
 *Read this in other languages: [English](README.md), [한국어](README_ko.md)*
 
-In this developer Code Pattern we will create a Watson Conversation based chatbot
+In this developer Code Pattern we will create a Watson Assistant for Business based chatbot
 that allows a user to: 1) find items to purchase using Watson Discovery, and
 2) add and remove items from their cart by updating a Cloudant NoSQL Database.
 
 When the reader has completed this Code Pattern, they will understand how to:
 
-* Create a chatbot dialog with Watson Conversation
+* Create a chatbot dialog with Watson Assistant for Business
 * Dynamically store and update a Cloudant NoSQL database based on chatbot results
 * Seed data into Watson Discovery and leverage its natural language capabilities
 * Manage and customize a Slack group to add a chatbot
@@ -24,12 +24,12 @@ When the reader has completed this Code Pattern, they will understand how to:
 2. Slack sends this message to the running application.
 3. The application orchestrates the interactions between the various Watson services.
 4. The application queries the Cloudant database for the user's information, including the contents of their shopping cart, and writes the contents back to the database as they change.
-5. The application interacts with Watson Conversation to determine which response to send to Slack, and information passed back and forth in the conversation context determines actions within the application.
+5. The application interacts with Watson Assistant for Business to determine which response to send to Slack, and information passed back and forth in the conversation context determines actions within the application.
 6. Watson Discovery is used to get information about the items in the online store.
 
 ## Included Components
 
-* [Watson Conversation](https://www.ibm.com/watson/developercloud/conversation.html): Create a chatbot with a program that conducts a conversation via auditory or textual methods.
+* [Watson Assistant for Business](https://www.ibm.com/watson/developercloud/conversation.html): Create a chatbot with a program that conducts a conversation via auditory or textual methods.
 * [Watson Discovery](https://www.ibm.com/watson/developercloud/discovery.html): A cognitive search and content analytics engine for applications to identify patterns, trends, and actionable insights.
 * [Cloudant NoSQL DB](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db): A fully managed data layer designed for modern web and mobile applications that leverages a flexible JSON schema.
 * [Slack](https://slack.com): Slack is a cloud-based set of team collaboration tools and services with chat bot integration.
@@ -57,7 +57,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create IBM Cloud services](#2-create-ibm-cloud-services)
 3. [Get IBM Cloud credentials and add to .env](#3-get-ibm-cloud-services-credentials-and-add-to-env-file)
-4. [Configure Watson Conversation](#4-configure-watson-conversation)
+4. [Configure Watson Assistant for Business](#4-configure-watson-assistant-for-business)
 5. [Configure Watson Discovery](#5-configure-watson-discovery)
 6. [Configure Slack](#6-configure-slack)
 7. [Run the application](#7-run-the-application)
@@ -75,7 +75,7 @@ We’ll be using the file [`data/workspace.json`](data/workspace.json) and the f
 
 Create the following services:
 
-  * [**Watson Conversation**](https://console.ng.bluemix.net/catalog/services/conversation)
+  * [**Watson Assistant for Business**](https://console.ng.bluemix.net/catalog/services/conversation)
   * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
   * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
@@ -115,9 +115,9 @@ SLACK_BOT_TOKEN=<add_slack_bot_token>
 SLACK_BOT_USER=wos
 ```
 
-### 4. Configure Watson Conversation
+### 4. Configure Watson Assistant for Business
 
-Launch the **Watson Conversation** tool. Use the **import** icon button on the right
+Launch the **Watson Assistant for Business** tool. Use the **import** icon button on the right
 
 <p align="center">
   <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
@@ -278,7 +278,7 @@ To disable tracking, simply remove ``cf_deployment_tracker.track()`` and ``metri
 
 # Links
 * [Demo on Youtube](https://youtu.be/b-94B3O1czU)
-* [Watson Conversation](https://www.ibm.com/watson/services/conversation/)
+* [Watson Assistant for Business](https://www.ibm.com/watson/services/conversation/)
 * [Watson Discovery](https://www.ibm.com/watson/services/discovery/)
 * [IBM Cloudant db](https://www.ibm.com/cloud/cloudant)
 * [Slack](https://slack.com)
