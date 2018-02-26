@@ -40,7 +40,7 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 
 1. [GitHub저장소 복제하기](#1-저장소-복제하기)
 2. [Bluemix 서비스 생성하기](#2-bluemix-서비스-생성하기)
-3. [Watson Assistant for Business 구성하기](#3-watson-assistant-for-business-구성하기)
+3. [Watson Assistant for Business 구성하기](#3-watson-conversation-구성하기)
 4. [Watson Discovery 구성하기](#4-watson-discovery-구성하기)
 5. [Slack 구성하기](#5-slack-구성하기)
 6. [애플리케이션 실행하기](#6-애플리케이션-실행하기)
