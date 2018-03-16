@@ -79,9 +79,9 @@ Create the following services:
   * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
   * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
-### 3. Get IBM Cloud Services Credentials and add to .env file
+### 3. Get IBM Cloud services Credentials and add to .env file
 
-As you create the Blumix Services, you'll need to create service credentials and get the
+As you create the IBM Cloud services, you'll need to create service credentials and get the
 username and password:
 
 
@@ -89,7 +89,7 @@ username and password:
   <img width="500" height="350" src="doc/source/images/credentials2.png">
 </p>
 
-Move the watson-online-store/env.sample file to /.env and populate the service
+Move the ``watson-online-store/env.sample`` file to ``/.env`` and populate the service
 credentials (and Cloudant URL) as you create the credentials:
 
 ```
@@ -131,8 +131,8 @@ workspace and select **View details**.
   <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
 </p>
 
- Put this Workspace ID into the .env file
-as WORKSPACE_ID.
+ Put this Workspace ID into the ``.env`` file
+as ``WORKSPACE_ID``.
 
 *Optionally*, to view the conversation dialog select the workspace and choose the
 **Dialog** tab, here's a snippet of the dialog:
@@ -142,7 +142,7 @@ as WORKSPACE_ID.
 ### 5. Configure Watson Discovery
 
 Launch the **Watson Discovery** tool. The first time you do this, you will see
-"Before working with private data, we will need to set up your storage". Click 'Continue' and
+"Before working with private data, we will need to set up your storage". Click `Continue` and
 wait for the storage to be set up.
 Create a **new data collection** and give the data
 collection a unique name.
@@ -153,7 +153,7 @@ collection a unique name.
 
 Seed the content by using either `Drag and drop your documents here` or `browse from your computer`. Choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html).
 
-Under the `Overview` tab, `Collection Info` section, click `Use this collection in API` and copy the `Collection ID` and the `Environment ID` into your .env file as `DISCOVERY_COLLECTION_ID` and `DISCOVERY_ENVIRONMENT_ID`.
+Under the `Overview` tab, `Collection Info` section, click `Use this collection in API` and copy the `Collection ID` and the `Environment ID` into your `.env` file as `DISCOVERY_COLLECTION_ID` and `DISCOVERY_ENVIRONMENT_ID`.
 
 <p align="center">
   <img width="300" height="225" src="doc/source/images/view_discovery_ids.png">
@@ -171,18 +171,18 @@ by navigating to `https://<slack_group>.slack.com/apps/manage` and selecting the
 
 ![](doc/source/images/manage_slack_settings.png)
 
-Click on 'Bots' and then click the green 'Add Configuration' button.
+Click on `Bots` and then click the green `Add Configuration` button.
 
-Give the bot a meaningful name. Note that the '@' symbol is pre-populated by Slack
-and you do not include that in your .env configuration file. Save this in .env
-as SLACK_BOT_USER.
+Give the bot a meaningful name. Note that the `@` symbol is pre-populated by Slack
+and you do not include that in your `.env` configuration file. Save this in `.env`
+as `SLACK_BOT_USER`.
 
 <p align="center">
   <img width="300" height="125" src="doc/source/images/nameSlackbot.png">
 </p>
 
- Once created save the **API Token** that is generated into the .env file
-as SLACK_BOT_TOKEN if you are running locally, or save this if you are using
+ Once created save the **API Token** that is generated into the `.env` file
+as `SLACK_BOT_TOKEN` if you are running locally, or save this if you are using
 Deploy to IBM Cloud.
 
 ![](doc/source/images/view_bot_token.png)
@@ -242,7 +242,7 @@ should appear:
 * Large amount of Red Logging info appears.
 
 This is expected. The color for logging in IBM Cloud will be red, regardless of the
-nature of the message. The log levels are set to "Debug" to assist the developer
+nature of the message. The log levels are set to `Debug` to assist the developer
 in seeing how the code is executing. This can be changed to ``logging.WARN`` or
 ``logging.ERROR`` in the [python code](https://github.com/IBM/watson-online-store/blob/master/watsononlinestore/watson_online_store.py#L22).
 
@@ -264,7 +264,7 @@ information is sent to
 * Labels of bound services
 * Number of instances for each bound service and associated plan information
 
-This data is collected from the setup.py and repository.yaml file in the sample application and the ``VCAP_APPLICATION``
+This data is collected from the `setup.py` and `repository.yaml` file in the sample application and the ``VCAP_APPLICATION``
 and ``VCAP_SERVICES`` environment variables in IBM Cloud and other Cloud Foundry platforms. This
 data is used by IBM to track metrics around deployments of sample applications to IBM Cloud to
 measure the usefulness of our examples, so that we can continuously improve the content we offer
