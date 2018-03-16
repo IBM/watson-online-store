@@ -79,9 +79,9 @@ Create the following services:
   * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
   * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
-### 3. Get IBM Cloud Services Credentials and add to .env file
+### 3. Get IBM Cloud services Credentials and add to .env file
 
-As you create the Bluemix Services, you'll need to create service credentials and get the
+As you create the IBM Cloud services, you'll need to create service credentials and get the
 username and password:
 
 
