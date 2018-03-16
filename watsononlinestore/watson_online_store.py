@@ -245,7 +245,7 @@ class WatsonOnlineStore:
             if not environment_id:
                 # No existing environment found, so create it.
                 # NOTE that the number of environments that can be created
-                # under a trial Bluemix account is limited to one environment
+                # under a trial IBM Cloud account is limited to one environment
                 # per organization.
                 try:
                     LOG.debug("Creating discovery environment...")

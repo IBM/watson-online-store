@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
-![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
+![IBM Cloud Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
 # Watson Conversation, Discovery, 데이터베이스 서비스를 이용한 대화형 커머스 챗봇 만들기
 
@@ -19,9 +19,9 @@
 Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Watson 브랜드 자산을 활용하고 싶으신가요?  독점적 브랜드, 마케팅, 기술 리소스를 제공하는 [With Watson](https://www.ibm.com/watson/with-watson) 프로그램에 참여하시면 Watson을 활용한 여러분의 상용 솔루션의 가치를 높일 수 있습니다.
 
 ## 포함된 구성요소
-- Bluemix Watson Conversation
-- Bluemix Watson Discovery
-- Bluemix Cloudant NoSQL DB
+- IBM Cloud Watson Conversation
+- IBM Cloud Watson Discovery
+- IBM Cloud Cloudant NoSQL DB
 - Slack
 - Python
 
@@ -31,15 +31,15 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 
 # 단계
 
-**참고:** 1-6단계를 실행  **또는**  ``Deploy to Bluemix`` 버튼을 클릭하고 ``Create`` 을 눌러 5단계로 이동합니다.
+**참고:** 1-6단계를 실행  **또는**  ``Deploy to IBM Cloud`` 버튼을 클릭하고 ``Create`` 을 눌러 5단계로 이동합니다.
 
-> (Slack만 있고) 별도 웹 UI가 없기 때문에 애플리케이션을 확인할 때 ``View app`` 버튼을 사용하지 않도록 합니다. Bluemix 대시보드를 활용해 애플리케이션을 검색하고 관리합니다. 채팅을 하시려면 Slack UI를 사용하세요.
+> (Slack만 있고) 별도 웹 UI가 없기 때문에 애플리케이션을 확인할 때 ``View app`` 버튼을 사용하지 않도록 합니다. IBM Cloud 대시보드를 활용해 애플리케이션을 검색하고 관리합니다. 채팅을 하시려면 Slack UI를 사용하세요.
 
 
-[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
+[![Deploy to IBM Cloud](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
 
 1. [GitHub저장소 복제하기](#1-저장소-복제하기)
-2. [Bluemix 서비스 생성하기](#2-bluemix-서비스-생성하기)
+2. [IBM Cloud 서비스 생성하기](#2-bluemix-서비스-생성하기)
 3. [Watson Conversation 구성하기](#3-watson-conversation-구성하기)
 4. [Watson Discovery 구성하기](#4-watson-discovery-구성하기)
 5. [Slack 구성하기](#5-slack-구성하기)
@@ -54,7 +54,7 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 파일은 [`data/workspace.json`](data/workspace.json),폴더는
 [`data/ibm_store_html/`](data/ibm_store_html)을 사용합니다.
 
-## 2. Bluemix 서비스 생성하기
+## 2. IBM Cloud 서비스 생성하기
 
 다음의 서비스를 생성합니다.
 
@@ -116,11 +116,11 @@ bot에 재미있는 이름을 지정하고 생성이 완료되면 생성된  **A
 
 ## 6. 애플리케이션 실행하기
 
-### Deploy to Bluemix 버튼을 사용한다면...
+### Deploy to IBM Cloud 버튼을 사용한다면...
 
- ``Deploy to Bluemix``을 사용하면 대부분의 설정이 자동으로 진행되지만 전부 다 자동인 것은 아닙니다. 일부 환경변수를 업데이트해야 합니다.
+ ``Deploy to IBM Cloud``을 사용하면 대부분의 설정이 자동으로 진행되지만 전부 다 자동인 것은 아닙니다. 일부 환경변수를 업데이트해야 합니다.
 
-Bluemix 대시보드에서 생성된 앱을 찾습니다. 메뉴에서  ``Runtime`` 을 클릭하고  ``Environment variables`` 탭으로 이동합니다..
+IBM Cloud 대시보드에서 생성된 앱을 찾습니다. 메뉴에서  ``Runtime`` 을 클릭하고  ``Environment variables`` 탭으로 이동합니다..
 
 ![](doc/source/images/env_vars.png)
 
@@ -167,7 +167,7 @@ $ python run.py
 
 > 참고: 애플리케이션이 로컬에서 실행되는 경우에만 필요한 설정입니다.
 
-Bluemix 서비스 (Conversation, Cloudant, and Discovery)에 대한 신임정보는 Bluemix의  ``Services``메뉴에서  ``Service Credentials``옵션을 선택하면 찾아볼 수 있습니다
+IBM Cloud 서비스 (Conversation, Cloudant, and Discovery)에 대한 신임정보는 Bluemix의  ``Services``메뉴에서  ``Service Credentials``옵션을 선택하면 찾아볼 수 있습니다
 
 ```
 # Watson conversation
@@ -198,7 +198,7 @@ SLACK_BOT_USER=wos
 
 # 개인정보 보호정책
 
-Deploy to Bluemix버튼을 사용하면 몇몇 항목은 추적이 되는데, 배포시 아래의 정보가  [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) 서비스로 전송됩니다.
+Deploy to IBM Cloud버튼을 사용하면 몇몇 항목은 추적이 되는데, 배포시 아래의 정보가  [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) 서비스로 전송됩니다.
 
 * Python package version
 * Python repository URL
@@ -211,8 +211,8 @@ Deploy to Bluemix버튼을 사용하면 몇몇 항목은 추적이 되는데, �
 * Labels of bound services
 * Number of instances for each bound service and associated plan information
 
-이 데이터는 샘플 애플리케이션의 setup.py 파일 및 IBM Bluemix와 여타 Cloud Foundry 플랫폼의  ``VCAP_APPLICATION``
-과 ``VCAP_SERVICES``환경 변수로부터 수집됩니다. IBM은 해당 데이터를 제공된 예제의 유용한 정도를 가늠하여 지속적으로 개발자 여러분들께 제공하는 컨텐츠를 개선하고자 IBM Bluemix의 샘플 애플리케이션의 개발 관련 항목들을 추적 관찰하고 있습니다. Deployment Tracker서비스를 호출하기 위한 코드가 있는 샘플 애플리케이션만 배포시 추적됩니다. 
+이 데이터는 샘플 애플리케이션의 setup.py 파일 및 IBM Cloud와 여타 Cloud Foundry 플랫폼의  ``VCAP_APPLICATION``
+과 ``VCAP_SERVICES``환경 변수로부터 수집됩니다. IBM은 해당 데이터를 제공된 예제의 유용한 정도를 가늠하여 지속적으로 개발자 여러분들께 제공하는 컨텐츠를 개선하고자 IBM Cloud의 샘플 애플리케이션의 개발 관련 항목들을 추적 관찰하고 있습니다. Deployment Tracker서비스를 호출하기 위한 코드가 있는 샘플 애플리케이션만 배포시 추적됩니다. 
 
 ## 배포 추적 비활성화하기
 
