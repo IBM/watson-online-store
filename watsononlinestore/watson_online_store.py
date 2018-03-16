@@ -134,6 +134,10 @@ class WatsonOnlineStore:
         self.customer = None
         self.response_tuple = None
         self.delay = 0.5  # second
+        response = self.conversation_client.message(
+            workspace_id=self.workspace_id,
+            context=None)
+        self.context = self.context_merge(self.context, response['context'])
 
     @staticmethod
     def setup_conversation_workspace(conversation_client, environ):
