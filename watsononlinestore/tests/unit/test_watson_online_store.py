@@ -2,6 +2,7 @@ import unittest
 
 import ddt
 import mock
+from watsononlinestore.tests.unit import message as message_json
 
 from watsononlinestore import watson_online_store
 
@@ -12,7 +13,8 @@ class WOSTestCase(unittest.TestCase):
     def setUp(self):
         mock.Mock(watson_online_store.os.environ, return_value={})
         self.slack_client = mock.Mock()
-        self.conv_client = mock.Mock()
+        self.conv_client = mock.MagicMock()
+        self.watson_online_store = mock.Mock()
         self.fake_workspace_id = 'fake workspace id'
         self.conv_client.list_workspaces.return_value = {
             'workspaces': [{'workspace_id': self.fake_workspace_id,
@@ -33,6 +35,8 @@ class WOSTestCase(unittest.TestCase):
         self.discovery_client.list_collections.return_value = {
             'collections': [{'collection_id': self.fake_collection_id,
                              'name': 'ibm-logo-store'}]}
+
+        self.watson_online_store.context_merge = message_json.message
 
         self.wos = watson_online_store.WatsonOnlineStore(
             'UBOTID',
