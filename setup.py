@@ -2,7 +2,7 @@
 from setuptools import setup
 
 long_description = ('Code for Cognitive Developer Journey that uses Watson '
-                    'Conversation and Watson Discovery. This application '
+                    'Assistant and Watson Discovery. This application '
                     'demonstrates a simple abstraction of a chatbot '
                     'interacting with a Cloudant NoSQL database, using a '
                     'Slack UI.')

@@ -1,13 +1,13 @@
 [![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
 ![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
-# Watson Conversation, Discovery, 데이터베이스 서비스를 이용한 대화형 커머스 챗봇 만들기
+# Watson Assistant, Discovery, 데이터베이스 서비스를 이용한 대화형 커머스 챗봇 만들기
 
-이 개발과정에서 우리는 Watson Conversation 기반 챗봇을 만들게 됩니다. 사용자들은 이 챗봇으로 1) Watson Discovery를 이용해 구매할 품목을 검색하고 2) Cloudant NoSQL 데이터베이스를 업데이트해 장바구니에 품목을 추가하거나 삭제할 수 있습니다.
+이 개발과정에서 우리는 Watson Assistant 기반 챗봇을 만들게 됩니다. 사용자들은 이 챗봇으로 1) Watson Discovery를 이용해 구매할 품목을 검색하고 2) Cloudant NoSQL 데이터베이스를 업데이트해 장바구니에 품목을 추가하거나 삭제할 수 있습니다.
 
 독자가 이 개발과정을 마치면, 아래의 방법들을 이해하게 될 것입니다.
 
-* Watson Conversation으로 챗봇 대화 생성하기
+* Watson Assistant으로 챗봇 대화 생성하기
 * 챗봇 결과를 토대로 Cloudant NoSQL 데이터베이스에 동적으로 저장하고 업데이트하기
 * Watson Discovery에 데이터를 학습시키고 자연어 기능을 활용하기
 * 챗봇에 추가되는 Slack그룹 관리와 커스터마이징
@@ -19,9 +19,9 @@
 Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Watson 브랜드 자산을 활용하고 싶으신가요?  독점적 브랜드, 마케팅, 기술 리소스를 제공하는 [With Watson](https://www.ibm.com/watson/with-watson) 프로그램에 참여하시면 Watson을 활용한 여러분의 상용 솔루션의 가치를 높일 수 있습니다.
 
 ## 포함된 구성요소
-- Bluemix Watson Conversation
-- Bluemix Watson Discovery
-- Bluemix Cloudant NoSQL DB
+- IBM Watson Assistant
+- IBM Watson Discovery
+- IBM Cloudant NoSQL DB
 - Slack
 - Python
 
@@ -40,7 +40,7 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 
 1. [GitHub저장소 복제하기](#1-저장소-복제하기)
 2. [Bluemix 서비스 생성하기](#2-bluemix-서비스-생성하기)
-3. [Watson Conversation 구성하기](#3-watson-conversation-구성하기)
+3. [Watson Assistant 구성하기](#3-watson-assistant-for-business-구성하기)
 4. [Watson Discovery 구성하기](#4-watson-discovery-구성하기)
 5. [Slack 구성하기](#5-slack-구성하기)
 6. [애플리케이션 실행하기](#6-애플리케이션-실행하기)
@@ -58,13 +58,13 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 
 다음의 서비스를 생성합니다.
 
-  * [**Watson Conversation**](https://console.ng.bluemix.net/catalog/services/conversation)
+  * [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
   * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
   * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
-## 3. Watson Conversation 구성하기
+## 3. Watson Assistant 구성하기
 
- **Watson Conversation** 툴을 실행합니다.  오른편에 있는  **import** 아이콘 버튼을 사용합니다.
+ **Watson Assistant** 툴을 실행합니다.  오른편에 있는  **import** 아이콘 버튼을 사용합니다.
 
 <p align="center">
   <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
@@ -167,7 +167,7 @@ $ python run.py
 
 > 참고: 애플리케이션이 로컬에서 실행되는 경우에만 필요한 설정입니다.
 
-Bluemix 서비스 (Conversation, Cloudant, and Discovery)에 대한 신임정보는 Bluemix의  ``Services``메뉴에서  ``Service Credentials``옵션을 선택하면 찾아볼 수 있습니다
+IBM 서비스 (Assistant, Cloudant, and Discovery)에 대한 신임정보는 Bluemix의  ``Services``메뉴에서  ``Service Credentials``옵션을 선택하면 찾아볼 수 있습니다
 
 ```
 # Watson conversation
@@ -212,7 +212,7 @@ Deploy to Bluemix버튼을 사용하면 몇몇 항목은 추적이 되는데, �
 * Number of instances for each bound service and associated plan information
 
 이 데이터는 샘플 애플리케이션의 setup.py 파일 및 IBM Bluemix와 여타 Cloud Foundry 플랫폼의  ``VCAP_APPLICATION``
-과 ``VCAP_SERVICES``환경 변수로부터 수집됩니다. IBM은 해당 데이터를 제공된 예제의 유용한 정도를 가늠하여 지속적으로 개발자 여러분들께 제공하는 컨텐츠를 개선하고자 IBM Bluemix의 샘플 애플리케이션의 개발 관련 항목들을 추적 관찰하고 있습니다. Deployment Tracker서비스를 호출하기 위한 코드가 있는 샘플 애플리케이션만 배포시 추적됩니다. 
+과 ``VCAP_SERVICES``환경 변수로부터 수집됩니다. IBM은 해당 데이터를 제공된 예제의 유용한 정도를 가늠하여 지속적으로 개발자 여러분들께 제공하는 컨텐츠를 개선하고자 IBM Bluemix의 샘플 애플리케이션의 개발 관련 항목들을 추적 관찰하고 있습니다. Deployment Tracker서비스를 호출하기 위한 코드가 있는 샘플 애플리케이션만 배포시 추적됩니다.
 
 ## 배포 추적 비활성화하기
 
