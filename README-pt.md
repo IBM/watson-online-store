@@ -1,11 +1,11 @@
 ﻿[![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
 ![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
-# Criando um chatbot de varejo usando os serviços Watson Assistant for Business, Discovery e Database
+# Criando um chatbot de varejo usando os serviços Watson Assistant, Discovery e Database
 *Ler em outros idiomas: [Inglês](README.md), [한국어](README_ko.md)*
-Nesta jornada do desenvolvedor, criaremos um chatbot baseado no Watson Assistant for Business que ajuda o usuário a: 1) localizar itens para comprar usando o Watson Discovery e 2) adicionar e remover itens do carrinho atualizando um banco de dados NoSQL do Cloudant.
+Nesta jornada do desenvolvedor, criaremos um chatbot baseado no Watson Assistant que ajuda o usuário a: 1) localizar itens para comprar usando o Watson Discovery e 2) adicionar e remover itens do carrinho atualizando um banco de dados NoSQL do Cloudant.
 Após concluir esta jornada, o leitor saberá como:
-* Criar um diálogo do chatbot com o Watson Assistant for Business
+* Criar um diálogo do chatbot com o Watson Assistant
 * Armazenar e atualizar dinamicamente um banco de dados NoSQL do Cloudant com base nos resultados do chatbot
 * Enviar dados para o Watson Discovery e utilizar seus recursos de linguagem natural
 * Gerenciar e personalizar um grupo do Slack para incluir um chatbot
@@ -15,9 +15,9 @@ Após concluir esta jornada, o leitor saberá como:
 Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ativos da marca Watson? Participe do programa [With Watson](https://www.ibm.com/watson/with-watson), que oferece recursos técnicos, de marketing e da marca exclusivos para amplificar e acelerar sua solução comercial incorporada do Watson.
 
 ## Componentes inclusos
-- Bluemix Watson Assistant for Business
-- Bluemix Watson Discovery
-- Banco de dados NoSQL Bluemix Cloudant
+- IBM Watson Assistant
+- IBM Watson Discovery
+- Banco de dados NoSQL IBM Cloudant
 - Slack
 - Python
 
@@ -30,7 +30,7 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 1. [Clonar o repositório](#1-clone-the-repo)
 2. [Criar serviços do Bluemix](#2-create-bluemix-services)
 3. [Obter credenciais do Bluemix e incluir em .env](#3-get-creds-add-to-.env)
-4. [Configurar o Watson Assistant for Business](#4-configure-watson-conversation)
+4. [Configurar o Watson Assistant](#4-configure-watson-conversation)
 5. [Configurar o Watson Discovery](#5-configure-watson-discovery)
 6. [Configurar o Slack](#6-configure-slack)
 7. [Executar o aplicativo](#7-run-the-application)
@@ -39,7 +39,7 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 Em um terminal, execute `$ git clone https://github.com/ibm/watson-online-store`. Utilizaremos o arquivo [`data/workspace.json`](data/workspace.json) e a pasta [`data/ibm_store_html/`](data/ibm_store_html)
 
 ## 2. Criar serviços do Bluemix Crie os serviços a seguir:
-* [**Watson Assistant for Business**](https://console.ng.bluemix.net/catalog/services/conversation)
+* [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
 * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
 * [**Banco de dados NoSQL do Cloudant**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
 
@@ -69,9 +69,9 @@ DISCOVERY_COLLECTION_ID=<add_discovery_collection>
 # Slack SLACK_BOT_TOKEN=<add_slack_bot_token>
 SLACK_BOT_USER=wos
 ```
-## 4. Configurar o Watson Assistant for Business
+## 4. Configurar o Watson Assistant
 
-Acione a ferramenta **Watson Assistant for Business**. Use o botão com o ícone de **importação** à direita
+Acione a ferramenta **Watson Assistant**. Use o botão com o ícone de **importação** à direita
 
 <p align="center">
 <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png" />
@@ -85,7 +85,7 @@ Localize a versão local de [`data/workspace.json`](data/workspace.json) e selec
 
 Insira o ID da área de trabalho no arquivo .env como WORKSPACE_ID.
 
-*Como opção*, para visualizar o diálogo do Assistant for Business, selecione a área de trabalho e escolha a guia **Dialog**.
+*Como opção*, para visualizar o diálogo do Assistant, selecione a área de trabalho e escolha a guia **Dialog**.
 Este é um fragmento do diálogo: ![](doc/source/images/dialog.png)
 
 ## 5. Configurar o Watson Discovery Acione a ferramenta **Watson Discovery**.

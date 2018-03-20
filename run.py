@@ -134,7 +134,7 @@ class WatsonEnv:
             print(MISSING_ENV_VARS)
             return None
 
-        # Instantiate Watson Conversation client.
+        # Instantiate Watson Assistant client.
         conversation_client = ConversationV1(
             username=conversation_username,
             password=conversation_password,

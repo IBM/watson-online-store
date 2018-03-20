@@ -101,7 +101,7 @@ class WatsonOnlineStore:
         self.bot_id = bot_id or 'unknown bot_id'
         self.at_bot = "<@" + self.bot_id + ">"
 
-        # IBM Watson Conversation
+        # IBM Watson Assistant
         self.conversation_client = conversation_client
         self.workspace_id = self.setup_conversation_workspace(
             conversation_client, os.environ)
@@ -137,7 +137,7 @@ class WatsonOnlineStore:
 
     @staticmethod
     def setup_conversation_workspace(conversation_client, environ):
-        """Verify and/or initialize the conversation workspace.
+        """Verify and/or initialize the assistant workspace.
 
         If a WORKSPACE_ID is specified in the runtime environment,
         make sure that workspace exists. If no WORKSTATION_ID is
@@ -150,9 +150,9 @@ class WatsonOnlineStore:
         name as mentioned above so future lookup will find what
         was created.
 
-        :param conversation_client: Conversation service client
+        :param conversation_client: Assistant service client
         :param object environ: runtime environment variables
-        :return: ID of conversation workspace to use
+        :return: ID of Assistant workspace to use
         :rtype: str
         :raise Exception: When workspace is not found and cannot be created
         """
@@ -337,7 +337,7 @@ class WatsonOnlineStore:
         return workspace
 
     def context_merge(self, dict1, dict2):
-        """Combine 2 dicts into one for Watson Conversation context.
+        """Combine 2 dicts into one for Watson Assistant context.
 
         Common data in dict2 will override data in dict1
 
@@ -687,7 +687,7 @@ class WatsonOnlineStore:
         Response is then further formatted to be passed to UI.
 
         :param str input_text: query to be used with Watson Discovery Service
-        :returns: Discovery response in format for Watson Conversation
+        :returns: Discovery response in format for Watson Assistant
         :rtype: dict
         """
 
@@ -781,7 +781,7 @@ class WatsonOnlineStore:
         return False
 
     def handle_message(self, message, sender):
-        """Handler for messages coming from Watson Conversation using context.
+        """Handler for messages coming from Watson Assistant using context.
 
         Fields in context will trigger various actions in this application.
 
