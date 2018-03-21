@@ -5,6 +5,8 @@
 
 *Read this in other languages: [English](README.md), [한국어](README_ko.md)*
 
+> Watson Conversation is now Watson Assistant. Although some images in this code pattern may show the service as Watson Conversation, the steps and processes will still work.
+
 In this developer Code Pattern we will create a Watson Assistant based chatbot
 that allows a user to: 1) find items to purchase using Watson Discovery, and
 2) add and remove items from their cart by updating a Cloudant NoSQL Database.
