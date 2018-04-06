@@ -183,3 +183,21 @@ class CloudantOnlineStore(object):
                 LOG.exception("Cloudant DB exception:")
             finally:
                 self.client.disconnect()
+
+    def optimize_cloudant_url(url):
+        """if the url is in the pattern
+        https://username:password@*-bluemix.cloudant.com
+        then strip out the username:password to make it py3.6 friendly
+        ex: https://*-bluemix.cloudant.com
+        """
+        safe_url = ''
+        if url and len(url) > 0:
+            urlFragments = url.split("@")
+            if len(urlFragments) == 2:
+                safe_url = 'https://' + urlFragments.pop()
+                LOG.info("New cloudant URL: {}".format(safe_url))
+            else:
+                LOG.exception("Malformed Cloudant URL")
+        else:
+            LOG.exception("URL not found")
+        return safe_url
