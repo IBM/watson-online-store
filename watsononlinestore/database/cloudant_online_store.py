@@ -184,13 +184,13 @@ class CloudantOnlineStore(object):
             finally:
                 self.client.disconnect()
 
-
     def make_cloudant_url_compatible_with_py3(url):
-        """ if the url is in the pattern https://username:password@*-bluemix.cloudant.com
+        """if the url is in the pattern
+        https://username:password@*-bluemix.cloudant.com
         then strip out the username:password to make it py3.6 friendly
         ex: https://*-bluemix.cloudant.com
         """
-        newUrl=''
+        newUrl = ''
         if url and len(url) > 0:
             urlFragments = url.split("@")
             if len(urlFragments) == 2:
@@ -201,4 +201,3 @@ class CloudantOnlineStore(object):
         else:
             LOG.exception("URL not found")
         return newUrl
-
