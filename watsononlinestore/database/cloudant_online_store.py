@@ -197,6 +197,8 @@ class CloudantOnlineStore(object):
                 newUrl = 'https://' + urlFragments.pop()
                 LOG.info("New cloudant URL: {}".format(newUrl))
             else:
-                LOG.exception("Malformed Cloudant URL")        
+                LOG.exception("Malformed Cloudant URL")
+        else:
+            LOG.exception("URL not found")
         return newUrl
 
