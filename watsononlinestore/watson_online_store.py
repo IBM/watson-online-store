@@ -728,7 +728,7 @@ class WatsonOnlineStore:
         """
         cust = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
-        formatted_out = "\n".join("{}) {}".format(i + 1, item.encode('utf-8'))
+        formatted_out = "\n".join("{}) {}".format(i + 1, item)
                                   for i, item in enumerate(shopping_list))
         self.context['shopping_cart'] = formatted_out
 
