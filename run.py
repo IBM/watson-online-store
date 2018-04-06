@@ -145,8 +145,7 @@ class WatsonEnv:
             Cloudant(
                 cloudant_username,
                 cloudant_password,
-                url=CloudantOnlineStore.
-                make_cloudant_url_compatible_with_py3(cloudant_url),
+                url=CloudantOnlineStore.optimize_cloudant_url(cloudant_url),
                 connect=True
             ),
             cloudant_db_name
