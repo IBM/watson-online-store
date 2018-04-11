@@ -224,9 +224,10 @@ class WatsonOnlineStore:
             try:
                 LOG.debug("Using DISCOVERY_ENVIRONMENT_ID=%s" % environment_id)
                 discovery_client.get_environment(environment_id)
-            except Exception:
+            except Exception as e:
+                print(e)
                 raise Exception("Environment with DISCOVERY_ENVIRONMENT_ID=%s "
-                                "does not exist." % environment_id)
+                                "not found." % environment_id)
         else:
             # Try to find the environment by name.
             name = environ.get('DISCOVERY_ENVIRONMENT_NAME',
