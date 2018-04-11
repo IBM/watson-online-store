@@ -85,14 +85,13 @@ class WatsonEnv:
         cloudant_db_name = os.environ.get("CLOUDANT_DB_NAME")
         discovery_username = os.environ.get('DISCOVERY_USERNAME')
         discovery_password = os.environ.get('DISCOVERY_PASSWORD')
+        discovery_url = os.environ.get('DISCOVERY_URL')
 
         if not all((conversation_username,
                     conversation_password,
                     cloudant_username,
                     cloudant_password,
-                    cloudant_url,
-                    discovery_username,
-                    discovery_password)):
+                    cloudant_url)):
             # If some of the service env vars are not set get them from VCAP
             vcap_env = None
             vcap_services = os.environ.get("VCAP_SERVICES")
@@ -114,13 +113,6 @@ class WatsonEnv:
                     cloudant_password or cloudant_creds['password']
                 cloudant_url = cloudant_url or cloudant_creds['url']
 
-                discovery_creds = WatsonEnv.get_vcap_credentials(
-                    vcap_env, 'discovery')
-                discovery_username = \
-                    discovery_username or discovery_creds['username']
-                discovery_password = \
-                    discovery_password or discovery_creds['password']
-
         # If we still don't have all the above plus a few, then no WOS.
         if not all((slack_bot_token,
                     conversation_username,
@@ -128,9 +120,8 @@ class WatsonEnv:
                     cloudant_username,
                     cloudant_password,
                     cloudant_url,
-                    cloudant_db_name,
-                    discovery_username,
-                    discovery_password)):
+                    cloudant_db_name)):
+
             print(MISSING_ENV_VARS)
             return None
 
@@ -154,6 +145,7 @@ class WatsonEnv:
         # Instantiate Watson Discovery client.
         discovery_client = DiscoveryV1(
             version='2017-09-01',
+            url=discovery_url,
             username=discovery_username,
             password=discovery_password)
 
