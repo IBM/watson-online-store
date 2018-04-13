@@ -22,7 +22,7 @@ class CloudantOnlineStore(object):
     def __init__(self, client, db_name):
         """Creates a new instance of CloudantOnlineStore.
 
-        :param Cloudant client: instance of cloudant client to connect to
+        :param Object client: instance of Cloudant client to connect to
         :param str db_name: name of the database to use
         """
         self.client = client
