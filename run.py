@@ -80,7 +80,8 @@ class WatsonEnv:
         cloudant_username = os.environ.get("CLOUDANT_USERNAME")
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
         cloudant_url = os.environ.get("CLOUDANT_URL")
-        cloudant_db_name = os.environ.get("CLOUDANT_DB_NAME") or 'watson_online_store'
+        cloudant_db_name = os.environ.get(
+            "CLOUDANT_DB_NAME") or 'watson_online_store'
         discovery_username = os.environ.get('DISCOVERY_USERNAME')
         discovery_password = os.environ.get('DISCOVERY_PASSWORD')
         discovery_url = os.environ.get('DISCOVERY_URL')
