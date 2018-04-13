@@ -17,10 +17,18 @@
  * Leveraged from: https://github.com/sharpstef/watson-bot-starter
  */
 
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
 .container {
     display: -ms-flexbox;
 	display: -webkit-flex;
 	display: flex;
+
+    width: 100%;
+    height: 100%;
 
 	-ms-flex-align: center;
 	-webkit-align-items: center;
@@ -30,14 +38,18 @@
     justify-content: center;
 }
 
+.chatbot {
+    height: 100%;
+    width: 360px;
+}
+
 .dialogContainer {
     display: flex;
     flex-direction: column;
     font-size: 14px;
     width: 300px;
-    height: 300px;
-    max-height: 300px;
-    margin: 0;
+    height: 85%;
+    margin: 10px;
     border-radius: 4px;
     padding: 10px;
     background-image: -moz-linear-gradient(bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("img/watson.png");
@@ -55,9 +67,9 @@
 
 .dialogInput {
     width: 300px;
-    margin-top: 15px;
     border: 1px solid rgba(86,167,161,1.0);
-    height: 60px;
+    height: 15%;
+    margin: 10px;
     font-weight: bold;
     border-radius: 4px;
     font-size: 13px;
