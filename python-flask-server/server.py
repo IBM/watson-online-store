@@ -18,7 +18,7 @@ from flask_socketio import SocketIO, emit
 
 sys.path.append(os.getcwd())
 sys.path.append(os.path.join(os.getcwd(), '..'))
-from run import WatsonEnv, MISSING_ENV_VARS  # noqa
+from run import WatsonEnv  # noqa
 
 # Async mode allows us to run the Slack chatbot along with the web UI.
 async_mode = "threading"
@@ -88,7 +88,8 @@ def do_message(message):
 
     if not watson:
         # Report incomplete setup.
-        sender.send_message(MISSING_ENV_VARS)
+        sender.send_message(
+            "Sorry. The Watson Online Store is closed (failed to initialize).")
 
     elif message['data']:
         # Send message to WatsonOnlineStore and start a conversation loop.

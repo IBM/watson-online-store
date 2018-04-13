@@ -27,9 +27,6 @@ from watsononlinestore.database.cloudant_online_store import \
 from watsononlinestore.watson_online_store import WatsonOnlineStore
 
 
-MISSING_ENV_VARS = "ERROR: Required environment variables are not set."
-
-
 class WatsonEnv:
 
     def __init__(self):
@@ -79,57 +76,41 @@ class WatsonEnv:
         slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
         conversation_username = os.environ.get("CONVERSATION_USERNAME")
         conversation_password = os.environ.get("CONVERSATION_PASSWORD")
+        conversation_url = os.environ.get("CONVERSATION_URL")
         cloudant_username = os.environ.get("CLOUDANT_USERNAME")
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
         cloudant_url = os.environ.get("CLOUDANT_URL")
-        cloudant_db_name = os.environ.get("CLOUDANT_DB_NAME")
+        cloudant_db_name = os.environ.get("CLOUDANT_DB_NAME") or 'watson_online_store'
         discovery_username = os.environ.get('DISCOVERY_USERNAME')
         discovery_password = os.environ.get('DISCOVERY_PASSWORD')
         discovery_url = os.environ.get('DISCOVERY_URL')
 
-        if not all((conversation_username,
-                    conversation_password,
-                    cloudant_username,
-                    cloudant_password,
-                    cloudant_url)):
-            # If some of the service env vars are not set get them from VCAP
-            vcap_env = None
+        # If the CLOUDANT_USERNAME env var was not set then use
+        # VCAP_SERVICES like a WatsonService would.
+        if not cloudant_username:
             vcap_services = os.environ.get("VCAP_SERVICES")
-            if vcap_services:
-                vcap_env = json.loads(vcap_services)
+            vcap_env = json.loads(vcap_services) if vcap_services else None
             if vcap_env:
-                conversation_creds = WatsonEnv.get_vcap_credentials(
-                    vcap_env, 'conversation')
-                conversation_username = \
-                    conversation_username or conversation_creds['username']
-                conversation_password = \
-                    conversation_password or conversation_creds['password']
-
                 cloudant_creds = WatsonEnv.get_vcap_credentials(
                     vcap_env, 'cloudantNoSQLDB')
-                cloudant_username = \
-                    cloudant_username or cloudant_creds['username']
-                cloudant_password = \
-                    cloudant_password or cloudant_creds['password']
-                cloudant_url = cloudant_url or cloudant_creds['url']
-
-        # If we still don't have all the above plus a few, then no WOS.
-        if not all((slack_bot_token,
-                    conversation_username,
-                    conversation_password,
-                    cloudant_username,
-                    cloudant_password,
-                    cloudant_url,
-                    cloudant_db_name)):
-
-            print(MISSING_ENV_VARS)
-            return None
+                if cloudant_creds:
+                    cloudant_url = cloudant_creds['url']  # overrides default
+                    if 'username' in cloudant_creds:
+                        cloudant_username = cloudant_creds['username']
+                    if 'password' in cloudant_creds:
+                        cloudant_password = cloudant_creds['password']
 
         # Instantiate Watson Assistant client.
-        conversation_client = ConversationV1(
-            username=conversation_username,
-            password=conversation_password,
-            version='2017-05-26')
+        # - only give a url if we have one (don't override the default)
+        conversation_kwargs = {
+            'version': '2017-05-26',
+            'username': conversation_username,
+            'password': conversation_password
+        }
+        if conversation_url:
+            conversation_kwargs['url'] = conversation_url
+
+        conversation_client = ConversationV1(**conversation_kwargs)
 
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
@@ -143,16 +124,22 @@ class WatsonEnv:
         )
 
         # Instantiate Watson Discovery client.
-        discovery_client = DiscoveryV1(
-            version='2017-09-01',
-            url=discovery_url,
-            username=discovery_username,
-            password=discovery_password)
+        # - only give a url if we have one (don't override the default)
+        discovery_kwargs = {
+            'version': '2017-09-01',
+            'username': discovery_username,
+            'password': discovery_password
+        }
+        if discovery_url:
+            discovery_kwargs['url'] = discovery_url
+
+        discovery_client = DiscoveryV1(**discovery_kwargs)
 
         # Instantiate Slack chatbot.
-        if 'placeholder' in slack_bot_token:
+        if not slack_bot_token or 'placeholder' in slack_bot_token:
             print("SLACK_BOT_TOKEN needs to be set correctly. "
-                  "It is currently set to 'placeholder'.")
+                  "It is currently set to '%s'." % slack_bot_token)
+            print("Only the web UI will be available.")
             slack_client = None
         else:
             slack_client = SlackClient(slack_bot_token)
