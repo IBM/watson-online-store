@@ -287,7 +287,7 @@ class WatsonOnlineStore:
             ibm_collection_name = "ibm-logo-store"
             # File path location to discovery html files
             amazon_data_path = "data/amazon_data_html/"
-            ibm_data_path = "data/ibm_store_html/"
+            ibm_data_path = "data/ibm_store/"
 
             collections = discovery_client.list_collections(
                 environment_id)['collections']
@@ -317,7 +317,7 @@ class WatsonOnlineStore:
                     collection_id = collection['collection_id']
                     for _, _, files in os.walk(path):
                         for fname in files:
-                            if fname.endswith('.html'):
+                            if fname.endswith('.html') or fname.endswith('.json'):
                                 with open(os.path.join(path, fname), 'r') as f:
                                     data = f.read()
                                 discovery_client.add_document(environment_id,
@@ -508,6 +508,10 @@ class WatsonOnlineStore:
         :returns: json dict from Watson
         :rtype: dict
         """
+        LOG.debug("self.workspace_id: " + self.workspace_id)
+        LOG.debug("message: " + message)
+        LOG.debug("context: {}".format(self.context))
+
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
             input={'text': message},
@@ -857,7 +861,7 @@ class WatsonOnlineStore:
 
                 message, channel, user = self.parse_slack_output(slack_output)
                 if message:
-                    LOG.debug("message:\n %s\n channel:\n %s\n" %
+                    LOG.debug("mXXXessage:\n %s\n channel:\n %s\n" %
                               (message, channel))
                 if message and channel and 'unfurl' not in message:
                     sender = SlackSender(self.slack_client, channel)
