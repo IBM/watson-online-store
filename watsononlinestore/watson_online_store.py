@@ -568,16 +568,8 @@ class WatsonOnlineStore:
                 # For IBM store data, the product name was placed in
                 # text of the page, in the format:
                 # "Product: <product name> "Category".
-                if 'text' in entry:
-                    product_tag = "Product:"
-                    category_tag = "Category:"
-                    text = entry['text']
-                    sidx = text.find(product_tag)
-                    if sidx > 0:
-                        sidx += len(product_tag)
-                        eidx = text.find(category_tag, sidx, len(text))
-                        if eidx > 0:
-                            product_name = text[sidx:eidx-1]
+                if 'title' in entry:
+                    product_name = entry['title']
 
             return product_name
 
@@ -591,10 +583,10 @@ class WatsonOnlineStore:
             """
             product_url = ""
 
-            if 'html' in entry:
-                html = entry['html']
 
-                if data_source == DISCOVERY_AMAZON_STORE:
+            if data_source == DISCOVERY_AMAZON_STORE:
+                if 'html' in entry:
+                    html = entry['html']
                     # For amazon data, the product URL is stored in an
                     # href tag located at the end of the html doc.
                     href_tag = "<a href="
@@ -605,20 +597,17 @@ class WatsonOnlineStore:
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-                elif data_source == DISCOVERY_IBM_STORE:
+
+
+            elif data_source == DISCOVERY_IBM_STORE:
+                if 'product_page' in entry:
                     # For IBM store data, the product URL requires a
                     # product ID. The product ID can be found by searching
                     # the html doc for "/ProductDetail.aspx?pid=<PID>".
                     # The product URL can then be built by appending
                     # this string to:
                     # ""http://www.logostore-globalid.us".
-                    url_start = "http://www.logostore-globalid.us"
-                    href_tag = "/ProductDetail.aspx?pid="
-                    sidx = html.find(href_tag)
-                    if sidx > 0:
-                        sidx += len(href_tag)
-                        product_id = html[sidx:sidx+6]
-                        product_url = url_start + href_tag + product_id
+                    product_url = entry['product_page']
 
             return product_url
 
@@ -639,18 +628,9 @@ class WatsonOnlineStore:
             elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the image url is located in the
                 # html page, and is specified with a "<a class='jqzoom'" tag.
-                if 'html' in entry:
-                    html = entry['html']
-                    img_tag = '<a class="jqzoom" href="'
-                    simg = html.find(img_tag)
-                    if simg > 0:
-                        simg += len(img_tag)
-                        eimg = html.find('"', simg)
-                        if eimg > 0:
-                            img = html[simg:eimg]
-                            # shrink the picture
-                            image_url = re.sub(
-                                r'scale\[[0-9]+\]', 'scale[50]', img)
+                if 'image_url' in entry:
+                    image_url = re.sub(
+                        r'scale\[[0-9]+\]', 'scale[50]', entry['image_url'])
 
             return image_url
 
@@ -706,6 +686,10 @@ class WatsonOnlineStore:
             query=input_text,
             count=DISCOVERY_QUERY_COUNT
         )
+
+        LOG.debug("DISCO RESPONCE!!!!:\n{}".format(discovery_response))
+        LOG.debug("DISCO RESPONCE RESULTS!!!!:\n{}".format(discovery_response['results']))
+
 
         # Watson discovery assigns a confidence level to each result.
         # Based on data mix, we can assign a minimum tolerance value in an
