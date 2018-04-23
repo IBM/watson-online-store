@@ -285,7 +285,7 @@ class WatsonOnlineStore:
             # Discovery collection names
             amazon_collection_name = "amazon-shopping"
             ibm_collection_name = "ibm-logo-store"
-            # File path location to discovery html files
+            # File path location to discovery files
             amazon_data_path = "data/amazon_data_html/"
             ibm_data_path = "data/ibm_store/"
 
@@ -299,7 +299,7 @@ class WatsonOnlineStore:
                     return environment_id, coll['collection_id']
 
         # Doesn't exist, so create it.
-        LOG.debug("Creating collection from html files...")
+        LOG.debug("Creating collection from data files...")
         try:
             if data_source == DISCOVERY_AMAZON_STORE:
                 name = amazon_collection_name
@@ -566,8 +566,7 @@ class WatsonOnlineStore:
                         product_name = metadata['title']
             elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the product name was placed in
-                # text of the page, in the format:
-                # "Product: <product name> "Category".
+                # in the 'title' field.
                 if 'title' in entry:
                     product_name = entry['title']
 
@@ -601,12 +600,8 @@ class WatsonOnlineStore:
 
             elif data_source == DISCOVERY_IBM_STORE:
                 if 'product_page' in entry:
-                    # For IBM store data, the product URL requires a
-                    # product ID. The product ID can be found by searching
-                    # the html doc for "/ProductDetail.aspx?pid=<PID>".
-                    # The product URL can then be built by appending
-                    # this string to:
-                    # ""http://www.logostore-globalid.us".
+                    # For IBM store data, the product URL is located in the
+                    # 'product_page' field.
                     product_url = entry['product_page']
 
             return product_url
@@ -627,7 +622,7 @@ class WatsonOnlineStore:
                 return get_product_url(entry)
             elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the image url is located in the
-                # html page, and is specified with a "<a class='jqzoom'" tag.
+                # 'image_url' field.
                 if 'image_url' in entry:
                     image_url = re.sub(
                         r'scale\[[0-9]+\]', 'scale[50]', entry['image_url'])
@@ -686,10 +681,6 @@ class WatsonOnlineStore:
             query=input_text,
             count=DISCOVERY_QUERY_COUNT
         )
-
-        LOG.debug("DISCO RESPONCE!!!!:\n{}".format(discovery_response))
-        LOG.debug("DISCO RESPONCE RESULTS!!!!:\n{}".format(discovery_response['results']))
-
 
         # Watson discovery assigns a confidence level to each result.
         # Based on data mix, we can assign a minimum tolerance value in an
