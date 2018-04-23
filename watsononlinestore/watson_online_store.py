@@ -509,10 +509,6 @@ class WatsonOnlineStore:
         :returns: json dict from Watson
         :rtype: dict
         """
-        LOG.debug("self.workspace_id: " + self.workspace_id)
-        LOG.debug("message: " + message)
-        LOG.debug("context: {}".format(self.context))
-
         response = self.conversation_client.message(
             workspace_id=self.workspace_id,
             input={'text': message},
@@ -835,7 +831,7 @@ class WatsonOnlineStore:
 
                 message, channel, user = self.parse_slack_output(slack_output)
                 if message:
-                    LOG.debug("mXXXessage:\n %s\n channel:\n %s\n" %
+                    LOG.debug("message:\n %s\n channel:\n %s\n" %
                               (message, channel))
                 if message and channel and 'unfurl' not in message:
                     sender = SlackSender(self.slack_client, channel)
