@@ -317,7 +317,8 @@ class WatsonOnlineStore:
                     collection_id = collection['collection_id']
                     for _, _, files in os.walk(path):
                         for fname in files:
-                            if fname.endswith('.html') or fname.endswith('.json'):
+                            if fname.endswith('.html') or \
+                                    fname.endswith('.json'):
                                 with open(os.path.join(path, fname), 'r') as f:
                                     data = f.read()
                                 discovery_client.add_document(environment_id,
@@ -582,7 +583,6 @@ class WatsonOnlineStore:
             """
             product_url = ""
 
-
             if data_source == DISCOVERY_AMAZON_STORE:
                 if 'html' in entry:
                     html = entry['html']
@@ -596,7 +596,6 @@ class WatsonOnlineStore:
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-
 
             elif data_source == DISCOVERY_IBM_STORE:
                 if 'product_page' in entry:
