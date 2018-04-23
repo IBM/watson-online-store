@@ -328,8 +328,12 @@ class WOSTestCase(unittest.TestCase):
 
     def test_format_ibm_store_output(self):
         ibm_product_name = "IBM Shirt"
-        ibm_product_url = "https://logostore-globalid.us/ProductDetail.aspx?pid=240207"
-        ibm_image_url = "https://lf.staplespromotionalproducts.com/lf?set=scale[50],env[live],output_format[png],sku_number[200314539],sku_dir[200314],view_code[D]%26call=url[file:san/com/sku.chain]"
+        ibm_product_url = ("https://logostore-globalid.us/" +
+                           "ProductDetail.aspx?pid=240207")
+        ibm_image_url = ("https://lf.staplespromotionalproducts.com/" +
+                         "lf?set=scale[50],env[live],output_format[png]," +
+                         "sku_number[200314539],sku_dir[200314]," +
+                         "view_code[D]%26call=url[file:san/com/sku.chain]")
         ibm_expected_response = [{
             'cart_number': "1",
             'name': ibm_product_name,
@@ -343,8 +347,12 @@ class WOSTestCase(unittest.TestCase):
         # Note: use "XXX" to simulate that these tags are not at [0]
         ibm_results = [{
             'title': "IBM Shirt",
-            'product_page': "https://logostore-globalid.us/ProductDetail.aspx?pid=240207",
-            'image_url': "https://lf.staplespromotionalproducts.com/lf?set=scale[50],env[live],output_format[png],sku_number[200314539],sku_dir[200314],view_code[D]%26call=url[file:san/com/sku.chain]"
+            'product_page': ("https://logostore-globalid.us/" +
+                             "ProductDetail.aspx?pid=240207"),
+            'image_url': ("https://lf.staplespromotionalproducts.com/" +
+                          "lf?set=scale[50],env[live],output_format[png]," +
+                          "sku_number[200314539],sku_dir[200314]," +
+                          "view_code[D]%26call=url[file:san/com/sku.chain]")
         }, ]
         ibm_response = {'results': ibm_results}
         output = wos.format_discovery_response(ibm_response, "IBM_STORE")
