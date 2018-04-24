@@ -328,16 +328,16 @@ class WOSTestCase(unittest.TestCase):
 
     def test_format_ibm_store_output(self):
         ibm_product_name = "IBM Shirt"
-        ibm_product_id = "012345"
-        ibm_image_tag = '<a class="jqzoom" href="'
-        ibm_image_url = 'https://www.test.xxx/scale[50]'
-        ibm_product_tag = "/ProductDetail.aspx?pid="
-        ibm_product_url = ("http://www.logostore-globalid.us" +
-                           ibm_product_tag)
+        ibm_product_url = ("https://logostore-globalid.us/" +
+                           "ProductDetail.aspx?pid=240207")
+        ibm_image_url = ("https://lf.staplespromotionalproducts.com/" +
+                         "lf?set=scale[50],env[live],output_format[png]," +
+                         "sku_number[200314539],sku_dir[200314]," +
+                         "view_code[D]%26call=url[file:san/com/sku.chain]")
         ibm_expected_response = [{
             'cart_number': "1",
             'name': ibm_product_name,
-            'url': ibm_product_url + ibm_product_id,
+            'url': ibm_product_url,
             'image': ibm_image_url
         }, ]
 
@@ -346,9 +346,13 @@ class WOSTestCase(unittest.TestCase):
         # Test IBM Store formatting.
         # Note: use "XXX" to simulate that these tags are not at [0]
         ibm_results = [{
-            'text': "XXXProduct:" + ibm_product_name + " Category:",
-            'html': ("XXX" + ibm_product_tag + ibm_product_id +
-                     ibm_image_tag + ibm_image_url + '"')
+            'title': "IBM Shirt",
+            'product_page': ("https://logostore-globalid.us/" +
+                             "ProductDetail.aspx?pid=240207"),
+            'image_url': ("https://lf.staplespromotionalproducts.com/" +
+                          "lf?set=scale[50],env[live],output_format[png]," +
+                          "sku_number[200314539],sku_dir[200314]," +
+                          "view_code[D]%26call=url[file:san/com/sku.chain]")
         }, ]
         ibm_response = {'results': ibm_results}
         output = wos.format_discovery_response(ibm_response, "IBM_STORE")

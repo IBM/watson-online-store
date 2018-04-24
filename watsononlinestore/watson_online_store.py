@@ -285,9 +285,9 @@ class WatsonOnlineStore:
             # Discovery collection names
             amazon_collection_name = "amazon-shopping"
             ibm_collection_name = "ibm-logo-store"
-            # File path location to discovery html files
+            # File path location to discovery files
             amazon_data_path = "data/amazon_data_html/"
-            ibm_data_path = "data/ibm_store_html/"
+            ibm_data_path = "data/ibm_store/"
 
             collections = discovery_client.list_collections(
                 environment_id)['collections']
@@ -299,7 +299,7 @@ class WatsonOnlineStore:
                     return environment_id, coll['collection_id']
 
         # Doesn't exist, so create it.
-        LOG.debug("Creating collection from html files...")
+        LOG.debug("Creating collection from data files...")
         try:
             if data_source == DISCOVERY_AMAZON_STORE:
                 name = amazon_collection_name
@@ -317,7 +317,8 @@ class WatsonOnlineStore:
                     collection_id = collection['collection_id']
                     for _, _, files in os.walk(path):
                         for fname in files:
-                            if fname.endswith('.html'):
+                            if fname.endswith('.html') or \
+                                    fname.endswith('.json'):
                                 with open(os.path.join(path, fname), 'r') as f:
                                     data = f.read()
                                 discovery_client.add_document(environment_id,
@@ -562,18 +563,9 @@ class WatsonOnlineStore:
                         product_name = metadata['title']
             elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the product name was placed in
-                # text of the page, in the format:
-                # "Product: <product name> "Category".
-                if 'text' in entry:
-                    product_tag = "Product:"
-                    category_tag = "Category:"
-                    text = entry['text']
-                    sidx = text.find(product_tag)
-                    if sidx > 0:
-                        sidx += len(product_tag)
-                        eidx = text.find(category_tag, sidx, len(text))
-                        if eidx > 0:
-                            product_name = text[sidx:eidx-1]
+                # in the 'title' field.
+                if 'title' in entry:
+                    product_name = entry['title']
 
             return product_name
 
@@ -587,10 +579,9 @@ class WatsonOnlineStore:
             """
             product_url = ""
 
-            if 'html' in entry:
-                html = entry['html']
-
-                if data_source == DISCOVERY_AMAZON_STORE:
+            if data_source == DISCOVERY_AMAZON_STORE:
+                if 'html' in entry:
+                    html = entry['html']
                     # For amazon data, the product URL is stored in an
                     # href tag located at the end of the html doc.
                     href_tag = "<a href="
@@ -601,20 +592,12 @@ class WatsonOnlineStore:
                         eidx = html.find('>', sidx, len(html))
                         if eidx > 0:
                             product_url = html[sidx+1:eidx-1]
-                elif data_source == DISCOVERY_IBM_STORE:
-                    # For IBM store data, the product URL requires a
-                    # product ID. The product ID can be found by searching
-                    # the html doc for "/ProductDetail.aspx?pid=<PID>".
-                    # The product URL can then be built by appending
-                    # this string to:
-                    # ""http://www.logostore-globalid.us".
-                    url_start = "http://www.logostore-globalid.us"
-                    href_tag = "/ProductDetail.aspx?pid="
-                    sidx = html.find(href_tag)
-                    if sidx > 0:
-                        sidx += len(href_tag)
-                        product_id = html[sidx:sidx+6]
-                        product_url = url_start + href_tag + product_id
+
+            elif data_source == DISCOVERY_IBM_STORE:
+                if 'product_page' in entry:
+                    # For IBM store data, the product URL is located in the
+                    # 'product_page' field.
+                    product_url = entry['product_page']
 
             return product_url
 
@@ -634,19 +617,10 @@ class WatsonOnlineStore:
                 return get_product_url(entry)
             elif data_source == DISCOVERY_IBM_STORE:
                 # For IBM store data, the image url is located in the
-                # html page, and is specified with a "<a class='jqzoom'" tag.
-                if 'html' in entry:
-                    html = entry['html']
-                    img_tag = '<a class="jqzoom" href="'
-                    simg = html.find(img_tag)
-                    if simg > 0:
-                        simg += len(img_tag)
-                        eimg = html.find('"', simg)
-                        if eimg > 0:
-                            img = html[simg:eimg]
-                            # shrink the picture
-                            image_url = re.sub(
-                                r'scale\[[0-9]+\]', 'scale[50]', img)
+                # 'image_url' field.
+                if 'image_url' in entry:
+                    image_url = re.sub(
+                        r'scale\[[0-9]+\]', 'scale[50]', entry['image_url'])
 
             return image_url
 

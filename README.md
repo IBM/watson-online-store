@@ -71,7 +71,7 @@ Clone the `watson-online-store` locally. In a terminal, run:
   `$ git clone https://github.com/ibm/watson-online-store`
 
 We’ll be using the file [`data/workspace.json`](data/workspace.json) and the folder
-[`data/ibm_store_html/`](data/ibm_store_html)
+[`data/ibm_store/`](data/ibm_store)
 
 ### 2. Create IBM Cloud services
 
@@ -154,7 +154,7 @@ collection a unique name.
   <img width="400" height="300" src="doc/source/images/name_discovery.png">
 </p>
 
-Seed the content by using either `Drag and drop your documents here` or `browse from your computer`. Choose the HTML files under [`data/ibm_store_html/`](data/ibm_store_html).
+Seed the content by using either `Drag and drop your documents here` or `browse from your computer`. Choose the JSON files under [`data/ibm_store/`](data/ibm_store).
 
 Under the `Overview` tab, `Collection Info` section, click `Use this collection in API` and copy the `Collection ID` and the `Environment ID` into your `.env` file as `DISCOVERY_COLLECTION_ID` and `DISCOVERY_ENVIRONMENT_ID`.
 
