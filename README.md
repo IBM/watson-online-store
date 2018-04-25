@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
-![IBM Cloud Deployments](https://metrics-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/badge.svg)
 
 # Creating a Retail Chatbot using Watson Assistant, Discovery and Database Services
 
@@ -50,7 +49,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 ## Deploy to IBM Cloud
 
-[![Deploy to IBM Cloud](https://metrics-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store)
+[![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store)
 
 > You can use the ``View app`` button to use a simple web UI to chat. For the Slack integration, use your Slack UI to chat after completing the additional [slack configuration](#6-configure-slack). Use the IBM Cloud dashboard to find and manage the app.
 
@@ -248,36 +247,6 @@ This is expected. The color for logging in IBM Cloud will be red, regardless of 
 nature of the message. The log levels are set to `Debug` to assist the developer
 in seeing how the code is executing. This can be changed to ``logging.WARN`` or
 ``logging.ERROR`` in the [python code](https://github.com/IBM/watson-online-store/blob/master/watsononlinestore/watson_online_store.py#L22).
-
-# Privacy Notice
-
-If using the Deploy to IBM Cloud button some metrics are tracked, the following
-information is sent to
-[Metrics collector](https://github.com/IBM/metrics-collector-service) service on each deployment:
-
-* Python package version
-* Python repository URL
-* Application Name (application_name)
-* Application GUID (application_id)
-* Application instance index number (instance_index)
-* Space ID (space_id)
-* Application Version (application_version)
-* Application URIs (application_uris)
-* Cloud Foundry API (cf_api)
-* Labels of bound services
-* Number of instances for each bound service and associated plan information
-
-This data is collected from the `setup.py` and `repository.yaml` file in the sample application and the ``VCAP_APPLICATION``
-and ``VCAP_SERVICES`` environment variables in IBM Cloud and other Cloud Foundry platforms. This
-data is used by IBM to track metrics around deployments of sample applications to IBM Cloud to
-measure the usefulness of our examples, so that we can continuously improve the content we offer
-to you. Only deployments of sample applications that include code to ping the Deployment Tracker
-service will be tracked.
-
-## Disabling Deployment Tracking
-
-To disable tracking, simply remove ``cf_deployment_tracker.track()`` and ``metrics_tracker_client.track()`` from the
-``run.py`` file in the top level directory.
 
 # Links
 * [Demo on Youtube](https://youtu.be/b-94B3O1czU)

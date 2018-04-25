@@ -15,7 +15,6 @@
 import json
 import os
 
-import metrics_tracker_client
 from cloudant.client import Cloudant
 from dotenv import load_dotenv
 from slackclient import SlackClient
@@ -161,7 +160,6 @@ class WatsonEnv:
 
 
 if __name__ == "__main__":
-    metrics_tracker_client.track()
 
     watsononlinestore = WatsonEnv.get_watson_online_store()
 
