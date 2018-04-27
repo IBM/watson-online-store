@@ -1,9 +1,0 @@
-id: watson-online-store
-event_id: web
-event_organizer: dev-journeys
-runtimes: 
-  - Cloud Foundry
-services: 
-  - Conversation
-  - Discovery
-  - Cloudant NoSQL DB
