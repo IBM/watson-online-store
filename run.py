@@ -18,7 +18,7 @@ import os
 from cloudant.client import Cloudant
 from dotenv import load_dotenv
 from slackclient import SlackClient
-from watson_developer_cloud import ConversationV1
+from watson_developer_cloud import AssistantV1
 from watson_developer_cloud import DiscoveryV1
 
 from watsononlinestore.database.cloudant_online_store import \
@@ -34,9 +34,9 @@ class WatsonEnv:
     @staticmethod
     def get_vcap_credentials(vcap_env, service):
         if service in vcap_env:
-            vcap_conversation = vcap_env[service]
-            if isinstance(vcap_conversation, list):
-                first = vcap_conversation[0]
+            vcap_instance_list = vcap_env[service]
+            if isinstance(vcap_instance_list, list):
+                first = vcap_instance_list[0]
                 if 'credentials' in first:
                     return first['credentials']
 
@@ -73,9 +73,10 @@ class WatsonEnv:
         # Use these env vars first if set
         bot_id = os.environ.get("BOT_ID")
         slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
-        conversation_username = os.environ.get("CONVERSATION_USERNAME")
-        conversation_password = os.environ.get("CONVERSATION_PASSWORD")
-        conversation_url = os.environ.get("CONVERSATION_URL")
+        assistant_username = os.environ.get("ASSISTANT_USERNAME")
+        assistant_password = os.environ.get("ASSISTANT_PASSWORD")
+        assistant_iam_apikey = os.environ.get("ASSISTANT_IAM_APIKEY")
+        assistant_url = os.environ.get("ASSISTANT_URL")
         cloudant_username = os.environ.get("CLOUDANT_USERNAME")
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
         cloudant_url = os.environ.get("CLOUDANT_URL")
@@ -102,15 +103,16 @@ class WatsonEnv:
 
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
-        conversation_kwargs = {
+        assistant_kwargs = {
             'version': '2017-05-26',
-            'username': conversation_username,
-            'password': conversation_password
+            'username': assistant_username,
+            'password': assistant_password,
+            'iam_api_key': assistant_iam_apikey
         }
-        if conversation_url:
-            conversation_kwargs['url'] = conversation_url
+        if assistant_url:
+            assistant_kwargs['url'] = assistant_url
 
-        conversation_client = ConversationV1(**conversation_kwargs)
+        assistant_client = AssistantV1(**assistant_kwargs)
 
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
@@ -153,7 +155,7 @@ class WatsonEnv:
         # Start Watson Online Store app.
         watsononlinestore = WatsonOnlineStore(bot_id,
                                               slack_client,
-                                              conversation_client,
+                                              assistant_client,
                                               discovery_client,
                                               cloudant_online_store)
         return watsononlinestore

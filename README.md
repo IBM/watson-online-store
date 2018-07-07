@@ -91,13 +91,19 @@ username and password:
 </p>
 
 Copy the ``watson-online-store/env.sample`` file to ``watson-online-store/.env`` and populate the service
-credentials (and Cloudant URL) as you create the credentials:
+credentials and URLs as you create the credentials:
 
 ```
-# Watson conversation
-CONVERSATION_USERNAME=<add_conversation_username>
-CONVERSATION_PASSWORD=<add_conversation_password>
-WORKSPACE_ID=<add_conversation_workspace>
+# Copy this file to .env and replace the credentials with 
+# your own before running run.py.
+
+# Watson Assistant
+WORKSPACE_ID=<add_assistant_workspace>
+ASSISTANT_URL=<add_assistant_url>
+## Un-comment and use either username+password or IAM apikey.
+# ASSISTANT_USERNAME=<add_assistant_username>
+# ASSISTANT_PASSWORD=<add_assistant_password>
+# ASSISTANT_IAM_APIKEY=<add_assistant_apikey>
 
 # Cloudant DB
 CLOUDANT_USERNAME=<add_cloudant_username>
