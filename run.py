@@ -77,6 +77,17 @@ class WatsonEnv:
         assistant_password = os.environ.get("ASSISTANT_PASSWORD")
         assistant_iam_apikey = os.environ.get("ASSISTANT_IAM_APIKEY")
         assistant_url = os.environ.get("ASSISTANT_URL")
+        if not assistant_url:
+            # Direct access to VCAP to workaround SDK problems
+            vcap_services = os.environ.get("VCAP_SERVICES")
+            vcap_env = json.loads(vcap_services) if vcap_services else None
+            if vcap_env:
+                assistant_creds = WatsonEnv.get_vcap_credentials(
+                    vcap_env, 'conversation')
+                if assistant_creds:
+                    assistant_url = assistant_creds['url']  # overrides default
+                    assistant_iam_apikey = assistant_iam_apikey or assistant_creds['apikey']
+
         cloudant_username = os.environ.get("CLOUDANT_USERNAME")
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
         cloudant_url = os.environ.get("CLOUDANT_URL")
@@ -104,7 +115,7 @@ class WatsonEnv:
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
         assistant_kwargs = {
-            'version': '2017-05-26',
+            'version': '2018-07-06',
             'username': assistant_username,
             'password': assistant_password,
             'iam_api_key': assistant_iam_apikey
