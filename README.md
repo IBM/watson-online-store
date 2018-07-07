@@ -90,7 +90,7 @@ username and password:
   <img width="500" height="350" src="doc/source/images/credentials2.png">
 </p>
 
-Move the ``watson-online-store/env.sample`` file to ``/.env`` and populate the service
+Copy the ``watson-online-store/env.sample`` file to ``watson-online-store/.env`` and populate the service
 credentials (and Cloudant URL) as you create the credentials:
 
 ```
