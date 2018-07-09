@@ -86,7 +86,8 @@ class WatsonEnv:
                     vcap_env, 'conversation')
                 if assistant_creds:
                     assistant_url = assistant_creds['url']  # overrides default
-                    assistant_iam_apikey = assistant_iam_apikey or assistant_creds['apikey']
+                    assistant_iam_apikey = (assistant_iam_apikey
+                                            or assistant_creds['apikey'])
 
         cloudant_username = os.environ.get("CLOUDANT_USERNAME")
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
