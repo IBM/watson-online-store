@@ -1,4 +1,7 @@
 declared-services:
+  wos-conversation-service:
+    label: conversation
+    plan: free
   wos-cloudantNoSQLDB-service:
     label: cloudantNoSQLDB
     plan: Lite
@@ -7,6 +10,7 @@ declared-services:
     plan: lite
 applications:
 - services:
+   - wos-conversation-service
    - wos-cloudantNoSQLDB-service
    - wos-discovery-service
   path: .
