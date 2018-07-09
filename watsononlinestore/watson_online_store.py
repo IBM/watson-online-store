@@ -93,7 +93,7 @@ class OnlineStoreCustomer:
 
 class WatsonOnlineStore:
     def __init__(self, bot_id, slack_client,
-                 conversation_client, discovery_client,
+                 assistant_client, discovery_client,
                  cloudant_online_store):
 
         # specific for Slack as UI
@@ -102,9 +102,9 @@ class WatsonOnlineStore:
         self.at_bot = "<@" + self.bot_id + ">"
 
         # IBM Watson Assistant
-        self.conversation_client = conversation_client
-        self.workspace_id = self.setup_conversation_workspace(
-            conversation_client, os.environ)
+        self.assistant_client = assistant_client
+        self.workspace_id = self.setup_assistant_workspace(
+            assistant_client, os.environ)
 
         # IBM Cloudant noSQL database
         self.cloudant_online_store = cloudant_online_store
@@ -134,14 +134,14 @@ class WatsonOnlineStore:
         self.customer = None
         self.response_tuple = None
         self.delay = 0.5  # second
-        response = self.conversation_client.message(
+        response = self.assistant_client.message(
             workspace_id=self.workspace_id,
             context=None)
         self.context = self.context_merge(self.context, response['context'])
 
     @staticmethod
-    def setup_conversation_workspace(conversation_client, environ):
-        """Verify and/or initialize the assistant workspace.
+    def setup_assistant_workspace(assistant_client, environ):
+        """Verify and/or initialize the Assistant workspace.
 
         If a WORKSPACE_ID is specified in the runtime environment,
         make sure that workspace exists. If no WORKSTATION_ID is
@@ -154,7 +154,7 @@ class WatsonOnlineStore:
         name as mentioned above so future lookup will find what
         was created.
 
-        :param conversation_client: Assistant service client
+        :param assistant_client: Assistant service client
         :param object environ: runtime environment variables
         :return: ID of Assistant workspace to use
         :rtype: str
@@ -162,7 +162,7 @@ class WatsonOnlineStore:
         """
 
         # Get the actual workspaces
-        workspaces = conversation_client.list_workspaces()['workspaces']
+        workspaces = assistant_client.list_workspaces()['workspaces']
 
         env_workspace_id = environ.get('WORKSPACE_ID')
         if env_workspace_id:
@@ -190,9 +190,9 @@ class WatsonOnlineStore:
                 # Not found, so create it.
                 LOG.debug("Creating workspace from data/workspace.json...")
                 workspace = WatsonOnlineStore.get_workspace_json()
-                created = conversation_client.create_workspace(
+                created = assistant_client.create_workspace(
                     name,
-                    "Conversation workspace created by watson-online-store.",
+                    "Assistant workspace created by watson-online-store.",
                     workspace['language'],
                     intents=workspace['intents'],
                     entities=workspace['entities'],
@@ -509,7 +509,7 @@ class WatsonOnlineStore:
         :returns: json dict from Watson
         :rtype: dict
         """
-        response = self.conversation_client.message(
+        response = self.assistant_client.message(
             workspace_id=self.workspace_id,
             input={'text': message},
             context=self.context)
