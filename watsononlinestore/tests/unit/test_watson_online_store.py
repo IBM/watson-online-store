@@ -192,8 +192,8 @@ class WOSTestCase(unittest.TestCase):
                             'name': 'watson-online-store'}]})
 
         wos = watson_online_store.WatsonOnlineStore
-        actual = wos.setup_conversation_workspace(self.conv_client,
-                                                  test_environ)
+        actual = wos.setup_assistant_workspace(self.conv_client,
+                                               test_environ)
 
         self.conv_client.list_workspaces.assert_called_once()
         self.assertEqual(expected_workspace_id, actual)
@@ -207,8 +207,8 @@ class WOSTestCase(unittest.TestCase):
                             'name': test_environ['WORKSPACE_NAME']}]})
 
         wos = watson_online_store.WatsonOnlineStore
-        actual = wos.setup_conversation_workspace(self.conv_client,
-                                                  test_environ)
+        actual = wos.setup_assistant_workspace(self.conv_client,
+                                               test_environ)
 
         self.conv_client.list_workspaces.assert_called_once()
         self.assertEqual(expected_workspace_id, actual)
@@ -222,7 +222,7 @@ class WOSTestCase(unittest.TestCase):
                             'name': 'foo'}]})
 
         wos = watson_online_store.WatsonOnlineStore
-        actual = wos.setup_conversation_workspace(
+        actual = wos.setup_assistant_workspace(
             self.conv_client, test_environ)
 
         self.conv_client.list_workspaces.assert_called_once()
@@ -237,7 +237,7 @@ class WOSTestCase(unittest.TestCase):
 
         wos = watson_online_store.WatsonOnlineStore
         self.assertRaises(Exception,
-                          wos.setup_conversation_workspace,
+                          wos.setup_assistant_workspace,
                           self.conv_client,
                           test_environ)
 
@@ -262,13 +262,13 @@ class WOSTestCase(unittest.TestCase):
         }
         wos.get_workspace_json = mock.Mock(return_value=ws_json)
 
-        actual = wos.setup_conversation_workspace(
+        actual = wos.setup_assistant_workspace(
             self.conv_client, test_environ)
 
         self.conv_client.list_workspaces.assert_called_once()
         self.conv_client.create_workspace.assert_called_once_with(
             expected_workspace_name,
-            'Conversation workspace created by watson-online-store.',
+            'Assistant workspace created by watson-online-store.',
             ws_json['language'],
             intents=ws_json['intents'],
             entities=ws_json['entities'],

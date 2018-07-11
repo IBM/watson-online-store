@@ -3,5 +3,5 @@ Flask>=0.12
 Flask_SocketIO>=2.8.5
 python-dotenv==0.5.1
 slackclient==1.0.5
-watson-developer-cloud>=1.0.0
+watson-developer-cloud>=1.4.1
 websocket-client==0.35.0
