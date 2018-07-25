@@ -99,7 +99,6 @@ class WatsonEnv:
         discovery_url = os.environ.get('DISCOVERY_URL')
         discovery_iam_apikey = os.environ.get("DISCOVERY_IAM_APIKEY")
 
-
         # If the CLOUDANT_USERNAME env var was not set then use
         # VCAP_SERVICES like a WatsonService would.
         if not cloudant_username:
