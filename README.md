@@ -112,11 +112,13 @@ CLOUDANT_DB_NAME=watson_online_store
 CLOUDANT_URL=<add_cloudant_url>
 
 # Watson Discovery
-DISCOVERY_USERNAME=<add_discovery_username>
-DISCOVERY_PASSWORD=<add_discovery_password>
 DISCOVERY_URL=<add_discovery_url>
 DISCOVERY_ENVIRONMENT_ID=<add_discovery_environment>
 DISCOVERY_COLLECTION_ID=<add_discovery_collection>
+## Un-comment and use either username+password or IAM apikey.
+# DISCOVERY_USERNAME=<add_discovery_username>
+# DISCOVERY_PASSWORD=<add_discovery_password>
+# DISCOVERY_IAM_APIKEY=<add_discovery_apikey>
 
 # Slack
 SLACK_BOT_TOKEN=<add_slack_bot_token>
