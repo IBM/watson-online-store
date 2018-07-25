@@ -97,6 +97,7 @@ class WatsonEnv:
         discovery_username = os.environ.get('DISCOVERY_USERNAME')
         discovery_password = os.environ.get('DISCOVERY_PASSWORD')
         discovery_url = os.environ.get('DISCOVERY_URL')
+        discovery_iam_apikey = os.environ.get("DISCOVERY_IAM_APIKEY")
 
         # If the CLOUDANT_USERNAME env var was not set then use
         # VCAP_SERVICES like a WatsonService would.
@@ -142,7 +143,9 @@ class WatsonEnv:
         discovery_kwargs = {
             'version': '2017-09-01',
             'username': discovery_username,
-            'password': discovery_password
+            'password': discovery_password,
+            'iam_api_key': discovery_iam_apikey
+
         }
         if discovery_url:
             discovery_kwargs['url'] = discovery_url
