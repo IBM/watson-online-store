@@ -87,7 +87,7 @@ class WatsonEnv:
                 if assistant_creds:
                     assistant_url = assistant_creds['url']  # overrides default
                     assistant_iam_apikey = (assistant_iam_apikey
-                                            or assistant_creds['apikey'])
+                                            or assistant_creds.get('apikey'))
 
         cloudant_username = os.environ.get("CLOUDANT_USERNAME")
         cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
