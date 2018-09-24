@@ -117,10 +117,10 @@ class WatsonEnv:
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
         assistant_kwargs = {
-            'version': '2018-07-06',
+            'version': '2018-07-10',
             'username': assistant_username,
             'password': assistant_password,
-            'iam_api_key': assistant_iam_apikey
+            'iam_apikey': assistant_iam_apikey
         }
         if assistant_url:
             assistant_kwargs['url'] = assistant_url
