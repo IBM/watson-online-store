@@ -2,7 +2,7 @@
 
 # Creating a Retail Chatbot using Watson Assistant, Discovery and Database Services
 
-*Read this in other languages: [English](README.md), [한국어](README_ko.md)*
+*Read this in other languages: [한국어](README_ko.md)*
 
 > Watson Conversation is now Watson Assistant. Although some images in this code pattern may show the service as Watson Conversation, the steps and processes will still work.
 
