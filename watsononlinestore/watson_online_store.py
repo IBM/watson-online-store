@@ -136,7 +136,7 @@ class WatsonOnlineStore:
         self.delay = 0.5  # second
         response = self.assistant_client.message(
             workspace_id=self.workspace_id,
-            context=None)
+            context=None).get_result()
         self.context = self.context_merge(self.context, response['context'])
 
     @staticmethod
@@ -162,7 +162,8 @@ class WatsonOnlineStore:
         """
 
         # Get the actual workspaces
-        workspaces = assistant_client.list_workspaces()['workspaces']
+        workspaces = assistant_client.list_workspaces().get_result()[
+            'workspaces']
 
         env_workspace_id = environ.get('WORKSPACE_ID')
         if env_workspace_id:
@@ -198,7 +199,7 @@ class WatsonOnlineStore:
                     entities=workspace['entities'],
                     dialog_nodes=workspace['dialog_nodes'],
                     counterexamples=workspace['counterexamples'],
-                    metadata=workspace['metadata'])
+                    metadata=workspace['metadata']).get_result()
                 ret = created['workspace_id']
                 LOG.debug("Created WORKSPACE_ID=%(id)s with "
                           "name=%(name)s" % {'id': ret, 'name': name})
@@ -233,7 +234,7 @@ class WatsonOnlineStore:
             name = environ.get('DISCOVERY_ENVIRONMENT_NAME',
                                'watson-online-store')
 
-            environments = discovery_client.list_environments()
+            environments = discovery_client.list_environments().get_result()
 
             for environment in environments['environments']:
                 if environment['name'] == name:
@@ -257,8 +258,7 @@ class WatsonOnlineStore:
                     created = discovery_client.create_environment(
                         name,
                         "Discovery environment created by "
-                        "watson-online-store.",
-                        size=0)
+                        "watson-online-store.").get_result()
                     environment_id = created['environment_id']
                     LOG.debug("Created DISCOVERY_ENVIRONMENT_ID=%(id)s with "
                               "name=%(name)s" %
@@ -290,7 +290,7 @@ class WatsonOnlineStore:
             ibm_data_path = "data/ibm_store/"
 
             collections = discovery_client.list_collections(
-                environment_id)['collections']
+                environment_id).get_result()['collections']
             for coll in collections:
                 if ((data_source == DISCOVERY_AMAZON_STORE and
                         coll['name'] == amazon_collection_name) or
@@ -310,7 +310,7 @@ class WatsonOnlineStore:
             if name:
                 collection = discovery_client.create_collection(
                     environment_id,
-                    name)
+                    name).get_result()
 
                 # Add documents to collection
                 if collection:
@@ -675,7 +675,7 @@ class WatsonOnlineStore:
             collection_id=self.discovery_collection_id,
             query=input_text,
             count=DISCOVERY_QUERY_COUNT
-        )
+        ).get_result()
 
         # Watson discovery assigns a confidence level to each result.
         # Based on data mix, we can assign a minimum tolerance value in an
@@ -772,7 +772,7 @@ class WatsonOnlineStore:
         :rtype: Bool
         """
 
-        watson_response = self.get_watson_response(message)
+        watson_response = self.get_watson_response(message).get_result()
         LOG.debug("watson_response:\n{}\n".format(watson_response))
         if 'context' in watson_response:
             self.context = watson_response['context']

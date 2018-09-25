@@ -13,35 +13,39 @@ class WOSTestCase(unittest.TestCase):
     def setUp(self):
         mock.Mock(watson_online_store.os.environ, return_value={})
         self.slack_client = mock.Mock()
-        self.conv_client = mock.MagicMock()
+        self.assistant_client = mock.MagicMock()
         self.watson_online_store = mock.Mock()
         self.fake_workspace_id = 'fake workspace id'
-        self.conv_client.list_workspaces.return_value = {
-            'workspaces': [{'workspace_id': self.fake_workspace_id,
-                            'name': 'watson-online-store'}]}
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.return_value = {
+                'workspaces': [{'workspace_id': self.fake_workspace_id,
+                                'name': 'watson-online-store'}]}
         self.cloudant_store = mock.Mock()
-        self.discovery_client = mock.Mock()
+        self.discovery_client = mock.MagicMock()
         self.fake_data_source = 'IBM_STORE'
         self.fake_environment_id = 'fake env id'
         self.fake_collection_id = "fake collection id"
-        self.discovery_client.get_environment.return_value = {
-            'environment_id': self.fake_environment_id}
-        self.discovery_client.list_environments.return_value = {
-            'environments': [{'environment_id': self.fake_environment_id,
-                              'read_only': False,
-                              'name': 'ibm-logo-store'}]}
-        self.discovery_client.get_collection.return_value = {
+        self.discovery_client.get_environment.return_value.\
+            get_result.return_value = {
+                'environment_id': self.fake_environment_id}
+        self.discovery_client.list_environments.return_value.\
+            get_result.return_value = {
+                'environments': [{'environment_id': self.fake_environment_id,
+                                  'read_only': False,
+                                  'name': 'ibm-logo-store'}]}
+        self.discovery_client.get_collection.get_result.return_value = {
             'collection_id': self.fake_collection_id}
-        self.discovery_client.list_collections.return_value = {
-            'collections': [{'collection_id': self.fake_collection_id,
-                             'name': 'ibm-logo-store'}]}
+        self.discovery_client.list_collections.return_value.\
+            get_result.return_value = {
+                'collections': [{'collection_id': self.fake_collection_id,
+                                 'name': 'ibm-logo-store'}]}
 
         self.watson_online_store.context_merge = message_json.message
 
         self.wos = watson_online_store.WatsonOnlineStore(
             'UBOTID',
             self.slack_client,
-            self.conv_client,
+            self.assistant_client,
             self.discovery_client,
             self.cloudant_store)
 
@@ -55,14 +59,14 @@ class WOSTestCase(unittest.TestCase):
             self.slack_client, fake_channel)
         fake_response = "this is a fake response"
 
-        self.conv_client.message.return_value = {
+        self.assistant_client.message.return_value.get_result.return_value = {
             'context': {'send_no_input': 'no'},
             'output': {'text': [fake_response]},
         }
 
         self.wos.handle_message("this is a test", sender)
 
-        self.conv_client.assert_has_calls([
+        self.assistant_client.assert_has_calls([
             mock.call.message(context={},
                               input={'text': 'this is a test'},
                               workspace_id=mock.ANY)
@@ -186,71 +190,84 @@ class WOSTestCase(unittest.TestCase):
     def test_setup_conversation_workspace_by_name_default(self):
         test_environ = {}
         expected_workspace_id = 'this is the one'
-        self.conv_client.list_workspaces = mock.Mock(return_value={
-            'workspaces': [{'workspace_id': 'other', 'name': 'foo'},
-                           {'workspace_id': expected_workspace_id,
-                            'name': 'watson-online-store'}]})
+        self.assistant_client.list_workspaces = mock.MagicMock()
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.return_value = {
+                'workspaces': [{'workspace_id': 'other', 'name': 'foo'},
+                               {'workspace_id': expected_workspace_id,
+                                'name': 'watson-online-store'}]}
 
         wos = watson_online_store.WatsonOnlineStore
-        actual = wos.setup_assistant_workspace(self.conv_client,
+        actual = wos.setup_assistant_workspace(self.assistant_client,
                                                test_environ)
 
-        self.conv_client.list_workspaces.assert_called_once()
+        self.assistant_client.list_workspaces.assert_called_once()
         self.assertEqual(expected_workspace_id, actual)
 
     def test_setup_conversation_workspace_by_name_env(self):
         test_environ = {'WORKSPACE_NAME': 'foo name'}
         expected_workspace_id = 'this is the one'
-        self.conv_client.list_workspaces = mock.Mock(return_value={
-            'workspaces': [{'workspace_id': 'other', 'name': 'foo'},
-                           {'workspace_id': expected_workspace_id,
-                            'name': test_environ['WORKSPACE_NAME']}]})
+        self.assistant_client.list_workspaces = mock.MagicMock()
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.return_value = {
+                'workspaces': [{'workspace_id': 'other', 'name': 'foo'},
+                               {'workspace_id': expected_workspace_id,
+                                'name': test_environ['WORKSPACE_NAME']}]}
 
         wos = watson_online_store.WatsonOnlineStore
-        actual = wos.setup_assistant_workspace(self.conv_client,
+        actual = wos.setup_assistant_workspace(self.assistant_client,
                                                test_environ)
 
-        self.conv_client.list_workspaces.assert_called_once()
+        self.assistant_client.list_workspaces.assert_called_once()
         self.assertEqual(expected_workspace_id, actual)
 
     def test_setup_conversation_workspace_by_id(self):
         expected_workspace_id = 'testing with a ws ID'
         test_environ = {'WORKSPACE_ID': expected_workspace_id}
-        self.conv_client.list_workspaces = mock.Mock(return_value={
-            'workspaces': [{'workspace_id': 'other'},
-                           {'workspace_id': expected_workspace_id,
-                            'name': 'foo'}]})
+        self.assistant_client.list_workspaces.return_value = mock.MagicMock()
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.return_value = {
+                'workspaces': [{'workspace_id': 'other'},
+                               {'workspace_id': expected_workspace_id,
+                                'name': 'foo'}]}
 
         wos = watson_online_store.WatsonOnlineStore
         actual = wos.setup_assistant_workspace(
-            self.conv_client, test_environ)
+            self.assistant_client, test_environ)
 
-        self.conv_client.list_workspaces.assert_called_once()
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.assert_called_once()
         self.assertEqual(expected_workspace_id, actual)
 
     def test_setup_conversation_workspace_by_id_not_found(self):
         expected_workspace_id = 'testing with a ws ID'
         test_environ = {'WORKSPACE_ID': expected_workspace_id}
-        self.conv_client.list_workspaces = mock.Mock(return_value={
-            'workspaces': [{'workspace_id': 'other'},
-                           {'workspace_id': 'wrong again'}]})
+        self.assistant_client.list_workspaces = mock.MagicMock()
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.return_value = {
+                'workspaces': [{'workspace_id': 'other'},
+                               {'workspace_id': 'wrong again'}]}
 
         wos = watson_online_store.WatsonOnlineStore
         self.assertRaises(Exception,
                           wos.setup_assistant_workspace,
-                          self.conv_client,
+                          self.assistant_client,
                           test_environ)
 
-        self.conv_client.list_workspaces.assert_called_once()
+        self.assistant_client.list_workspaces.assert_called_once()
 
     def test_setup_conversation_workspace_create(self):
         expected_workspace_id = 'this was created'
         expected_workspace_name = 'and this was its name'
         test_environ = {'WORKSPACE_NAME': expected_workspace_name}
-        self.conv_client.list_workspaces = mock.Mock(return_value={
-            'workspaces': [{'workspace_id': 'other', 'name': 'any'}]})
-        self.conv_client.create_workspace = mock.Mock(return_value={
-            'workspace_id': expected_workspace_id})
+        self.assistant_client.list_workspaces = mock.MagicMock()
+        self.assistant_client.list_workspaces.return_value.\
+            get_result.return_value = {
+                'workspaces': [{'workspace_id': 'other', 'name': 'any'}]}
+        self.assistant_client.create_workspace = mock.MagicMock()
+        self.assistant_client.create_workspace.return_value.\
+            get_result.return_value = {
+                'workspace_id': expected_workspace_id}
         wos = watson_online_store.WatsonOnlineStore
         ws_json = {
             'counterexamples': 'c',
@@ -263,10 +280,10 @@ class WOSTestCase(unittest.TestCase):
         wos.get_workspace_json = mock.Mock(return_value=ws_json)
 
         actual = wos.setup_assistant_workspace(
-            self.conv_client, test_environ)
+            self.assistant_client, test_environ)
 
-        self.conv_client.list_workspaces.assert_called_once()
-        self.conv_client.create_workspace.assert_called_once_with(
+        self.assistant_client.list_workspaces.assert_called_once()
+        self.assistant_client.create_workspace.assert_called_once_with(
             expected_workspace_name,
             'Assistant workspace created by watson-online-store.',
             ws_json['language'],
@@ -303,17 +320,21 @@ class WOSTestCase(unittest.TestCase):
         test_environ = {}
         expected_environment_id = 'this is the env'
         expected_collection_id = 'this is the coll'
-        self.discovery_client.list_environments = mock.Mock(return_value={
-            'environments': [{'environment_id': 'other',
-                              'name': 'foo',
-                              'read_only': False},
-                             {'environment_id': expected_environment_id,
-                              'read_only': False,
-                              'name': 'watson-online-store'}]})
-        self.discovery_client.list_collections = mock.Mock(return_value={
-            'collections': [{'collection_id': 'other', 'name': 'foo'},
-                            {'collection_id': expected_collection_id,
-                             'name': 'ibm-logo-store'}]})
+        self.discovery_client.list_environments = mock.MagicMock()
+        self.discovery_client.list_environments.return_value.\
+            get_result.return_value = {
+                'environments': [{'environment_id': 'other',
+                                  'name': 'foo',
+                                  'read_only': False},
+                                 {'environment_id': expected_environment_id,
+                                  'read_only': False,
+                                  'name': 'watson-online-store'}]}
+        self.discovery_client.list_collections = mock.MagicMock()
+        self.discovery_client.list_collections.return_value.\
+            get_result.return_value = {
+                'collections': [{'collection_id': 'other', 'name': 'foo'},
+                                {'collection_id': expected_collection_id,
+                                 'name': 'ibm-logo-store'}]}
 
         wos = watson_online_store.WatsonOnlineStore
         actual_env, actual_coll = (
