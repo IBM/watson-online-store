@@ -162,7 +162,8 @@ class WatsonOnlineStore:
         """
 
         # Get the actual workspaces
-        workspaces = assistant_client.list_workspaces().get_result()['workspaces']
+        workspaces = assistant_client.list_workspaces().get_result()[
+            'workspaces']
 
         env_workspace_id = environ.get('WORKSPACE_ID')
         if env_workspace_id:
