@@ -170,3 +170,4 @@ Esses dados são coletados do arquivo setup.py no aplicativo de amostra e das va
 
 ## Desativando o Acompanhamento da Implementação
 Para desativar o acompanhamento, basta remover ``cf_deployment_tracker.track()`` do arquivo ``run.py`` no diretório do nível superior.
+???
