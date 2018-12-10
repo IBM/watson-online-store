@@ -47,6 +47,8 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 **NOTE:** Perform steps 1-7 **OR** click the ``Deploy to IBM Cloud`` button and hit ``Deploy`` and then jump to step 6.
 
+**NOTE:** The Watson Discovery service is not available in the `London` region, so this application will require deployment in one of the other IBM Cloud regions.
+
 ## Deploy to IBM Cloud
 
 [![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store)
@@ -94,7 +96,7 @@ Copy the ``watson-online-store/env.sample`` file to ``watson-online-store/.env``
 credentials and URLs as you create the credentials:
 
 ```
-# Copy this file to .env and replace the credentials with 
+# Copy this file to .env and replace the credentials with
 # your own before running run.py.
 
 # Watson Assistant
