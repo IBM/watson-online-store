@@ -17,7 +17,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 * Seed data into Watson Discovery and leverage its natural language capabilities
 * Manage and customize a Slack group to add a chatbot
 
-![](doc/source/images/architecture.png)
+!["architecture diagram"](doc/source/images/architecture.png)
 
 ## Flow
 
@@ -30,9 +30,9 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 ## Included Components
 
-* [Watson Assistant](https://www.ibm.com/watson/developercloud/conversation.html): Create a chatbot with a program that conducts a conversation via auditory or textual methods.
-* [Watson Discovery](https://www.ibm.com/watson/developercloud/discovery.html): A cognitive search and content analytics engine for applications to identify patterns, trends, and actionable insights.
-* [Cloudant NoSQL DB](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db): A fully managed data layer designed for modern web and mobile applications that leverages a flexible JSON schema.
+* [Watson Assistant](https://www.ibm.com/cloud/watson-assistant): Create a chatbot with a program that conducts a conversation via auditory or textual methods.
+* [Watson Discovery](https://www.ibm.com/watson/services/discovery/): A cognitive search and content analytics engine for applications to identify patterns, trends, and actionable insights.
+* [Cloudant NoSQL DB](https://www.ibm.com/cloud/cloudant): A fully managed data layer designed for modern web and mobile applications that leverages a flexible JSON schema.
 * [Slack](https://slack.com): Slack is a cloud-based set of team collaboration tools and services with chat bot integration.
 
 ## Featured Technologies
@@ -41,7 +41,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 # Watch the Video
 
-[![](http://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU)
+[!["video"](http://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU)
 
 # Steps
 
@@ -80,22 +80,19 @@ Create the following services:
 
   * [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
   * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
-  * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
+  * [**Cloudant NoSQL DB**](https://console.bluemix.net/catalog/services/cloudant)
 
 ### 3. Get IBM Cloud services Credentials and add to .env file
 
 As you create the IBM Cloud services, you'll need to create service credentials and get the
 username and password:
 
-
-<p align="center">
-  <img width="500" height="350" src="doc/source/images/credentials2.png">
-</p>
+!["credentials"](https://github.com/IBM/pattern-utils/blob/master/watson-assistant/watson_assistant_api_key.png)
 
 Copy the ``watson-online-store/env.sample`` file to ``watson-online-store/.env`` and populate the service
 credentials and URLs as you create the credentials:
 
-```
+```bash
 # Copy this file to .env and replace the credentials with
 # your own before running run.py.
 
@@ -129,22 +126,24 @@ SLACK_BOT_USER=wos
 
 ### 4. Configure Watson Assistant
 
-Launch the **Watson Assistant** tool. Use the **import** icon button on the right
+#### Import the Assistant workspace.json:
 
-<p align="center">
-  <img width="400" height="55" src="doc/source/images/import_conversation_workspace.png">
-</p>
+* Find the Assistant service in your IBM Cloud Dashboard.
+* Click on the service and then click on `Launch tool`.
+* Go to the `Skills` tab.
+* Click `Create new`
+* Click the `Import skill` tab.
+* Click `Choose JSON file`, go to your cloned repo dir, and `Open` the workspace.json file in [`data/workspace.json`](data/workspace.json).
+* Select `Everything` and click `Import`.
 
-Find the local version of [`data/workspace.json`](data/workspace.json) and select
-**Import**. Find the **Workspace ID** by clicking on the context menu of the new
-workspace and select **View details**.
+To find the `WORKSPACE_ID` for Watson Assistant:
 
-<p align="center">
-  <img width="400" height="250" src="doc/source/images/open_conversation_menu.png">
-</p>
+* Go back to the `Skills` tab.
+* Find the card for the workspace you would like to use. Look for `watson-online-store`.
+* Click on the three dots in the upper right-hand corner of the card and select `View API Details`.
+* Copy the `Workspace ID` GUID. Save it for the .env file
 
- Put this Workspace ID into the ``.env`` file
-as ``WORKSPACE_ID``.
+!["Get Workspace ID"](https://github.com/IBM/pattern-utils/blob/master/watson-assistant/assistantPostSkillGetID.gif)
 
 *Optionally*, to view the conversation dialog select the workspace and choose the
 **Dialog** tab, here's a snippet of the dialog:
@@ -153,11 +152,10 @@ as ``WORKSPACE_ID``.
 
 ### 5. Configure Watson Discovery
 
-Launch the **Watson Discovery** tool. The first time you do this, you will see
-"Before working with private data, we will need to set up your storage". Click `Continue` and
+Launch the **Watson Discovery** tool.
 wait for the storage to be set up.
-Create a **new data collection** and give the data
-collection a unique name.
+Create a **new data collection** by clicking `Upload your own data`
+Discovery will setup your storage. (You may be invited to upgrade for production quality, but you will be able to use this code pattern with the free trial version).
 
 <p align="center">
   <img width="400" height="300" src="doc/source/images/name_discovery.png">
@@ -167,9 +165,7 @@ Seed the content by using either `Drag and drop your documents here` or `browse 
 
 Under the `Overview` tab, `Collection Info` section, click `Use this collection in API` and copy the `Collection ID` and the `Environment ID` into your `.env` file as `DISCOVERY_COLLECTION_ID` and `DISCOVERY_ENVIRONMENT_ID`.
 
-<p align="center">
-  <img width="300" height="225" src="doc/source/images/view_discovery_ids.png">
-</p>
+!["Discovery IDs"](doc/source/images/view_discovery_ids.png)
 
 ### 6. Configure Slack
 
@@ -226,9 +222,9 @@ Save the new values and restart the application, watch the logs for errors.
 
 #### If you decided to run the app locally...
 
-```
-$ pip install -r requirements.txt
-$ python run.py
+```bash
+pip install -r requirements.txt
+python run.py
 ```
 
 # Sample output
