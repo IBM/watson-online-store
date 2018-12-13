@@ -134,10 +134,6 @@ class WatsonOnlineStore:
         self.customer = None
         self.response_tuple = None
         self.delay = 0.5  # second
-        response = self.assistant_client.message(
-            workspace_id=self.workspace_id,
-            context=None).get_result()
-        self.context = self.context_merge(self.context, response['context'])
 
     @staticmethod
     def setup_assistant_workspace(assistant_client, environ):
@@ -367,8 +363,9 @@ class WatsonOnlineStore:
         """
         if output_dict and len(output_dict) > 0:
             for output in output_dict:
-                if output and 'text' in output and 'user' in output and (
-                        'user_profile' not in output):
+                if (output and 'text' in output and 'user' in output and
+                   ('bot_id' not in output) and
+                   ('user_profile' not in output)):
                     if self.at_bot in output['text']:
                         return (
                             ''.join(output['text'].split(self.at_bot
@@ -513,6 +510,10 @@ class WatsonOnlineStore:
             workspace_id=self.workspace_id,
             input={'text': message},
             context=self.context)
+        if self.context is None:
+            LOG.debug("Initializing context")
+            self.context = self.context_merge(self.context,
+                                              response['context'])
         return response
 
     @staticmethod
