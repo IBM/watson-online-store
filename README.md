@@ -239,13 +239,12 @@ Add an item to your cart:
 
 # Troubleshooting
 
-* Help! I'm seeing errors in my log using Deploy to IBM Cloud
+* Error deploying to IBM Cloud:
 
-This is expected during the first run. The app tries to start before the Discovery
-service is fully created. Allow a minute or two to pass, the following message
-should appear:
+!["Fail to Bind Discover"](doc/source/images/failedToBindDisco.png)
 
-``Watson Online Store bot is connected and running!``
+This indicates that the Discovery service is still being provisioned. Wait a few minutes
+and click the `Run` button to restart the application.
 
 * Large amount of Red Logging info appears.
 
