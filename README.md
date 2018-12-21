@@ -51,7 +51,7 @@ When the reader has completed this code pattern, they will understand how to:
 
 ## Deploy to IBM Cloud
 
-[![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store)
+[![Deploy to IBM Cloud](https://cloud.ibm.com/deploy/button.png)](https://cloud.ibm.com/devops/setup/deploy?repository=https://github.com/IBM/watson-online-store)
 
 If you encounter deployment errors, refer to [Troubleshooting](#Troubleshooting).
 
@@ -82,9 +82,9 @@ We’ll be using the file [`data/workspace.json`](data/workspace.json) and the f
 
 Create the following services:
 
-* [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
-* [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
-* [**Cloudant NoSQL DB**](https://console.bluemix.net/catalog/services/cloudant)
+* [**Watson Assistant**](https://cloud.ibm.com/catalog/services/conversation)
+* [**Watson Discovery**](https://cloud.ibm.com/catalog/services/discovery)
+* [**Cloudant NoSQL DB**](https://cloud.ibm.com/catalog/services/cloudant)
 
 ### 3. Get IBM Cloud services Credentials and add to .env file
 

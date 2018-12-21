@@ -36,7 +36,7 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 > (Slack만 있고) 별도 웹 UI가 없기 때문에 애플리케이션을 확인할 때 ``View app`` 버튼을 사용하지 않도록 합니다. Bluemix 대시보드를 활용해 애플리케이션을 검색하고 관리합니다. 채팅을 하시려면 Slack UI를 사용하세요.
 
 
-[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
+[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://cloud.ibm.com/deploy?repository=https://github.com/IBM/watson-online-store&cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
 
 1. [GitHub저장소 복제하기](#1-저장소-복제하기)
 2. [Bluemix 서비스 생성하기](#2-bluemix-서비스-생성하기)
@@ -58,9 +58,9 @@ Watson 애플리케이션의 다음 레벨로 넘어가고 싶으신가요? Wats
 
 다음의 서비스를 생성합니다.
 
-  * [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
-  * [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
-  * [**Cloudant NoSQL DB**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
+  * [**Watson Assistant**](https://cloud.ibm.com/catalog/services/conversation)
+  * [**Watson Discovery**](https://cloud.ibm.com/catalog/services/discovery)
+  * [**Cloudant NoSQL DB**](https://cloud.ibm.com/catalog/services/cloudant-nosql-db/)
 
 ## 3. Watson Assistant 구성하기
 

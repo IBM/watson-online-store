@@ -26,7 +26,7 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 
 # Etapas
 **OBSERVAÇÃO:** realize as etapas de 1 a 7 **OU** clique no botão ``Deploy to Bluemix`` e pressione ``Deploy`` e, a seguir, avance para a etapa 6. &gt; Como não há uma interface com o usuário da web (somente o Slack), não use o botão ``View app`` para ver o aplicativo. Utilize o painel do Bluemix para localizar e gerenciar o aplicativo. Use sua interface com o usuário do Slack para conversar.
-[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store&amp;cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
+[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/5fd641e32af04e4adb16f26c46de3587/button.svg)](https://cloud.ibm.com/deploy?repository=https://github.com/IBM/watson-online-store&amp;cm_mmc=github-code-_-native-_-retailchatbot-_-deploy2bluemix)
 1. [Clonar o repositório](#1-clone-the-repo)
 2. [Criar serviços do Bluemix](#2-create-bluemix-services)
 3. [Obter credenciais do Bluemix e incluir em .env](#3-get-creds-add-to-.env)
@@ -39,9 +39,9 @@ Deseja levar seu aplicativo do Watson ao próximo nível? Quer aproveitar os ati
 Em um terminal, execute `$ git clone https://github.com/ibm/watson-online-store`. Utilizaremos o arquivo [`data/workspace.json`](data/workspace.json) e a pasta [`data/ibm_store_html/`](data/ibm_store_html)
 
 ## 2. Criar serviços do Bluemix Crie os serviços a seguir:
-* [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
-* [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
-* [**Banco de dados NoSQL do Cloudant**](https://console.ng.bluemix.net/catalog/services/cloudant-nosql-db/)
+* [**Watson Assistant**](https://cloud.ibm.com/catalog/services/conversation)
+* [**Watson Discovery**](https://cloud.ibm.com/catalog/services/discovery)
+* [**Banco de dados NoSQL do Cloudant**](https://cloud.ibm.com/catalog/services/cloudant-nosql-db/)
 
 ## 3. Obter as credenciais de serviços do Bluemix e incluir no arquivo .env
 Enquanto cria os serviços do Bluemix, você precisará criar credenciais de serviços e obter o nome do usuário e a senha:
