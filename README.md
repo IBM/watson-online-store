@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
+[![Build Status](https://api.travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
 
 # Creating a Retail Chatbot using Watson Assistant, Discovery and Database Services
 
@@ -41,7 +41,7 @@ When the reader has completed this code pattern, they will understand how to:
 
 # Watch the Video
 
-[!["video"](http://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU)
+[!["video"](https://img.youtube.com/vi/b-94B3O1czU/0.jpg)](https://youtu.be/b-94B3O1czU)
 
 # Steps
 
@@ -51,9 +51,9 @@ When the reader has completed this code pattern, they will understand how to:
 
 ## Deploy to IBM Cloud
 
-[![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM/watson-online-store)
+[![Deploy to IBM Cloud](https://cloud.ibm.com/devops/setup/deploy/button.png)](https://cloud.ibm.com/devops/setup/deploy?repository=https://github.com/IBM/watson-online-store)
 
-If you encounter deployment errors, refer to [Troubleshooting](#Troubleshooting).
+If you encounter deployment errors, refer to [Troubleshooting](#troubleshooting).
 
 > You can use the ``View app`` button to use a simple web UI to chat. For the Slack integration, use your Slack UI to chat after completing the additional [slack configuration](#6-configure-slack). Use the IBM Cloud dashboard to find and manage the app.
 
@@ -62,7 +62,7 @@ If you encounter deployment errors, refer to [Troubleshooting](#Troubleshooting)
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create IBM Cloud services](#2-create-ibm-cloud-services)
 3. [Get IBM Cloud credentials and add to .env](#3-get-ibm-cloud-services-credentials-and-add-to-env-file)
-4. [Configure Watson Assistant](#4-configure-watson-assistant-for-business)
+4. [Configure Watson Assistant](#4-configure-watson-assistant)
 5. [Configure Watson Discovery](#5-configure-watson-discovery)
 6. [Configure Slack](#6-configure-slack)
 7. [Run the application](#7-run-the-application)
@@ -82,9 +82,9 @@ We’ll be using the file [`data/workspace.json`](data/workspace.json) and the f
 
 Create the following services:
 
-* [**Watson Assistant**](https://console.ng.bluemix.net/catalog/services/conversation)
-* [**Watson Discovery**](https://console.ng.bluemix.net/catalog/services/discovery)
-* [**Cloudant NoSQL DB**](https://console.bluemix.net/catalog/services/cloudant)
+* [**Watson Assistant**](https://cloud.ibm.com/catalog/services/conversation)
+* [**Watson Discovery**](https://cloud.ibm.com/catalog/services/discovery)
+* [**Cloudant NoSQL DB**](https://cloud.ibm.com/catalog/services/cloudant)
 
 ### 3. Get IBM Cloud services Credentials and add to .env file
 
