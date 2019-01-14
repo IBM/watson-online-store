@@ -1,5 +1,5 @@
 ddt==1.1.1
 mock==2.0.0
 pytest>=2.7
-pytest-cov
+pytest-cov<2.6.0
 pytest-mock==1.5.0
