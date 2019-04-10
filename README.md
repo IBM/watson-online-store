@@ -165,6 +165,10 @@ Discovery will setup your storage. (You may be invited to upgrade for production
 
 Seed the content by using either `Drag and drop your documents here` or `browse from your computer`. Choose the JSON files under [`data/ibm_store/`](data/ibm_store).
 
+Click on the left menu `Manage Data` icon and then click your newly created Data collection:
+
+![manage data](doc/source/images/watsonOnlineManageData.png)
+
 Under the `Overview` tab, `Collection Info` section, click `Use this collection in API` and copy the `Collection ID` and the `Environment ID` into your `.env` file as `DISCOVERY_COLLECTION_ID` and `DISCOVERY_ENVIRONMENT_ID`.
 
 !["Discovery IDs"](doc/source/images/view_discovery_ids.png)
