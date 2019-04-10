@@ -85,6 +85,9 @@ Create the following services:
 * [**Watson Assistant**](https://cloud.ibm.com/catalog/services/conversation)
 * [**Watson Discovery**](https://cloud.ibm.com/catalog/services/discovery)
 * [**Cloudant NoSQL DB**](https://cloud.ibm.com/catalog/services/cloudant)
+>NOTE: When provisioning Cloudant, for `Available authentication methods` choose `Use both legacy credentials and IAM`:
+
+![Cloudant choose legacy](doc/source/images/cloudantChooseLegacy.png)
 
 ### 3. Get IBM Cloud services Credentials and add to .env file
 
