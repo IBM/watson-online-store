@@ -364,8 +364,8 @@ class WatsonOnlineStore:
         if output_dict and len(output_dict) > 0:
             for output in output_dict:
                 if (output and 'text' in output and 'user' in output and
-                   ('bot_id' not in output) and
-                   ('user_profile' not in output)):
+                    ('bot_id' not in output) and
+                        ('user_profile' not in output)):
                     if self.at_bot in output['text']:
                         return (
                             ''.join(output['text'].split(self.at_bot
@@ -702,7 +702,7 @@ class WatsonOnlineStore:
             collection_id=self.discovery_collection_id,
             query=input_text,
             count=DISCOVERY_QUERY_COUNT
-        ).get_result()        
+        ).get_result()
 
         # Watson discovery assigns a confidence level to each result.
         # Based on data mix, we can assign a minimum tolerance value in an
@@ -712,11 +712,11 @@ class WatsonOnlineStore:
                   x['score'] > self.discovery_score_filter]
 
             discovery_response['matching_results'] = len(fr)
-            discovery_response['results'] = fr        
+            discovery_response['results'] = fr
 
         response = self.format_discovery_response(discovery_response,
                                                   self.discovery_data_source)
-        
+
         self.response_tuple = response
 
         fmt = "{cart_number}) {name} {price}\n{image}"
@@ -730,10 +730,11 @@ class WatsonOnlineStore:
         :rtype: str
         """
         cust = self.customer.email
-        shopping_list = self.cloudant_online_store.list_shopping_cart(cust)        
-        
+        shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
+
         fmt = "\n{}) {name} - `{price}`\n{url}\n"
-        formatted_out = "\n".join(fmt.format(i + 1, **item) for i,item in enumerate(shopping_list))
+        formatted_out = "\n".join(fmt.format(i + 1, **item)
+                                  for i, item in enumerate(shopping_list))
 
         # formatted_out = "\n".join("{}) {}".format(i + 1, item)
         #                        for i, item in enumerate(shopping_list))
@@ -741,7 +742,7 @@ class WatsonOnlineStore:
         grand_total = 0.0
         for item in shopping_list:
             priceStr = item['price']
-            grand_total = grand_total + float(priceStr.replace('$',''))                
+            grand_total = grand_total + float(priceStr.replace('$', ''))
 
         self.context['shopping_cart'] = formatted_out
         self.context['grand_total'] = "%.2f" % grand_total
@@ -785,8 +786,7 @@ class WatsonOnlineStore:
         email = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(email)
 
-        for item in shopping_list:   
-            print("Delete items: ",item)         
+        for item in shopping_list:
             self.cloudant_online_store.delete_item_shopping_cart(email, item)
         self.clear_shopping_cart()
 
@@ -797,7 +797,7 @@ class WatsonOnlineStore:
         """Adds cart_item from Watson context and saves in Cloudant DB
 
         cart_item in context must be an int or add/save will silently fail.
-        """        
+        """
 
         try:
             cart_item = int(self.context['cart_item'])
@@ -813,7 +813,7 @@ class WatsonOnlineStore:
                     "item_id": str(cart_item),
                     "name": entry['name'],
                     "price": entry['price'],
-                    "url": entry['url']                    
+                    "url": entry['url']
                 }
                 self.cloudant_online_store.add_to_shopping_cart(email, item)
         self.clear_shopping_cart()
@@ -834,29 +834,29 @@ class WatsonOnlineStore:
         :rtype: Bool
         """
 
-        watson_response = self.get_watson_response(message).get_result()        
+        watson_response = self.get_watson_response(message).get_result()
         if 'context' in watson_response:
             self.context = watson_response['context']
-           
+
         sender.send_message("\n".join(watson_response['output']['text']) +
                             "\n")
 
         if (self.context.get('discovery_string') and self.discovery_client):
             return self.handle_discovery_query()
 
-        cart_action = self.context.get('shopping_cart')    
-        print("Cart Action: ", cart_action)        
+        cart_action = self.context.get('shopping_cart')
+        print("Cart Action: ", cart_action)
         if cart_action == 'list':
             return self.handle_list_shopping_cart()
         elif cart_action == 'add':
             if ('cart_item' in self.context and
-               self.context['cart_item'] != ''):
+                    self.context['cart_item'] != ''):
                 return self.handle_add_to_cart()
         elif cart_action == 'checkout':
-            return self.handle_delete_all_from_cart();
-        elif cart_action == 'delete':            
+            return self.handle_delete_all_from_cart()
+        elif cart_action == 'delete':
             if ('cart_item' in self.context.keys() and
-               self.context['cart_item'] != ''):
+                    self.context['cart_item'] != ''):
                 return self.handle_delete_from_cart()
 
         if self.context.get('get_input') == 'no':

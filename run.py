@@ -72,7 +72,7 @@ class WatsonEnv:
 
         # Use these env vars first if set
         bot_id = os.environ.get("BOT_ID")
-        slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')        
+        slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
         assistant_iam_apikey = os.environ.get("ASSISTANT_IAM_APIKEY")
         assistant_url = os.environ.get("ASSISTANT_URL")
         if not assistant_url:
@@ -86,11 +86,11 @@ class WatsonEnv:
                     assistant_url = assistant_creds['url']  # overrides default
                     assistant_iam_apikey = (assistant_iam_apikey
                                             or assistant_creds.get('apikey'))
-        
+
         cloudant_account = os.environ.get("CLOUDANT_USERNAME")
-        cloudant_iam_apikey = os.environ.get("CLOUDANT_IAM_APIKEY")               
+        cloudant_iam_apikey = os.environ.get("CLOUDANT_IAM_APIKEY")
         cloudant_db_name = os.environ.get(
-            "CLOUDANT_DB_NAME") or 'watson_online_store'        
+            "CLOUDANT_DB_NAME") or 'watson_online_store'
         discovery_url = os.environ.get('DISCOVERY_URL')
         discovery_iam_apikey = os.environ.get("DISCOVERY_IAM_APIKEY")
 
@@ -106,12 +106,12 @@ class WatsonEnv:
                     if 'apikey' in cloudant_creds:
                         cloudant_iam_apikey = cloudant_creds['apikey']
                     if 'username' in cloudant_creds:
-                        cloudant_account = cloudant_creds['username']                    
+                        cloudant_account = cloudant_creds['username']
 
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
         assistant_kwargs = {
-            'version': '2018-07-10',            
+            'version': '2018-07-10',
             'iam_apikey': assistant_iam_apikey
         }
         if assistant_url:
@@ -124,7 +124,7 @@ class WatsonEnv:
             Cloudant.iam(
                 cloudant_account,
                 cloudant_iam_apikey,
-                connect=True              
+                connect=True
             ),
             cloudant_db_name
         )
@@ -132,7 +132,7 @@ class WatsonEnv:
         # Instantiate Watson Discovery client.
         # - only give a url if we have one (don't override the default)
         discovery_kwargs = {
-            'version': '2018-08-01',            
+            'version': '2018-08-01',
             'iam_apikey': discovery_iam_apikey
 
         }
