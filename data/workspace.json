@@ -559,7 +559,7 @@
         "output": {
           "text": {
             "values": [
-              "Hello `$first_name`*Your shopping cart is:*$shopping_cart  *Grand Total*: `\\$$grand_total`  *What do you want to shop for? Options are: `Shirts, Mugs, Hats`*"
+              "Hello `$first_name` *Your shopping cart is:*$shopping_cart  *Grand Total*: `\\$$grand_total`  *What do you want to shop for? Options are: `Shirts, Mugs, Hats`*"
             ],
             "selection_policy": "sequential"
           }
