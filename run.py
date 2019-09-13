@@ -103,7 +103,6 @@ class WatsonEnv:
                 cloudant_creds = WatsonEnv.get_vcap_credentials(
                     vcap_env, 'cloudantNoSQLDB')
                 if cloudant_creds:
-                    cloudant_url = cloudant_creds['url']  # overrides default
                     if 'apikey' in cloudant_creds:
                         cloudant_iam_apikey = cloudant_creds['apikey']
                     if 'username' in cloudant_creds:

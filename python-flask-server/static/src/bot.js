@@ -42,6 +42,8 @@ function displayMessage(text, user) {
         // Set chat bubble color and position based on the user parameter
         if (user === watson) {
             bubble.className = 'bot_message';  // Bot text formatting
+            text = text.replace(/`/g, '')
+            text = text.replace(/\*/g, '')
             bubble.innerHTML = "<div class='bot'>" + text + "</div>";
         } else {
             bubble.className = 'user_message';  // User text formatting

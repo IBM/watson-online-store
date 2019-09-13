@@ -777,6 +777,22 @@ class WatsonOnlineStore:
         # no need for user input, return to Watson Dialogue
         return False
 
+    def handle_delete_all_from_cart(self):
+        """Pulls cart_item from Watson context and deletes from Cloudant DB
+
+        cart_item in context must be an int or delete will silently fail.
+        """
+        email = self.customer.email
+        shopping_list = self.cloudant_online_store.list_shopping_cart(email)
+
+        for item in shopping_list:   
+            print("Delete items: ",item)         
+            self.cloudant_online_store.delete_item_shopping_cart(email, item)
+        self.clear_shopping_cart()
+
+        # no need for user input, return to Watson Dialogue
+        return False
+
     def handle_add_to_cart(self):
         """Adds cart_item from Watson context and saves in Cloudant DB
 
@@ -818,8 +834,7 @@ class WatsonOnlineStore:
         :rtype: Bool
         """
 
-        watson_response = self.get_watson_response(message).get_result()
-        LOG.debug("watson_response:\n{}\n".format(watson_response))
+        watson_response = self.get_watson_response(message).get_result()        
         if 'context' in watson_response:
             self.context = watson_response['context']
            
@@ -829,15 +844,16 @@ class WatsonOnlineStore:
         if (self.context.get('discovery_string') and self.discovery_client):
             return self.handle_discovery_query()
 
-        cart_action = self.context.get('shopping_cart')            
+        cart_action = self.context.get('shopping_cart')    
+        print("Cart Action: ", cart_action)        
         if cart_action == 'list':
             return self.handle_list_shopping_cart()
         elif cart_action == 'add':
             if ('cart_item' in self.context and
                self.context['cart_item'] != ''):
                 return self.handle_add_to_cart()
-        elif cart_action == 'checkout':        
-            return self.clear_shopping_cart();
+        elif cart_action == 'checkout':
+            return self.handle_delete_all_from_cart();
         elif cart_action == 'delete':            
             if ('cart_item' in self.context.keys() and
                self.context['cart_item'] != ''):

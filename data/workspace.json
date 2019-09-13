@@ -1,1 +1,640 @@
-{"name":"watson-online-store","intents":[{"intent":"register","examples":[{"text":"I need an account"},{"text":"I'd like to register for an account"},{"text":"I'd like to sign up"},{"text":"I wish to sign up"},{"text":"I want to register"}]},{"intent":"login","examples":[{"text":"I want to login"},{"text":"my account is"},{"text":"I have an account"},{"text":"I am a returning customer"},{"text":"I am a MBI customer"}]},{"intent":"CreateUserAccount","examples":[{"text":"I'd like to create a user account"},{"text":"I want to register"},{"text":"I want an account"},{"text":"I need to create an account"},{"text":"I'd like to register"}]},{"intent":"Shop","examples":[{"text":"I want"},{"text":"shop"},{"text":"Can I get"},{"text":"Do you have"},{"text":"I'm looking for"},{"text":"I'm shopping for"}]},{"intent":"startOver","examples":[{"text":"begin again"},{"text":"try again"},{"text":"start over"},{"text":"start again"}]},{"intent":"Purchase","examples":[{"text":"I'd like to pay"},{"text":"I'm ready to check out"},{"text":"I want to buy"},{"text":"I want to get"},{"text":"purchase"},{"text":"buy"},{"text":"can i buy some shoes?"},{"text":"get"},{"text":"I'd like to buy"}]},{"intent":"return","examples":[{"text":"I want to return something"},{"text":"I want my money back"},{"text":"I purchased, but"},{"text":"I need to return"},{"text":"I have bought, but"},{"text":"I don't want"},{"text":"I'd like to return"},{"text":"I want to return my shoes"}]}],"entities":[{"entity":"NegativeResponse","values":[{"type":"synonyms","value":"I don't","synonyms":[]},{"type":"synonyms","value":"n","synonyms":[]},{"type":"synonyms","value":"nada","synonyms":[]},{"type":"synonyms","value":"no","synonyms":[]},{"type":"synonyms","value":"nope","synonyms":[]}]},{"entity":"PositiveResponse","values":[{"type":"synonyms","value":"affirmative","synonyms":[]},{"type":"synonyms","value":"I do","synonyms":[]},{"type":"synonyms","value":"uh-huh","synonyms":[]},{"type":"synonyms","value":"y","synonyms":[]},{"type":"synonyms","value":"ye","synonyms":[]},{"type":"synonyms","value":"yeah","synonyms":[]},{"type":"synonyms","value":"yes","synonyms":[]},{"type":"synonyms","value":"yup","synonyms":[]}]},{"entity":"product","values":[{"type":"synonyms","value":"pants","synonyms":["capris","slacks"]},{"type":"synonyms","value":"shirt","synonyms":["blouse","button down","polo","top"]},{"type":"synonyms","value":"shoe","synonyms":["boot","boots","clogs","pair of shoes","pumps","sandals","shoes"]}]}],"language":"en","metadata":{"api_version":{"major_version":"v1","minor_version":"2018-07-10"}},"dialog_nodes":[{"type":"standard","title":"List after delete","output":{"text":{"values":["Now we'll list the cart..."],"selection_policy":"sequential"}},"parent":"Test delete from cart","context":{"cart_item":"","get_input":"no","shopping_cart":"list"},"conditions":"true","dialog_node":"List after delete"},{"type":"standard","title":"list and jump to help","output":{},"parent":"List after delete","next_step":{"behavior":"jump_to","selector":"body","dialog_node":"Shopping Intent"},"conditions":"true","dialog_node":"list and jump to help"},{"type":"standard","title":"Shopping Intent","output":{},"parent":"Welcome","conditions":"True","dialog_node":"Shopping Intent"},{"type":"response_condition","output":{"text":{"values":["Items in your cart are now:\n$shopping_cart"],"selection_policy":"sequential"}},"parent":"list and jump to help","context":{"get_input":"yes"},"conditions":" ","dialog_node":"node_48_1489616615394"},{"type":"standard","title":"List cart items","output":{"text":{"values":["Your cart is:\n $shopping_cart"],"selection_policy":"sequential"}},"parent":"Enter something to list","context":{"cart_item":"","get_input":"no"},"conditions":"$shopping_cart","dialog_node":"List cart items"},{"type":"response_condition","output":{"text":{"values":["I'll  use Watson Discovery to find that...."],"selection_policy":"sequential"}},"parent":"Do Discovery","context":{"get_input":"no","discovery_string":"<?input_text?>"},"conditions":" ","dialog_node":"node_37_1489530435651","previous_sibling":"Discovery Response"},{"type":"standard","title":"Discovery Response","output":{"text":{"values":["Here's what I found from Watson Discovery: $discovery_result\n "],"selection_policy":"sequential"}},"parent":"Do Discovery","context":{"get_input":"no","discovery_string":""},"conditions":"true","dialog_node":"Discovery Response"},{"type":"standard","title":"Choose item to delete","output":{"text":{"values":["Which item number do you want to delete?"],"selection_policy":"sequential"}},"parent":"List cart items","context":{"get_input":"yes"},"conditions":"True","dialog_node":"Choose item to delete"},{"type":"standard","title":"Enter something to list","output":{"text":{"values":["OK, let's list your shopping cart..."],"selection_policy":"sequential"}},"parent":"Test Add to Cart","context":{"cart_item":"","get_input":"no","shopping_cart":"list","discovery_result":""},"conditions":"input_text","dialog_node":"Enter something to list"},{"type":"standard","title":"Test Add to Cart","output":{"text":{"values":["Let's add  to your shopping cart....."],"selection_policy":"sequential"}},"parent":"Choose item to add","context":{"cart_item":"<?input_text?>","get_input":"no","shopping_cart":"add"},"conditions":"true","dialog_node":"Test Add to Cart"},{"type":"standard","title":"Choose item to add","output":{"text":{"values":["Please choose which item you will add to your cart."],"selection_policy":"sequential"}},"parent":"Discovery Response","context":{"get_input":"yes"},"conditions":"true","dialog_node":"Choose item to add"},{"type":"standard","title":"Test delete from cart","output":{"text":{"values":["Let's Delete <?input_text?>."],"selection_policy":"sequential"}},"parent":"Choose item to delete","context":{"cart_item":"<?input_text?>","get_input":"no","shopping_cart":"delete"},"conditions":"True","dialog_node":"Test delete from cart"},{"type":"response_condition","output":{"text":{"values":["Hello $first_name. Your shopping cart is:\n$shopping_cart\n What do you want to shop for?"],"selection_policy":"sequential"}},"parent":"Shopping Intent","context":{"get_input":"yes"},"dialog_node":"node_28_1489177511034","previous_sibling":"Do Discovery"},{"type":"standard","title":"Do Discovery","output":{},"parent":"Shopping Intent","conditions":"True","dialog_node":"Do Discovery"},{"type":"standard","conditions":"anything_else","dialog_node":"node_34_1489526806680","previous_sibling":"Welcome"},{"type":"standard","title":"Welcome","output":{"text":{"values":["Hello! and Welcome to Watson Online Store."],"selection_policy":"sequential"}},"context":{"get_input":"yes","input_text":"","shopping_cart":"list"},"conditions":"True","dialog_node":"Welcome"}],"workspace_id":"39bb7755-8fbb-46bb-babb-64d0e82915e0","counterexamples":[{"text":"how about some politics?"}],"learning_opt_out":false}
+{
+    "name": "watson-online-store",
+    "intents": [
+      {
+        "intent": "return",
+        "examples": [
+          {
+            "text": "I need to return"
+          },
+          {
+            "text": "I want to return something"
+          },
+          {
+            "text": "I want my money back"
+          },
+          {
+            "text": "I purchased, but"
+          },
+          {
+            "text": "I want to return my shoes"
+          },
+          {
+            "text": "I'd like to return"
+          },
+          {
+            "text": "I don't want"
+          },
+          {
+            "text": "I have bought, but"
+          }
+        ]
+      },
+      {
+        "intent": "Shop",
+        "examples": [
+          {
+            "text": "continue"
+          },
+          {
+            "text": "shop"
+          },
+          {
+            "text": "I want"
+          },
+          {
+            "text": "continue shopping"
+          },
+          {
+            "text": "I'm shopping for"
+          },
+          {
+            "text": "I'm looking for"
+          },
+          {
+            "text": "Do you have"
+          },
+          {
+            "text": "Can I get"
+          }
+        ]
+      },
+      {
+        "intent": "deleteItem",
+        "examples": [
+          {
+            "text": "I would like to delete item"
+          },
+          {
+            "text": "delete item"
+          },
+          {
+            "text": "delete"
+          }
+        ],
+        "description": ""
+      },
+      {
+        "intent": "startOver",
+        "examples": [
+          {
+            "text": "start again"
+          },
+          {
+            "text": "start over"
+          },
+          {
+            "text": "try again"
+          },
+          {
+            "text": "begin again"
+          }
+        ]
+      },
+      {
+        "intent": "checkout",
+        "examples": [
+          {
+            "text": "checkout"
+          },
+          {
+            "text": "payment"
+          },
+          {
+            "text": "complete"
+          }
+        ],
+        "description": ""
+      }
+    ],
+    "entities": [
+      {
+        "entity": "product",
+        "values": [
+          {
+            "type": "synonyms",
+            "value": "shoe",
+            "synonyms": [
+              "boot",
+              "boots",
+              "clogs",
+              "pair of shoes",
+              "pumps",
+              "sandals",
+              "shoes"
+            ]
+          },
+          {
+            "type": "synonyms",
+            "value": "shirt",
+            "synonyms": [
+              "blouse",
+              "button down",
+              "polo",
+              "top"
+            ]
+          },
+          {
+            "type": "synonyms",
+            "value": "pants",
+            "synonyms": [
+              "capris",
+              "slacks"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "NegativeResponse",
+        "values": [
+          {
+            "type": "synonyms",
+            "value": "no",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "nope",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "I don't",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "n",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "nada",
+            "synonyms": []
+          }
+        ]
+      },
+      {
+        "entity": "PositiveResponse",
+        "values": [
+          {
+            "type": "synonyms",
+            "value": "y",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "ye",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "yeah",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "yes",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "yup",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "uh-huh",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "I do",
+            "synonyms": []
+          },
+          {
+            "type": "synonyms",
+            "value": "affirmative",
+            "synonyms": []
+          }
+        ]
+      }
+    ],
+    "language": "en",
+    "metadata": {
+      "api_version": {
+        "major_version": "v1",
+        "minor_version": "2018-09-20"
+      }
+    },
+    "skill_id": "c4de8f1a-94e1-4035-a286-b76a37981385",
+    "description": "",
+    "dialog_nodes": [
+      {
+        "type": "standard",
+        "title": "Delete Item",
+        "parent": "node_3_1567610168444",
+        "context": {
+          "get_input": "no"
+        },
+        "conditions": "#deleteItem",
+        "dialog_node": "node_1_1567610274028",
+        "previous_sibling": "node_5_1567610255947"
+      },
+      {
+        "type": "standard",
+        "title": "Checkout",
+        "parent": "node_3_1567610168444",
+        "context": {
+          "get_input": "no"
+        },
+        "conditions": "#checkout",
+        "dialog_node": "node_10_1567610276322",
+        "previous_sibling": "node_1_1567610274028"
+      },
+      {
+        "type": "standard",
+        "title": "Continue Shopping",
+        "parent": "node_3_1567610168444",
+        "context": {
+          "get_input": "no"
+        },
+        "conditions": "#Shop",
+        "dialog_node": "node_5_1567610255947"
+      },
+      {
+        "type": "standard",
+        "title": "List cart items",
+        "output": {
+          "generic": [
+            {
+              "values": [
+                {
+                  "text": "$shopping_cart"
+                }
+              ],
+              "response_type": "text",
+              "selection_policy": "sequential"
+            },
+            {
+              "values": [
+                {
+                  "text": "*Grand Total* : `$grand_total`"
+                }
+              ],
+              "response_type": "text",
+              "selection_policy": "sequential"
+            }
+          ]
+        },
+        "parent": "Enter something to list",
+        "context": {
+          "cart_item": "",
+          "get_input": "no"
+        },
+        "conditions": "$shopping_cart",
+        "dialog_node": "List cart items"
+      },
+      {
+        "type": "standard",
+        "title": "Payment",
+        "output": {
+          "text": {
+            "values": [
+              "*This is a secure communication so you can enter you card detail here: ex: 123456789*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "node_6_1567612815479",
+        "context": {
+          "get_input": "yes"
+        },
+        "conditions": "true",
+        "dialog_node": "node_5_1567614395061"
+      },
+      {
+        "type": "standard",
+        "title": "Review",
+        "output": {
+          "text": {
+            "values": [
+              "*Please review your shopping cart:* $shopping_cart *Grand Total* : `$grand_total`"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "node_10_1567610276322",
+        "context": {
+          "get_input": "no"
+        },
+        "conditions": "true",
+        "dialog_node": "node_6_1567612815479"
+      },
+      {
+        "type": "standard",
+        "title": "Test Add to Cart",
+        "output": {
+          "text": {
+            "values": [
+              "*Item $cart_item successfully added to the cart.*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Choose item to add",
+        "context": {
+          "cart_item": "<?input_text?>",
+          "get_input": "no",
+          "shopping_cart": "add"
+        },
+        "conditions": "true",
+        "dialog_node": "Test Add to Cart"
+      },
+      {
+        "type": "standard",
+        "title": "Choose item to add",
+        "output": {
+          "text": {
+            "values": [
+              "*Please choose which item you will add to your cart.*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Discovery Response",
+        "context": {
+          "get_input": "yes"
+        },
+        "conditions": "true",
+        "dialog_node": "Choose item to add"
+      },
+      {
+        "type": "response_condition",
+        "output": {
+          "text": {
+            "values": [
+              "*Items in your cart are now:*$shopping_cart"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "list and jump to help",
+        "context": {
+          "get_input": "no"
+        },
+        "conditions": " ",
+        "dialog_node": "node_48_1489616615394"
+      },
+      {
+        "type": "standard",
+        "title": "List after delete",
+        "output": {
+          "text": {
+            "values": [
+              "*Now we'll list the cart...*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Test delete from cart",
+        "context": {
+          "cart_item": "",
+          "get_input": "no",
+          "shopping_cart": "list"
+        },
+        "conditions": "true",
+        "dialog_node": "List after delete"
+      },
+      {
+        "type": "standard",
+        "title": "Shopping Options",
+        "output": {
+          "text": {
+            "values": [
+              "*What would you like to do next: `Continue shopping OR Delete item OR Checkout`*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "List cart items",
+        "context": {
+          "get_input": "yes"
+        },
+        "conditions": "true",
+        "dialog_node": "node_3_1567610168444"
+      },
+      {
+        "type": "standard",
+        "title": "Enter something to list",
+        "output": {
+          "text": {
+            "values": [
+              "*Your shopping cart is:*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Test Add to Cart",
+        "context": {
+          "cart_item": "",
+          "get_input": "no",
+          "shopping_cart": "list",
+          "discovery_result": ""
+        },
+        "conditions": "true",
+        "dialog_node": "Enter something to list"
+      },
+      {
+        "type": "standard",
+        "title": "list and jump to help",
+        "output": {},
+        "parent": "List after delete",
+        "next_step": {
+          "behavior": "jump_to",
+          "selector": "body",
+          "dialog_node": "node_3_1567610168444"
+        },
+        "conditions": "true",
+        "dialog_node": "list and jump to help"
+      },
+      {
+        "type": "standard",
+        "title": "Shopping Intent",
+        "output": {},
+        "parent": "Welcome",
+        "conditions": "true",
+        "dialog_node": "Shopping Intent"
+      },
+      {
+        "type": "standard",
+        "title": "Continue Shopping",
+        "parent": "node_4_1567614798676",
+        "next_step": {
+          "behavior": "jump_to",
+          "selector": "body",
+          "dialog_node": "Welcome"
+        },
+        "conditions": "true",
+        "dialog_node": "node_9_1568395817550"
+      },
+      {
+        "type": "standard",
+        "title": "Test delete from cart",
+        "output": {
+          "text": {
+            "values": [
+              "*Let's Delete item <?input_text?>.*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Choose item to delete",
+        "context": {
+          "cart_item": "<?input_text?>",
+          "get_input": "no",
+          "shopping_cart": "delete"
+        },
+        "conditions": "True",
+        "dialog_node": "Test delete from cart"
+      },
+      {
+        "type": "standard",
+        "title": "Choose item to delete",
+        "output": {
+          "text": {
+            "values": [
+              "*Which Item would you like to delete?* $shopping_cart"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "node_1_1567610274028",
+        "context": {
+          "get_input": "yes"
+        },
+        "conditions": "true",
+        "dialog_node": "Choose item to delete"
+      },
+      {
+        "type": "response_condition",
+        "output": {
+          "text": {
+            "values": [
+              "I'll  use Watson Discovery to find that...."
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Do Discovery",
+        "context": {
+          "get_input": "no",
+          "discovery_string": "<?input_text?>"
+        },
+        "conditions": " ",
+        "dialog_node": "node_37_1489530435651",
+        "previous_sibling": "Discovery Response"
+      },
+      {
+        "type": "standard",
+        "title": "Discovery Response",
+        "output": {
+          "text": {
+            "values": [
+              "Here's what I found from Watson Discovery: $discovery_result\n "
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Do Discovery",
+        "context": {
+          "get_input": "no",
+          "discovery_string": ""
+        },
+        "conditions": "true",
+        "dialog_node": "Discovery Response"
+      },
+      {
+        "type": "response_condition",
+        "output": {
+          "text": {
+            "values": [
+              "Hello `$first_name`*Your shopping cart is:*$shopping_cart  *Grand Total*: `\\$$grand_total`  *What do you want to shop for? Options are: `Shirts, Mugs, Hats`*"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "Shopping Intent",
+        "context": {
+          "get_input": "yes"
+        },
+        "dialog_node": "node_28_1489177511034",
+        "previous_sibling": "Do Discovery"
+      },
+      {
+        "type": "standard",
+        "title": "Do Discovery",
+        "output": {},
+        "parent": "Shopping Intent",
+        "conditions": "true",
+        "dialog_node": "Do Discovery"
+      },
+      {
+        "type": "standard",
+        "title": "Order placed",
+        "output": {
+          "text": {
+            "values": [
+              "*Your order has been successfully placed. Your order number is:* `ORD123456`"
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "parent": "node_5_1567614395061",
+        "context": {
+          "cart_item": "",
+          "get_input": "no",
+          "shopping_cart": "checkout",
+          "discovery_result": ""
+        },
+        "conditions": "true",
+        "dialog_node": "node_4_1567614798676"
+      },
+      {
+        "type": "standard",
+        "conditions": "anything_else",
+        "dialog_node": "node_34_1489526806680",
+        "previous_sibling": "Welcome"
+      },
+      {
+        "type": "standard",
+        "title": "Welcome",
+        "output": {
+          "text": {
+            "values": [
+              "Hello! and Welcome to Watson Online Store."
+            ],
+            "selection_policy": "sequential"
+          }
+        },
+        "context": {
+          "get_input": "yes",
+          "input_text": "",
+          "shopping_cart": "list"
+        },
+        "conditions": "true",
+        "dialog_node": "Welcome"
+      }
+    ],
+    "workspace_id": "c4de8f1a-94e1-4035-a286-b76a37981385",
+    "counterexamples": [
+      {
+        "text": "how about some politics?"
+      }
+    ],
+    "system_settings": {
+      "spelling_auto_correct": true
+    },
+    "learning_opt_out": false,
+    "status": "Available"
+  }
