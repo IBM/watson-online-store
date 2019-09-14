@@ -736,9 +736,6 @@ class WatsonOnlineStore:
         formatted_out = "\n".join(fmt.format(i + 1, **item)
                                   for i, item in enumerate(shopping_list))
 
-        # formatted_out = "\n".join("{}) {}".format(i + 1, item)
-        #                        for i, item in enumerate(shopping_list))
-
         grand_total = 0.0
         for item in shopping_list:
             priceStr = item['price']
@@ -808,7 +805,6 @@ class WatsonOnlineStore:
 
         for index, entry in enumerate(self.response_tuple):
             if index+1 == cart_item:
-                # item = entry['name'] + ': ' + entry['url'] + '\n'
                 item = {
                     "item_id": str(cart_item),
                     "name": entry['name'],
@@ -845,7 +841,6 @@ class WatsonOnlineStore:
             return self.handle_discovery_query()
 
         cart_action = self.context.get('shopping_cart')
-        print("Cart Action: ", cart_action)
         if cart_action == 'list':
             return self.handle_list_shopping_cart()
         elif cart_action == 'add':
