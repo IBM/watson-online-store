@@ -85,7 +85,6 @@ user = 'web user'  # TODO: Add login for web users.
 @socketio.on('my_event', namespace=namespace)
 def do_message(message):
     """This is a message from the web UI user."""
-
     if not watson:
         # Report incomplete setup.
         sender.send_message(

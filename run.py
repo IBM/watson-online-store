@@ -111,7 +111,7 @@ class WatsonEnv:
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
         assistant_kwargs = {
-            'version': '2018-07-10',
+            'version': '2019-02-28',
             'iam_apikey': assistant_iam_apikey
         }
         if assistant_url:
@@ -132,7 +132,7 @@ class WatsonEnv:
         # Instantiate Watson Discovery client.
         # - only give a url if we have one (don't override the default)
         discovery_kwargs = {
-            'version': '2018-08-01',
+            'version': '2019-04-30',
             'iam_apikey': discovery_iam_apikey
 
         }

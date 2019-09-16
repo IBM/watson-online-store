@@ -829,7 +829,6 @@ class WatsonOnlineStore:
          processing and no input
         :rtype: Bool
         """
-
         watson_response = self.get_watson_response(message).get_result()
         if 'context' in watson_response:
             self.context = watson_response['context']

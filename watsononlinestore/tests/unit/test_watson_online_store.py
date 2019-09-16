@@ -384,15 +384,15 @@ class WOSTestCase(unittest.TestCase):
 
     def test_format_amazon_store_output(self):
         amz_product_name = "Amazon Shirt"
-        amz_product_tag = '<a href='        
+        amz_product_tag = '<a href='
         amz_product_url = 'http://www.test.xxx'
         amz_product_price = '$4.96'
         amz_expected_response = [{
             'cart_number': "1",
-            'name': amz_product_name,            
+            'name': amz_product_name,
             'url': amz_product_url,
             'image': amz_product_url,
-            'price': amz_product_price          
+            'price': amz_product_price
         }, ]
 
         wos = watson_online_store.WatsonOnlineStore
@@ -404,7 +404,8 @@ class WOSTestCase(unittest.TestCase):
                 'title': amz_product_name,
                 'price': amz_product_price,
             },
-            'html': "XXX" + amz_product_tag + " " + amz_product_url + ' >' + 'price ' + amz_product_price
+            'html': "XXX" + amz_product_tag + " " + amz_product_url + ' >' +
+            'price ' + amz_product_price
         }, ]
         amz_response = {'results': amz_results}
         output = wos.format_discovery_response(amz_response, "AMAZON")
