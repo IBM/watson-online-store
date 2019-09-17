@@ -355,11 +355,13 @@ class WOSTestCase(unittest.TestCase):
                          "lf?set=scale[50],env[live],output_format[png]," +
                          "sku_number[200314539],sku_dir[200314]," +
                          "view_code[D]%26call=url[file:san/com/sku.chain]")
+        ibm_product_price = '$4.96'
         ibm_expected_response = [{
             'cart_number': "1",
             'name': ibm_product_name,
             'url': ibm_product_url,
-            'image': ibm_image_url
+            'image': ibm_image_url,
+            'price': ibm_product_price,
         }, ]
 
         wos = watson_online_store.WatsonOnlineStore
@@ -373,7 +375,8 @@ class WOSTestCase(unittest.TestCase):
             'image_url': ("https://lf.staplespromotionalproducts.com/" +
                           "lf?set=scale[50],env[live],output_format[png]," +
                           "sku_number[200314539],sku_dir[200314]," +
-                          "view_code[D]%26call=url[file:san/com/sku.chain]")
+                          "view_code[D]%26call=url[file:san/com/sku.chain]"),
+            'price': ibm_product_price
         }, ]
         ibm_response = {'results': ibm_results}
         output = wos.format_discovery_response(ibm_response, "IBM_STORE")
@@ -383,11 +386,13 @@ class WOSTestCase(unittest.TestCase):
         amz_product_name = "Amazon Shirt"
         amz_product_tag = '<a href='
         amz_product_url = 'http://www.test.xxx'
+        amz_product_price = '$4.96'
         amz_expected_response = [{
             'cart_number': "1",
             'name': amz_product_name,
             'url': amz_product_url,
-            'image': amz_product_url
+            'image': amz_product_url,
+            'price': amz_product_price
         }, ]
 
         wos = watson_online_store.WatsonOnlineStore
@@ -396,10 +401,13 @@ class WOSTestCase(unittest.TestCase):
         # Note: use "XXX" to simulate that these tags are not at [0]
         amz_results = [{
             'extracted_metadata': {
-                'title': amz_product_name
+                'title': amz_product_name,
+                'price': amz_product_price,
             },
-            'html': "XXX" + amz_product_tag + " " + amz_product_url + ' >'
+            'html': "XXX" + amz_product_tag + " " + amz_product_url + ' >' +
+            'price ' + amz_product_price
         }, ]
         amz_response = {'results': amz_results}
         output = wos.format_discovery_response(amz_response, "AMAZON")
+        print(output)
         self.assertEqual(amz_expected_response, output)

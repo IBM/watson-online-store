@@ -1,7 +1,7 @@
-cloudant==2.4.0
+cloudant==2.12.0
 Flask==1.0.2
 Flask-SocketIO==3.1.1
 python-dotenv==0.5.1
 slackclient==1.0.5
-watson-developer-cloud==2.5.1
+ibm-watson==3.4.0
 websocket-client==0.48.0

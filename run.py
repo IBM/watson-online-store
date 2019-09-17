@@ -18,8 +18,8 @@ import os
 from cloudant.client import Cloudant
 from dotenv import load_dotenv
 from slackclient import SlackClient
-from watson_developer_cloud import AssistantV1
-from watson_developer_cloud import DiscoveryV1
+from ibm_watson import AssistantV1
+from ibm_watson import DiscoveryV1
 
 from watsononlinestore.database.cloudant_online_store import \
     CloudantOnlineStore
@@ -73,8 +73,6 @@ class WatsonEnv:
         # Use these env vars first if set
         bot_id = os.environ.get("BOT_ID")
         slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
-        assistant_username = os.environ.get("ASSISTANT_USERNAME")
-        assistant_password = os.environ.get("ASSISTANT_PASSWORD")
         assistant_iam_apikey = os.environ.get("ASSISTANT_IAM_APIKEY")
         assistant_url = os.environ.get("ASSISTANT_URL")
         if not assistant_url:
@@ -89,37 +87,31 @@ class WatsonEnv:
                     assistant_iam_apikey = (assistant_iam_apikey
                                             or assistant_creds.get('apikey'))
 
-        cloudant_username = os.environ.get("CLOUDANT_USERNAME")
-        cloudant_password = os.environ.get("CLOUDANT_PASSWORD")
-        cloudant_url = os.environ.get("CLOUDANT_URL")
+        cloudant_account = os.environ.get("CLOUDANT_USERNAME")
+        cloudant_iam_apikey = os.environ.get("CLOUDANT_IAM_APIKEY")
         cloudant_db_name = os.environ.get(
             "CLOUDANT_DB_NAME") or 'watson_online_store'
-        discovery_username = os.environ.get('DISCOVERY_USERNAME')
-        discovery_password = os.environ.get('DISCOVERY_PASSWORD')
         discovery_url = os.environ.get('DISCOVERY_URL')
         discovery_iam_apikey = os.environ.get("DISCOVERY_IAM_APIKEY")
 
         # If the CLOUDANT_USERNAME env var was not set then use
         # VCAP_SERVICES like a WatsonService would.
-        if not cloudant_username:
+        if not cloudant_iam_apikey:
             vcap_services = os.environ.get("VCAP_SERVICES")
             vcap_env = json.loads(vcap_services) if vcap_services else None
             if vcap_env:
                 cloudant_creds = WatsonEnv.get_vcap_credentials(
                     vcap_env, 'cloudantNoSQLDB')
                 if cloudant_creds:
-                    cloudant_url = cloudant_creds['url']  # overrides default
+                    if 'apikey' in cloudant_creds:
+                        cloudant_iam_apikey = cloudant_creds['apikey']
                     if 'username' in cloudant_creds:
-                        cloudant_username = cloudant_creds['username']
-                    if 'password' in cloudant_creds:
-                        cloudant_password = cloudant_creds['password']
+                        cloudant_account = cloudant_creds['username']
 
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
         assistant_kwargs = {
-            'version': '2018-07-10',
-            'username': assistant_username,
-            'password': assistant_password,
+            'version': '2019-02-28',
             'iam_apikey': assistant_iam_apikey
         }
         if assistant_url:
@@ -129,10 +121,9 @@ class WatsonEnv:
 
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
-            Cloudant(
-                cloudant_username,
-                cloudant_password,
-                url=CloudantOnlineStore.optimize_cloudant_url(cloudant_url),
+            Cloudant.iam(
+                cloudant_account,
+                cloudant_iam_apikey,
                 connect=True
             ),
             cloudant_db_name
@@ -141,9 +132,7 @@ class WatsonEnv:
         # Instantiate Watson Discovery client.
         # - only give a url if we have one (don't override the default)
         discovery_kwargs = {
-            'version': '2018-08-01',
-            'username': discovery_username,
-            'password': discovery_password,
+            'version': '2019-04-30',
             'iam_apikey': discovery_iam_apikey
 
         }

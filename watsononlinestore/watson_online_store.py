@@ -364,8 +364,8 @@ class WatsonOnlineStore:
         if output_dict and len(output_dict) > 0:
             for output in output_dict:
                 if (output and 'text' in output and 'user' in output and
-                   ('bot_id' not in output) and
-                   ('user_profile' not in output)):
+                    ('bot_id' not in output) and
+                        ('user_profile' not in output)):
                     if self.at_bot in output['text']:
                         return (
                             ''.join(output['text'].split(self.at_bot
@@ -570,6 +570,31 @@ class WatsonOnlineStore:
 
             return product_name
 
+        def get_product_price(entry):
+            """ Pull product price from entry data for nice user display.
+
+            :param dict entry: output from Discovery
+            :returns: name of product
+            :rtype: str
+            """
+            product_price = ""
+
+            if data_source == DISCOVERY_AMAZON_STORE:
+                # For amazon data, Watson Discovery has pulled the
+                # product name from the html page and stored it as
+                # "title" in its enriched metadata that it generates.
+                if 'extracted_metadata' in entry:
+                    metadata = entry['extracted_metadata']
+                    if 'price' in metadata:
+                        product_price = metadata['price']
+            elif data_source == DISCOVERY_IBM_STORE:
+                # For IBM store data, the product name was placed in
+                # in the 'title' field.
+                if 'price' in entry:
+                    product_price = entry['price']
+
+            return product_price
+
         def get_product_url(entry):
             """ Pull product url from entry data so user can navigate
             to product page.
@@ -651,6 +676,7 @@ class WatsonOnlineStore:
             product_data = {
                 "cart_number": str(cart_number),
                 "name": slack_encode(get_product_name(result)),
+                "price": slack_encode(get_product_price(result)),
                 "url": slack_encode(get_product_url(result)),
                 "image": slack_encode(get_image_url(result)),
             }
@@ -690,9 +716,10 @@ class WatsonOnlineStore:
 
         response = self.format_discovery_response(discovery_response,
                                                   self.discovery_data_source)
+
         self.response_tuple = response
 
-        fmt = "{cart_number}) {name}\n{image}"
+        fmt = "{cart_number}) {name} {price}\n{image}"
         formatted_response = "\n".join(fmt.format(**item) for item in response)
         return {'discovery_result': formatted_response}
 
@@ -704,9 +731,18 @@ class WatsonOnlineStore:
         """
         cust = self.customer.email
         shopping_list = self.cloudant_online_store.list_shopping_cart(cust)
-        formatted_out = "\n".join("{}) {}".format(i + 1, item)
+
+        fmt = "\n{}) {name} - `{price}`\n{url}\n"
+        formatted_out = "\n".join(fmt.format(i + 1, **item)
                                   for i, item in enumerate(shopping_list))
+
+        grand_total = 0.0
+        for item in shopping_list:
+            priceStr = item['price']
+            grand_total = grand_total + float(priceStr.replace('$', ''))
+
         self.context['shopping_cart'] = formatted_out
+        self.context['grand_total'] = "%.2f" % grand_total
 
         # no need for user input, return to Watson Dialogue
         return False
@@ -739,11 +775,27 @@ class WatsonOnlineStore:
         # no need for user input, return to Watson Dialogue
         return False
 
+    def handle_delete_all_from_cart(self):
+        """Pulls cart_item from Watson context and deletes from Cloudant DB
+
+        cart_item in context must be an int or delete will silently fail.
+        """
+        email = self.customer.email
+        shopping_list = self.cloudant_online_store.list_shopping_cart(email)
+
+        for item in shopping_list:
+            self.cloudant_online_store.delete_item_shopping_cart(email, item)
+        self.clear_shopping_cart()
+
+        # no need for user input, return to Watson Dialogue
+        return False
+
     def handle_add_to_cart(self):
         """Adds cart_item from Watson context and saves in Cloudant DB
 
         cart_item in context must be an int or add/save will silently fail.
         """
+
         try:
             cart_item = int(self.context['cart_item'])
         except ValueError:
@@ -753,7 +805,12 @@ class WatsonOnlineStore:
 
         for index, entry in enumerate(self.response_tuple):
             if index+1 == cart_item:
-                item = entry['name'] + ': ' + entry['url'] + '\n'
+                item = {
+                    "item_id": str(cart_item),
+                    "name": entry['name'],
+                    "price": entry['price'],
+                    "url": entry['url']
+                }
                 self.cloudant_online_store.add_to_shopping_cart(email, item)
         self.clear_shopping_cart()
 
@@ -772,11 +829,10 @@ class WatsonOnlineStore:
          processing and no input
         :rtype: Bool
         """
-
         watson_response = self.get_watson_response(message).get_result()
-        LOG.debug("watson_response:\n{}\n".format(watson_response))
         if 'context' in watson_response:
             self.context = watson_response['context']
+
         sender.send_message("\n".join(watson_response['output']['text']) +
                             "\n")
 
@@ -788,11 +844,13 @@ class WatsonOnlineStore:
             return self.handle_list_shopping_cart()
         elif cart_action == 'add':
             if ('cart_item' in self.context and
-               self.context['cart_item'] != ''):
+                    self.context['cart_item'] != ''):
                 return self.handle_add_to_cart()
+        elif cart_action == 'checkout':
+            return self.handle_delete_all_from_cart()
         elif cart_action == 'delete':
             if ('cart_item' in self.context.keys() and
-               self.context['cart_item'] != ''):
+                    self.context['cart_item'] != ''):
                 return self.handle_delete_from_cart()
 
         if self.context.get('get_input') == 'no':

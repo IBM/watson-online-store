@@ -1,64 +1,64 @@
 <!--
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * Copyright 2015 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- * -->
-<!DOCTYPE HTML>
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-->
+
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="css/bot.css">
-    <title>Watson Online Store Web UI</title>
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready(function() {
-
-            // Namespace here needs to match the one used in server.py
-            namespace = '/wos';
-            // Connect via Flask SocketIO
-            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-
-            // Display message from the WOS bot
-            socket.on('my_response', function(msg) {
-                displayMessage(msg.data, 'Bot');
-                displayImage(msg.image);
-            });
-
-            // Send message to the WOS bot
-            $('form#emit').submit(function(event) {
-                socket.emit('my_event', {data: $('#emit_data').val()});
-                // Display sent from user on the right side
-                displayMessage($('#emit_data').val(), 'NotWatsonBot');
-                $("#emit")[0].reset();
-                return false;
-            });
-
-        });
-    </script>
+  <base href="/">
+  <title>Watson Online Store Chat App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta property="og:image" content="conversation.svg" />
+  <meta property="og:title" content="Conversation Chat Simple" />
+  <meta property="og:description" content="Sample application that shows how to use the Conversation API to identify user intents" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">  
+  <link rel="stylesheet" href="css/app.css">
+  <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
 </head>
 <body>
-<div class="container">
-    <div class="chatbot">
-        <div id="chatBox" class="dialogContainer"></div>
-        <form id="emit" method="POST" action='#'>
-            <!-- Use a form to get input. Flask template style. -->
-            <!-- Use class="dialogInput, to style it like the output. -->
-            <input class="dialogInput" type="text" name="emit_data" id="emit_data" autofocus="autofocus" placeholder="Type here">
-        </form>
+  <div id="view-change-button" class="button" onclick="PayloadPanel.togglePanel(event, this)">
+    <img class="option full" src="../img/Chat Button.png">
+    <img class="option not-full" src="../img/Code Button.png">
+  </div>
+  <div id="contentParent" class="responsive-columns-wrapper">
+    <div id="chat-column-holder" class="responsive-column content-column">
+      <div class="chat-column">
+        <div id="scrollingChat"></div>
+        <label for="textInput" class="inputOutline">
+          <input id="textInput" class="input responsive-column"
+            placeholder="Type something" type="text"
+            onkeydown="ConversationPanel.inputKeyDown(event, this)">
+        </label>
+      </div>
     </div>
-</div>
-<!-- Use bot.js to give us a nice chatbot UI. -->
-<script src="src/bot.js"></script>
+    <div id="payload-column" class="fixed-column content-column">
+      <div id="payload-initial-message">
+        Type something to see the output
+      </div>
+      <div id="payload-request" class="payload"></div>
+      <div id="payload-response" class="payload"></div>
+    </div>
+  </div>  
+  <script src="js/common.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/conversation.js"></script>
+  <script src="js/payload.js"></script>
+  <script src="js/global.js"></script>
 </body>
 </html>
