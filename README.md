@@ -68,7 +68,6 @@ If you encounter deployment errors, refer to [Troubleshooting](#troubleshooting)
 6. [Configure slack](#6-configure-slack)
 7. [Run the application](#7-run-the-application)      
  
-
 ### 1. Clone the repo
 
 Clone the `watson-online-store` locally. In a terminal, run:
@@ -154,7 +153,7 @@ To find the `WORKSPACE_ID` for Watson Assistant:
 
 ![dialog](doc/source/images/dialog.png)
 
-> NOTE: If you want to modify the dialogs, there is a important context variable callend `get_input` which accepts values `yes/no`. This controls if there is a need to wait for user input.
+> NOTE: If you want to modify the dialogs, there is a important context variable called `get_input` which accepts values `yes/no`. This controls if there is a need to wait for user input.
 
 ### 5. Configure Watson Discovery
 
