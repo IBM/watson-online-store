@@ -38,6 +38,7 @@ When the reader has completed this code pattern, they will understand how to:
 ## Featured Technologies
 
 * [Python](https://www.python.org/): Python is a programming language that lets you work more quickly and integrate your systems more effectively.
+> NOTE: Python 3 is required for this application to run locally.
 
 # Watch the Video
 
@@ -64,8 +65,9 @@ If you encounter deployment errors, refer to [Troubleshooting](#troubleshooting)
 3. [Get IBM Cloud credentials and add to .env](#3-get-ibm-cloud-services-credentials-and-add-to-env-file)
 4. [Configure Watson Assistant](#4-configure-watson-assistant)
 5. [Configure Watson Discovery](#5-configure-watson-discovery)
-6. [Configure Slack](#6-configure-slack)
-7. [Run the application](#7-run-the-application)
+6. [Configure slack](#6-configure-slack)
+7. [Run the application](#7-run-the-application)      
+ 
 
 ### 1. Clone the repo
 
@@ -100,35 +102,30 @@ Copy the ``watson-online-store/env.sample`` file to ``watson-online-store/.env``
 credentials and URLs as you create the credentials:
 
 ```bash
-# Copy this file to .env and replace the credentials with
+# Copy this file to .env and replace the credentials with 
 # your own before running run.py.
 
 # Watson Assistant
 WORKSPACE_ID=<add_assistant_workspace>
 ASSISTANT_URL=<add_assistant_url>
-## Un-comment and use either username+password or IAM apikey.
-# ASSISTANT_USERNAME=<add_assistant_username>
-# ASSISTANT_PASSWORD=<add_assistant_password>
-# ASSISTANT_IAM_APIKEY=<add_assistant_apikey>
+ASSISTANT_IAM_APIKEY=<add_assistant_apikey>
 
 # Cloudant DB
 CLOUDANT_USERNAME=<add_cloudant_username>
-CLOUDANT_PASSWORD=<add_cloudant_password>
-CLOUDANT_DB_NAME=watson_online_store
+CLOUDANT_DB_NAME=watson-online-store
 CLOUDANT_URL=<add_cloudant_url>
+CLOUDANT_IAM_APIKEY=<add_cloudant_iam_apikey>
 
 # Watson Discovery
 DISCOVERY_URL=<add_discovery_url>
 DISCOVERY_ENVIRONMENT_ID=<add_discovery_environment>
 DISCOVERY_COLLECTION_ID=<add_discovery_collection>
-## Un-comment and use either username+password or IAM apikey.
-# DISCOVERY_USERNAME=<add_discovery_username>
-# DISCOVERY_PASSWORD=<add_discovery_password>
-# DISCOVERY_IAM_APIKEY=<add_discovery_apikey>
+DISCOVERY_IAM_APIKEY=<add_discovery_apikey>
 
-# Slack
+# <Optional> - Slack
+# If not set, only the web UI is available to test.
 SLACK_BOT_TOKEN=<add_slack_bot_token>
-SLACK_BOT_USER=wos
+SLACK_BOT_USER=<add_slack_bot_username>
 ```
 
 ### 4. Configure Watson Assistant
@@ -156,6 +153,8 @@ To find the `WORKSPACE_ID` for Watson Assistant:
 **Dialog** tab, here's a snippet of the dialog:
 
 ![dialog](doc/source/images/dialog.png)
+
+> NOTE: If you want to modify the dialogs, there is a important context variable callend `get_input` which accepts values `yes/no`. This controls if there is a need to wait for user input.
 
 ### 5. Configure Watson Discovery
 
@@ -227,14 +226,17 @@ Save the new values and restart the application, watch the logs for errors.
 
 #### If you decided to run the app locally...
 
-The general recommendation for Python development is to use a virtual environment [(venv)](https://docs.python.org/3/tutorial/venv.html). To install and initialize a virtual environment, use the `venv` module on Python 3 (you install the virtualenv library for Python 2.7):
+> NOTE: python 3 is required. There is no support for python 2.
+
+The general recommendation for Python development is to use a virtual environment [(venv)](https://docs.python.org/3/tutorial/venv.html). To install and initialize a virtual environment, use the `venv` module on Python 3.
 
 ```bash
 # Create the virtual environment using Python. Use one of the two commands depending on your Python version.
-# Note, it may be named python3 on your system.
 
 $ python -m venv mytestenv       # Python 3.X
-$ virtualenv mytestenv           # Python 2.X
+
+# Note, it may be named python3 on your system. In that case run:
+$ python3 -m venv mytestenv
 
 # Now source the virtual environment. Use one of the two commands depending on your OS.
 
@@ -251,26 +253,48 @@ cd watson-online-store
 Install the Python requirements for this code pattern. Run:
 
 ```bash
-pip install -r requirements.txt
+$ pip install -r requirements.txt
+
+# Note, it may be named pip3 on your system. In that case run:
+$ pip3 install -r requirements.txt
+
 ```
 
 > **TIP** :bulb: To terminate the virtual environment use the `deactivate` command.
 
+```bash
+$ deactivate
+```
+
 Finally, run the application:
 
 ```bash
-python run.py
+$ cd python-flask-server
+$ python server.py
 ```
 
-# Sample output
+# Demo
+
+## Slack Demo
 
 Start a conversation with your bot:
 
-![convo_init](doc/source/images/convo_init.png)
+![convo_init](doc/source/images/checkout-1.png)
 
 Add an item to your cart:
 
-![convo_add](doc/source/images/convo_add.png)
+![convo_add](doc/source/images/checkout-2.png)
+
+![convo_add](doc/source/images/checkout-3.png)
+
+![convo_review](doc/source/images/checkout-4.png)
+
+![convo_pay](doc/source/images/checkout-5.png)
+
+
+## Web UI Demo
+
+![Web UI](doc/source/images/wos.gif)
 
 # Troubleshooting
 
