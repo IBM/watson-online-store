@@ -853,6 +853,9 @@ class WatsonOnlineStore:
                     self.context['cart_item'] != ''):
                 return self.handle_delete_from_cart()
 
+        # This is a context variable defined in Assistant dialogs
+        # to control if there is a need to wait for user input.
+        # returning false means there is no user input needed.
         if self.context.get('get_input') == 'no':
             return False
 
