@@ -16,8 +16,7 @@ applications:
   path: .
   command: python python-flask-server/server.py
   memory: 128M
-  instances: 1
-  domain: mybluemix.net
+  instances: 1  
   name: watson-online-store
   disk_quota: 1024M
 env:
