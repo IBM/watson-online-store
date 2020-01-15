@@ -110,12 +110,12 @@ class WatsonEnv:
                         cloudant_account = cloudant_creds['username']
 
         # Instantiate Watson Assistant client.
-        # - only give a url if we have one (don't override the default)        
+        # - only give a url if we have one (don't override the default)
         assistantAuthenticator = IAMAuthenticator(assistant_iam_apikey)
         assistant_client = AssistantV1(
             version='2018-09-20',
             authenticator=assistantAuthenticator)
-        assistant_client.set_service_url(assistant_url)        
+        assistant_client.set_service_url(assistant_url)
 
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
@@ -131,7 +131,7 @@ class WatsonEnv:
         # - only give a url if we have one (don't override the default)
         discoveryAuthenticator = IAMAuthenticator(discovery_iam_apikey)
         discovery_client = DiscoveryV1(
-            version='2019-11-22', 
+            version='2019-11-22',
             authenticator=discoveryAuthenticator)
         discovery_client.set_service_url(discovery_url)
         discovery_client.set_disable_ssl_verification(True)
