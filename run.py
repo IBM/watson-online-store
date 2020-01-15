@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 from slackclient import SlackClient
 from ibm_watson import AssistantV1
 from ibm_watson import DiscoveryV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 from watsononlinestore.database.cloudant_online_store import \
     CloudantOnlineStore
@@ -109,15 +110,12 @@ class WatsonEnv:
                         cloudant_account = cloudant_creds['username']
 
         # Instantiate Watson Assistant client.
-        # - only give a url if we have one (don't override the default)
-        assistant_kwargs = {
-            'version': '2019-02-28',
-            'iam_apikey': assistant_iam_apikey
-        }
-        if assistant_url:
-            assistant_kwargs['url'] = assistant_url
-
-        assistant_client = AssistantV1(**assistant_kwargs)
+        # - only give a url if we have one (don't override the default)        
+        assistantAuthenticator = IAMAuthenticator(assistant_iam_apikey)
+        assistant_client = AssistantV1(
+            version='2018-09-20',
+            authenticator=assistantAuthenticator)
+        assistant_client.set_service_url(assistant_url)        
 
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
@@ -131,15 +129,12 @@ class WatsonEnv:
 
         # Instantiate Watson Discovery client.
         # - only give a url if we have one (don't override the default)
-        discovery_kwargs = {
-            'version': '2019-04-30',
-            'iam_apikey': discovery_iam_apikey
-
-        }
-        if discovery_url:
-            discovery_kwargs['url'] = discovery_url
-
-        discovery_client = DiscoveryV1(**discovery_kwargs)
+        discoveryAuthenticator = IAMAuthenticator(discovery_iam_apikey)
+        discovery_client = DiscoveryV1(
+            version='2019-11-22', 
+            authenticator=discoveryAuthenticator)
+        discovery_client.set_service_url(discovery_url)
+        discovery_client.set_disable_ssl_verification(True)
 
         # Instantiate Slack chatbot.
         if not slack_bot_token or 'placeholder' in slack_bot_token:
