@@ -188,9 +188,10 @@ class WatsonOnlineStore:
                 LOG.debug("Creating workspace from data/workspace.json...")
                 workspace = WatsonOnlineStore.get_workspace_json()
                 created = assistant_client.create_workspace(
-                    name,
-                    "Assistant workspace created by watson-online-store.",
-                    workspace['language'],
+                    name=name,
+                    description="Assistant workspace"
+                    "created by watson-online-store.",
+                    language=workspace['language'],
                     intents=workspace['intents'],
                     entities=workspace['entities'],
                     dialog_nodes=workspace['dialog_nodes'],
