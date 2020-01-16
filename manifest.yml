@@ -18,9 +18,7 @@ applications:
   memory: 128M
   instances: 1  
   name: watson-online-store
-  disk_quota: 1024M
-  buildpacks:
-    - python_buildpack
+  disk_quota: 1024M  
 env:
   CLOUDANT_DB_NAME: watson-online-store
   SLACK_BOT_USER: wos
