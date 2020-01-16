@@ -74,6 +74,8 @@ class WatsonEnv:
         # Use these env vars first if set
         bot_id = os.environ.get("BOT_ID")
         slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
+        authenticator = (get_authenticator_from_environment('assistant') or
+                         get_authenticator_from_environment('conversation'))
         cloudant_account = os.environ.get("CLOUDANT_USERNAME")
         cloudant_iam_apikey = os.environ.get("CLOUDANT_IAM_APIKEY")
         cloudant_db_name = os.environ.get(
@@ -98,7 +100,7 @@ class WatsonEnv:
         # - only give a url if we have one (don't override the default)
         assistant_client = AssistantV1(
             version='2018-09-20',
-        )
+            authenticator=authenticator)
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
             Cloudant.iam(
