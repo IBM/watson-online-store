@@ -105,9 +105,9 @@ credentials and URLs as you create the credentials:
 # your own before running run.py.
 
 # Watson Assistant
-WORKSPACE_ID=<add_assistant_workspace>
+ASSISTANT_ID=<add_assistant_workspace>
 ASSISTANT_URL=<add_assistant_url>
-ASSISTANT_IAM_APIKEY=<add_assistant_apikey>
+ASSISTANT_APIKEY=<add_assistant_apikey>
 
 # Cloudant DB
 CLOUDANT_USERNAME=<add_cloudant_username>
@@ -119,7 +119,7 @@ CLOUDANT_IAM_APIKEY=<add_cloudant_iam_apikey>
 DISCOVERY_URL=<add_discovery_url>
 DISCOVERY_ENVIRONMENT_ID=<add_discovery_environment>
 DISCOVERY_COLLECTION_ID=<add_discovery_collection>
-DISCOVERY_IAM_APIKEY=<add_discovery_apikey>
+DISCOVERY_APIKEY=<add_discovery_apikey>
 
 # <Optional> - Slack
 # If not set, only the web UI is available to test.
@@ -139,12 +139,12 @@ SLACK_BOT_USER=<add_slack_bot_username>
 * Click `Choose JSON file`, go to your cloned repo dir, and `Open` the workspace.json file in [`data/workspace.json`](data/workspace.json).
 * Select `Everything` and click `Import`.
 
-To find the `WORKSPACE_ID` for Watson Assistant:
+To find the `ASSISTANT_ID` for Watson Assistant:
 
 * Go back to the `Skills` tab.
 * Find the card for the workspace you would like to use. Look for `watson-online-store`.
 * Click on the three dots in the upper right-hand corner of the card and select `View API Details`.
-* Copy the `Workspace ID` GUID. Save it for the .env file
+* Copy the `SKILL ID` GUID. Save it for the .env file
 
 !["Get Workspace ID"](https://raw.githubusercontent.com/IBM/pattern-utils/master/watson-assistant/assistantPostSkillGetID.gif)
 

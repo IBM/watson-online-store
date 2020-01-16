@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 from slackclient import SlackClient
 from ibm_watson import AssistantV1
 from ibm_watson import DiscoveryV1
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 from watsononlinestore.database.cloudant_online_store import \
     CloudantOnlineStore
@@ -74,26 +74,14 @@ class WatsonEnv:
         # Use these env vars first if set
         bot_id = os.environ.get("BOT_ID")
         slack_bot_token = os.environ.get('SLACK_BOT_TOKEN')
-        assistant_iam_apikey = os.environ.get("ASSISTANT_IAM_APIKEY")
-        assistant_url = os.environ.get("ASSISTANT_URL")
-        if not assistant_url:
-            # Direct access to VCAP to workaround SDK problems
-            vcap_services = os.environ.get("VCAP_SERVICES")
-            vcap_env = json.loads(vcap_services) if vcap_services else None
-            if vcap_env:
-                assistant_creds = WatsonEnv.get_vcap_credentials(
-                    vcap_env, 'conversation')
-                if assistant_creds:
-                    assistant_url = assistant_creds['url']  # overrides default
-                    assistant_iam_apikey = (assistant_iam_apikey
-                                            or assistant_creds.get('apikey'))
-
+        authenticator = (get_authenticator_from_environment('assistant') or
+                         get_authenticator_from_environment('conversation'))
         cloudant_account = os.environ.get("CLOUDANT_USERNAME")
         cloudant_iam_apikey = os.environ.get("CLOUDANT_IAM_APIKEY")
         cloudant_db_name = os.environ.get(
             "CLOUDANT_DB_NAME") or 'watson_online_store'
         discovery_url = os.environ.get('DISCOVERY_URL')
-        discovery_iam_apikey = os.environ.get("DISCOVERY_IAM_APIKEY")
+        # discovery_iam_apikey = os.environ.get("DISCOVERY_IAM_APIKEY")
 
         # If the CLOUDANT_USERNAME env var was not set then use
         # VCAP_SERVICES like a WatsonService would.
@@ -111,12 +99,9 @@ class WatsonEnv:
 
         # Instantiate Watson Assistant client.
         # - only give a url if we have one (don't override the default)
-        assistantAuthenticator = IAMAuthenticator(assistant_iam_apikey)
         assistant_client = AssistantV1(
             version='2018-09-20',
-            authenticator=assistantAuthenticator)
-        assistant_client.set_service_url(assistant_url)
-
+            authenticator=authenticator)
         # Instantiate Cloudant DB.
         cloudant_online_store = CloudantOnlineStore(
             Cloudant.iam(
@@ -129,11 +114,11 @@ class WatsonEnv:
 
         # Instantiate Watson Discovery client.
         # - only give a url if we have one (don't override the default)
-        discoveryAuthenticator = IAMAuthenticator(discovery_iam_apikey)
         discovery_client = DiscoveryV1(
             version='2019-11-22',
-            authenticator=discoveryAuthenticator)
+        )
         discovery_client.set_service_url(discovery_url)
+        print(discovery_url)
         discovery_client.set_disable_ssl_verification(True)
 
         # Instantiate Slack chatbot.
