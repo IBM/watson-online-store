@@ -189,7 +189,7 @@ class WatsonOnlineStore:
                 workspace = WatsonOnlineStore.get_workspace_json()
                 created = assistant_client.create_workspace(
                     name=name,
-                    description="Assistant workspace"
+                    description="Assistant workspace "
                     "created by watson-online-store.",
                     language=workspace['language'],
                     intents=workspace['intents'],

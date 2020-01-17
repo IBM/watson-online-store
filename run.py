@@ -80,7 +80,6 @@ class WatsonEnv:
         cloudant_iam_apikey = os.environ.get("CLOUDANT_IAM_APIKEY")
         cloudant_db_name = os.environ.get(
             "CLOUDANT_DB_NAME") or 'watson_online_store'
-        discovery_url = os.environ.get('DISCOVERY_URL')
 
         # If the CLOUDANT_USERNAME env var was not set then use
         # VCAP_SERVICES like a WatsonService would.
@@ -116,9 +115,6 @@ class WatsonEnv:
         discovery_client = DiscoveryV1(
             version='2019-11-22',
         )
-        discovery_client.set_service_url(discovery_url)
-        print(discovery_url)
-        discovery_client.set_disable_ssl_verification(True)
 
         # Instantiate Slack chatbot.
         if not slack_bot_token or 'placeholder' in slack_bot_token:
