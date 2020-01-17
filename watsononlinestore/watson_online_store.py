@@ -253,8 +253,8 @@ class WatsonOnlineStore:
                 try:
                     LOG.debug("Creating discovery environment...")
                     created = discovery_client.create_environment(
-                        name,
-                        "Discovery environment created by "
+                        name=name,
+                        description="Discovery environment created by "
                         "watson-online-store.").get_result()
                     environment_id = created['environment_id']
                     LOG.debug("Created DISCOVERY_ENVIRONMENT_ID=%(id)s with "
