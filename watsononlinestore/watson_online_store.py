@@ -221,7 +221,7 @@ class WatsonOnlineStore:
         if environment_id:
             try:
                 LOG.debug("Using DISCOVERY_ENVIRONMENT_ID=%s" % environment_id)
-                discovery_client.get_environment(environment_id).get_result()
+                discovery_client.get_environment(environment_id)
             except Exception as e:
                 print(e)
                 raise Exception("Environment with DISCOVERY_ENVIRONMENT_ID=%s "
