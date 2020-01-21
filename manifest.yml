@@ -16,10 +16,9 @@ applications:
   path: .
   command: python python-flask-server/server.py
   memory: 128M
-  instances: 1
-  domain: mybluemix.net
+  instances: 1  
   name: watson-online-store
-  disk_quota: 1024M
+  disk_quota: 1024M  
 env:
   CLOUDANT_DB_NAME: watson-online-store
   SLACK_BOT_USER: wos

@@ -284,9 +284,9 @@ class WOSTestCase(unittest.TestCase):
 
         self.assistant_client.list_workspaces.assert_called_once()
         self.assistant_client.create_workspace.assert_called_once_with(
-            expected_workspace_name,
-            'Assistant workspace created by watson-online-store.',
-            ws_json['language'],
+            name=expected_workspace_name,
+            description='Assistant workspace created by watson-online-store.',
+            language=ws_json['language'],
             intents=ws_json['intents'],
             entities=ws_json['entities'],
             dialog_nodes=ws_json['dialog_nodes'],
