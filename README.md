@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/IBM/watson-online-store.svg?branch=master)](https://travis-ci.org/IBM/watson-online-store)
+[![Build Status](https://travis-ci.com/IBM/watson-online-store.svg?branch=main)](https://travis-ci.com/IBM/watson-online-store)
 
 # Creating a Retail Chatbot using Watson Assistant, Discovery and Database Services
 
